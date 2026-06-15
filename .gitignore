@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.env
+proxy.log
+proxy_access.log
+proxy.pid
+*.backup.py
