@@ -56,6 +56,77 @@ def _has_recent_tools(messages, window=5):
     return False
 
 
+# ── Escalate constants ──────────────────────────────────────────────────────
+ESCAPE_PROMPT = (
+    "注意以下信号：连续多次 tool 调用后仍未解决问题 → 你卡住了。\n"
+    "破局方法：\n"
+    "1. 彻底换方案，不在原路径上改参数\n"
+    "2. 缩小问题域，先解决最小可验证的子问题\n"
+    "3. 向用户说明困境，请求更高层指导"
+)
+ESCAPE_PROMPT_INJECTED_MARKER = "<!-- ESCALATE-INJECT -->"
+
+
+def detect_stuck(messages):
+    """Walk backward through messages to detect tool-use stuck pattern.
+
+    Counts consecutive (assistant.tool_use → user.tool_result) rounds
+    starting from the last message. Stops when hitting a user message
+    without tool_result (fresh instruction).
+
+    Returns {rounds, error_count, error_pct} dict if stuck, or None.
+    Stuck threshold: >= 8 rounds AND error_pct > 0.3.
+    """
+    if not messages or not isinstance(messages, list) or len(messages) < 4:
+        return None
+
+    rounds = 0
+    error_count = 0
+    i = len(messages) - 1
+
+    while i >= 1:
+        msg = messages[i]
+        if msg.get("role") != "user":
+            i -= 1
+            continue
+
+        content = msg.get("content", "")
+        if not isinstance(content, list):
+            break  # plain text = fresh user instruction
+
+        tr_blocks = [b for b in content if isinstance(b, dict) and b.get("type") == "tool_result"]
+        if not tr_blocks:
+            break  # no tool_result = fresh instruction
+
+        for tr in tr_blocks:
+            if tr.get("is_error"):
+                error_count += 1
+
+        # Walk backward to find preceding assistant message with tool_use
+        j = i - 1
+        while j >= 0:
+            prev = messages[j]
+            if prev.get("role") == "assistant":
+                p_content = prev.get("content", "")
+                if isinstance(p_content, list):
+                    tu_blocks = [b for b in p_content if isinstance(b, dict) and b.get("type") == "tool_use"]
+                    if tu_blocks:
+                        rounds += 1
+                        i = j - 1  # skip this assistant msg, continue from before it
+                        break
+            j -= 1
+
+        if j < 0:
+            break  # no matching assistant found
+
+    if rounds < 8:
+        return None
+    error_pct = error_count / max(rounds, 1)
+    if error_pct <= 0.5:
+        return None
+    return {"rounds": rounds, "error_count": error_count, "error_pct": error_pct}
+
+
 def _last_user_text(messages):
     """Extract plain text from the last user message."""
     for msg in reversed(messages):

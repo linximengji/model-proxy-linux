@@ -155,40 +155,34 @@ async def _resolve_classifier(resp_future):
 # ── Budget-aware routing adjustment ─────────────────────────────────────────
 
 def _build_budget_context(policy):
-    """计算 moderate→qwen3.7-max 的连续分配比例。"""
-    tp = policy.get("token_plan", {})
-    remaining_base = tp.get("credits_remaining", 0)
-    credits_total = tp.get("credits_total", 25000)
-    days = tp.get("days_to_expiry", 0)
-    last_updated = tp.get("last_updated_at", "")
+    """计算 moderate→qwen3.7-max 的连续分配比例。
 
-    estimated = remaining_base
-    if last_updated:
-        qwen_since = telemetry.compute_qwen_since(last_updated)
-        if qwen_since > 0:
-            estimated = max(0, remaining_base - qwen_since)
-
-    ratio = ALLOCATOR.compute_ratio(estimated, credits_total, days)
+    自算真实余额（不从 policy 中读 stale credits_remaining），60s 缓存。
+    并在每次计算后回写 routing_policy.json 使 dashboard 同步。
+    """
+    remaining, credits_total, days = telemetry.get_real_credits()
+    ratio = ALLOCATOR.compute_ratio(remaining, credits_total, days)
 
     telemetry.log(
-        f"real-time: base_rem={remaining_base:.0f} "
-        f"qwen_since={qwen_since if last_updated else 0} "
-        f"est_rem={estimated:.0f} ({estimated/credits_total*100:.0f}%) "
+        f"real-time: rem={remaining:.0f} ({remaining/credits_total*100:.0f}%) "
         f"ratio={ratio:.2f}",
         phase="BUDGET"
     )
 
+    # 回写正确值，dashboard 能看到同步数据
+    telemetry.write_routing_policy(remaining, credits_total, days)
+
     if days <= 0:
         ctx = "Token Plan is expired — 0% moderate to qwen."
     elif ratio >= 0.8:
-        ctx = (f"Token Plan: est {estimated:.0f}/{credits_total} credits "
-               f"({estimated/credits_total*100:.0f}%). Burn — {ratio*100:.0f}% moderate to qwen.")
+        ctx = (f"Token Plan: est {remaining:.0f}/{credits_total} credits "
+               f"({remaining/credits_total*100:.0f}%). Burn — {ratio*100:.0f}% moderate to qwen.")
     elif ratio <= 0.2:
-        ctx = (f"Token Plan: est {estimated:.0f}/{credits_total} credits "
-               f"({estimated/credits_total*100:.0f}%). Conserve — {ratio*100:.0f}% moderate to qwen.")
+        ctx = (f"Token Plan: est {remaining:.0f}/{credits_total} credits "
+               f"({remaining/credits_total*100:.0f}%). Conserve — {ratio*100:.0f}% moderate to qwen.")
     else:
-        ctx = (f"Token Plan: est {estimated:.0f}/{credits_total} credits "
-               f"({estimated/credits_total*100:.0f}%). ratio={ratio:.2f}.")
+        ctx = (f"Token Plan: est {remaining:.0f}/{credits_total} credits "
+               f"({remaining/credits_total*100:.0f}%). ratio={ratio:.2f}.")
 
     return ctx, ratio
 
@@ -210,6 +204,7 @@ def _get_alias(tag):
     if tag in _TIERS:
         return _TIERS[tag]
     static = {
+        "plus": "qwen3.7-plus",
         "ds": "qwen3.7-max-ds",
         "qwen": _TIERS["max"],
         "deepseek": _TIERS["pro"],
@@ -268,12 +263,45 @@ def _resolve_prompt_model(body):
         if route.get("provider") == "deepseek":
             if model_name == _TIERS["flash"] and "thinking" not in body:
                 body["thinking"] = {"type": "disabled"}
+            _disable_thinking_if_mixed_history(body)
             sanitize.sanitize_for_deepseek(body)
+            sanitize.strip_redacted_thinking_only(body)
         elif route.get("provider") == "anthropic":
+            sanitize.strip_thinking_blocks(body)
+        else:
             sanitize.strip_thinking_blocks(body)
         telemetry.log(f"BYPASS @model: {model_name}", phase="ROUTE")
         return route, model_name, "prompt-bypass"
     return None, None, None
+
+
+def _disable_thinking_if_mixed_history(body):
+    """If thinking is enabled but conversation has mixed thinking/no-thinking
+    assistant messages (due to model switching mid-conversation), disable thinking
+    to avoid DeepSeek 400 error 'content[].thinking must be passed back.'"""
+    if body.get("thinking", {}).get("type") != "enabled":
+        return
+    has_thinking = False
+    has_non_thinking = False
+    for msg in body.get("messages", []):
+        if msg.get("role") != "assistant":
+            continue
+        content = msg.get("content", "")
+        if not isinstance(content, list):
+            has_non_thinking = True
+        else:
+            msg_has_thinking = any(
+                isinstance(b, dict) and b.get("type") == "thinking"
+                for b in content
+            )
+            if msg_has_thinking:
+                has_thinking = True
+            else:
+                has_non_thinking = True
+    if has_thinking and has_non_thinking:
+        body["thinking"] = {"type": "disabled"}
+        telemetry.log("Mixed thinking/non-thinking history — disabled thinking for this request",
+                      phase="SANITIZE")
 
 
 # ── Routing ────────────────────────────────────────────────────────────────
@@ -287,8 +315,12 @@ def _resolve_bypass(body, headers):
         if route.get("provider") == "deepseek":
             if explicit == _TIERS["flash"] and "thinking" not in body:
                 body["thinking"] = {"type": "disabled"}
+            _disable_thinking_if_mixed_history(body)
             sanitize.sanitize_for_deepseek(body)
+            sanitize.strip_redacted_thinking_only(body)
         elif route.get("provider") == "anthropic":
+            sanitize.strip_thinking_blocks(body)
+        else:
             sanitize.strip_thinking_blocks(body)
         telemetry.log(f"BYPASS X-Proxy-Model: {explicit}", phase="ROUTE")
         return route, explicit, "header-bypass"
@@ -347,9 +379,12 @@ async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False):
     if route and route.get("provider") == "deepseek":
         if model_name == _TIERS["flash"] and "thinking" not in body:
             body["thinking"] = {"type": "disabled"}
+        _disable_thinking_if_mixed_history(body)
         sanitize.sanitize_for_deepseek(body)
         sanitize.strip_redacted_thinking_only(body)
     elif route and route.get("provider") == "anthropic":
+        sanitize.strip_thinking_blocks(body)
+    else:
         sanitize.strip_thinking_blocks(body)
     return route, model_name
 
@@ -416,9 +451,12 @@ def _route_and_sanitize(body):
         if route.get("provider") == "deepseek":
             if model_name == _TIERS["flash"] and "thinking" not in body:
                 body["thinking"] = {"type": "disabled"}
+            _disable_thinking_if_mixed_history(body)
             sanitize.sanitize_for_deepseek(body)
             sanitize.strip_redacted_thinking_only(body)
         elif route.get("provider") == "anthropic":
+            sanitize.strip_thinking_blocks(body)
+        else:
             sanitize.strip_thinking_blocks(body)
         telemetry.log(f"BYPASS agent-model: {model_name}", phase="ROUTE")
         return route, model_name, "agent-model", None, None, False
@@ -491,13 +529,12 @@ def _route_and_sanitize(body):
         if policy:
             budget_ctx, ratio = _build_budget_context(policy)
         else:
-            credits_used, credits_total = telemetry.compute_qwen_total_credits()
-            credits_remaining = max(0, credits_total - credits_used)
-            ratio = ALLOCATOR.compute_ratio(credits_remaining, credits_total, days=30)
-            budget_ctx = f"Token Plan (from usage): est {credits_remaining:.0f}/{credits_total} credits ({credits_remaining/credits_total*100:.0f}%)."
+            remaining, credits_total, days = telemetry.get_real_credits()
+            ratio = ALLOCATOR.compute_ratio(remaining, credits_total, days)
+            budget_ctx = (f"Token Plan: {remaining:.0f}/{credits_total} credits "
+                          f"({remaining/credits_total*100:.0f}%). ratio={ratio:.2f}.")
             telemetry.log(
-                f"fallback: used={credits_used:.0f}/{credits_total} "
-                f"rem={credits_remaining:.0f} ratio={ratio:.2f}",
+                f"fallback: rem={remaining:.0f}/{credits_total} ratio={ratio:.2f}",
                 phase="BUDGET"
             )
 
@@ -513,11 +550,120 @@ def _route_and_sanitize(body):
     if route and route.get("provider") == "deepseek":
         if routed_model == _TIERS["flash"] and "thinking" not in body:
             body["thinking"] = {"type": "disabled"}
+        _disable_thinking_if_mixed_history(body)
         sanitize.sanitize_for_deepseek(body)
         sanitize.strip_redacted_thinking_only(body)
     elif route and route.get("provider") == "anthropic":
         sanitize.strip_thinking_blocks(body)
+    else:
+        sanitize.strip_thinking_blocks(body)
     return route, routed_model, reason, None, None, False
+
+
+# ── Model tier ladder for stuck escalation ──────────────────────────────────
+_TIER_LADDER = ["flash", "pro", "max"]
+
+
+def _resolve_tier_key(model_name):
+    """Map a model name (e.g. 'deepseek-v4-flash') back to its tier key."""
+    rev = {v: k for k, v in _TIERS.items()}
+    return rev.get(model_name, "max")
+
+
+def _upgrade_tier(current_tier_key):
+    """Move up one tier. 'max' and 'vision' stay 'max'."""
+    if current_tier_key == "vision":
+        return "max"
+    try:
+        idx = _TIER_LADDER.index(current_tier_key)
+        return _TIER_LADDER[min(idx + 1, len(_TIER_LADDER) - 1)]
+    except ValueError:
+        return "max"
+
+
+def _resanitize_for_upgrade(body, new_route, old_route):
+    """Re-apply sanitization if provider changed after model upgrade."""
+    new_prov = new_route.get("provider") if new_route else None
+    old_prov = old_route.get("provider") if old_route else None
+    if new_prov == old_prov or new_prov is None:
+        return
+    if new_prov == "deepseek":
+        sanitize.sanitize_for_deepseek(body)
+        sanitize.strip_redacted_thinking_only(body)
+    elif new_prov == "anthropic":
+        sanitize.strip_thinking_blocks(body)
+
+
+def _inject_escalate(body, route, model_name):
+    """Upgrade model and inject escalate prompt when stuck is detected.
+
+    Mutates body in-place. Returns (updated_route, updated_model_name).
+    """
+    from router import ESCAPE_PROMPT, ESCAPE_PROMPT_INJECTED_MARKER
+
+    # 1. Check if already injected this session
+    sys_field = body.get("system", "")
+    if isinstance(sys_field, str) and ESCAPE_PROMPT_INJECTED_MARKER in sys_field:
+        return route, model_name
+    if isinstance(sys_field, list):
+        combined = "\n".join(
+            b.get("text", "") if isinstance(b, dict) else str(b)
+            for b in sys_field
+        )
+        if ESCAPE_PROMPT_INJECTED_MARKER in combined:
+            return route, model_name
+
+    # 2. Upgrade model tier
+    old_model = model_name
+    tier_key = _resolve_tier_key(model_name)
+    upgraded_key = _upgrade_tier(tier_key)
+    new_model = _TIERS.get(upgraded_key)
+    new_route = ROUTES.get(new_model) if new_model else None
+    if new_route and new_model != model_name:
+        body["model"] = new_model
+        _resanitize_for_upgrade(body, new_route, route)
+        route, model_name = new_route, new_model
+
+    # 3. Inject prompt
+    sep = "\n\n" if sys_field else ""
+    body["system"] = f"{sys_field}{sep}{ESCAPE_PROMPT_INJECTED_MARKER}\n{ESCAPE_PROMPT}"
+
+    telemetry.log(
+        f"ESCALATE: {old_model} -> {model_name}, prompt injected",
+        phase="ESCALATE"
+    )
+    return route, model_name
+
+
+def _maybe_escalate(body, route, model_name):
+    """Call detect_stuck and escalate if needed. Returns (route, model_name)."""
+    if route is None:
+        return route, model_name
+
+    # Don't escalate requests with images — upgrade target would lack vision capability,
+    # causing 400 errors from the upstream API and making the session permanently stuck.
+    try:
+        from router import _has_image
+        if _has_image(body.get("messages", [])):
+            return route, model_name
+    except Exception:
+        pass
+
+    try:
+        from router import detect_stuck
+        stuck_info = detect_stuck(body.get("messages", []))
+        if stuck_info is None:
+            return route, model_name
+        telemetry.log(
+            f"STUCK detected: {stuck_info['rounds']} rounds, "
+            f"{stuck_info['error_count']} errors "
+            f"({stuck_info['error_pct']:.0%})",
+            phase="ESCALATE"
+        )
+        return _inject_escalate(body, route, model_name)
+    except Exception as e:
+        telemetry.log(f"Escalate detection error: {e}", "ERROR", "ESCALATE")
+        return route, model_name
 
 
 # ── FastAPI app ────────────────────────────────────────────────────────────
@@ -616,13 +762,19 @@ async def proxy_anthropic(request: Request):
         sanitize.embed_images(body)
 
     route, model_name, _reason = _resolve_prompt_model(body)
+    route, model_name = _maybe_escalate(body, route, model_name)
+
     if not route:
         route, model_name, _reason = _resolve_bypass(body, request.headers)
+        route, model_name = _maybe_escalate(body, route, model_name)
+
     if not route:
         route, model_name, _reason, l2_future, ratio, is_sub = _route_and_sanitize(body)
 
         if l2_future is not None:
             route, model_name = await _resolve_l2(body, l2_future, ratio, is_sub)
+
+        route, model_name = _maybe_escalate(body, route, model_name)
 
     if not route:
         await telemetry.record_error(model_name or "unknown")
@@ -655,13 +807,19 @@ async def proxy_openai(request: Request):
     sanitize.embed_images(body)
 
     route, model_name, _reason = _resolve_prompt_model(body)
+    route, model_name = _maybe_escalate(body, route, model_name)
+
     if not route:
         route, model_name, _reason = _resolve_bypass(body, request.headers)
+        route, model_name = _maybe_escalate(body, route, model_name)
+
     if not route:
         route, model_name, _reason, l2_future, ratio, is_sub = _route_and_sanitize(body)
 
         if l2_future is not None:
             route, model_name = await _resolve_l2(body, l2_future, ratio, is_sub)
+
+        route, model_name = _maybe_escalate(body, route, model_name)
 
     if not route:
         return JSONResponse({"error": f"unknown model: {model_name}"}, status_code=404)
@@ -672,12 +830,17 @@ async def proxy_openai(request: Request):
 
     await telemetry.record_request(model_name_display, _reason)
 
+    work_dir = request.headers.get("x-claude-work-dir", "")
+    session_id = request.headers.get("x-claude-session-id", "")
+
     _t0 = time.time()
     try:
         if is_stream:
-            return await handle_openai_stream(body, route, model_name_display, ROUTES, http_client)
+            return await handle_openai_stream(body, route, model_name_display, ROUTES,
+                                               http_client, work_dir, session_id)
         else:
-            return await handle_openai(body, route, model_name_display, ROUTES, http_client)
+            return await handle_openai(body, route, model_name_display, ROUTES, http_client,
+                                       work_dir, session_id)
     finally:
         await telemetry.record_latency(model_name_display, (time.time() - _t0) * 1000)
 

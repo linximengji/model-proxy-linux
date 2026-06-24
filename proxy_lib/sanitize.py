@@ -9,6 +9,7 @@ ALLOWED_KEYS = {
     "frequency_penalty", "presence_penalty",
     "stop", "stop_sequences",
     "tools", "tool_choice", "system", "thinking",
+    "response_format",
 }
 
 ALLOWED_BLOCK_TYPES = {
@@ -79,15 +80,27 @@ def _filter_content_blocks(blocks):
     return cleaned if cleaned else [{"type": "text", "text": ""}]
 
 
+def _strip_thinking_from_blocks(blocks):
+    """递归清理 content 数组中的 thinking 块，包括 tool_result 嵌套 content。"""
+    cleaned = []
+    for b in blocks:
+        if not isinstance(b, dict):
+            continue
+        if b.get("type") in ("thinking", "redacted_thinking"):
+            continue
+        if b.get("type") == "tool_result" and isinstance(b.get("content"), list):
+            b = dict(b)
+            b["content"] = _strip_thinking_from_blocks(b["content"])
+        cleaned.append(b)
+    return cleaned
+
+
 def strip_thinking_blocks(body):
     """移除 messages 中的 thinking/redacted_thinking 块。qwen MAAS / Anthropic 不支持。"""
     for msg in body.get("messages", []):
         content = msg.get("content")
         if isinstance(content, list):
-            msg["content"] = [
-                b for b in content
-                if not isinstance(b, dict) or b.get("type") not in ("thinking", "redacted_thinking")
-            ]
+            msg["content"] = _strip_thinking_from_blocks(content)
     return body
 
 

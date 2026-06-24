@@ -274,6 +274,93 @@ def load_budget_policy():
         return None
 
 
+# 60-second cache for real-time credits computation
+_credits_cache: dict = {"rem": None, "total": None, "days": None, "ts": 0}
+
+
+def get_real_credits():
+    """Compute real-time Token Plan remaining from token_usage.jsonl.
+
+    60s memory cache. Returns (credits_remaining, credits_total, days_to_expiry).
+    Doesn't trust routing_policy.json's stale credits_remaining —
+    always recalculates from actual qwen consumption logs.
+    """
+    now = time.time()
+    if now - _credits_cache["ts"] < 60:
+        return _credits_cache["rem"], _credits_cache["total"], _credits_cache["days"]
+
+    # Read credits_total and days_to_expiry from policy file (stable metadata)
+    total = 25000
+    days = 0
+    policy = load_budget_policy()
+    if policy:
+        tp = policy.get("token_plan", {})
+        total = tp.get("credits_total", total)
+        days = tp.get("days_to_expiry", 0)
+
+    # Compute actual used credits from token_usage.jsonl
+    used, _, _ = _compute_qwen_credits_all()
+    remaining = max(0, total - used)
+
+    _credits_cache["rem"] = remaining
+    _credits_cache["total"] = total
+    _credits_cache["days"] = days
+    _credits_cache["ts"] = now
+
+    return remaining, total, days
+
+
+def _compute_qwen_credits_all():
+    """Full-scan of token_usage.jsonl for qwen model credits.
+
+    Returns (total_credits_used, record_count, per_model: dict).
+    """
+    if not os.path.isfile(TOKEN_USAGE_PATH):
+        return 0, 0, {}
+    total_effective = 0
+    count = 0
+    per_model = {}
+    try:
+        with open(TOKEN_USAGE_PATH, "r", encoding="utf-8-sig", errors="replace") as f:
+            for line in f:
+                line = line.strip().rstrip("\r")
+                if not line:
+                    continue
+                try:
+                    rec = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                model = rec.get("model", "")
+                mk = _qwen_model_key(model)
+                if mk is None:
+                    continue
+                mult = QWEN_MULTIPLIERS.get(mk, 1.0)
+                eff = (rec.get("inputTokens", 0) + rec.get("outputTokens", 0)) * mult
+                total_effective += eff
+                count += 1
+                per_model[mk] = per_model.get(mk, 0) + eff
+    except OSError:
+        return 0, 0, {}
+    return round(total_effective / EFFECTIVE_TOKENS_PER_CREDIT, 2), count, per_model
+
+
+def write_routing_policy(remaining, total, days):
+    """Back-write correct credits to routing_policy.json so dashboard reads right values."""
+    try:
+        data = {
+            "token_plan": {
+                "credits_remaining": round(remaining, 2),
+                "credits_total": total,
+                "days_to_expiry": days,
+                "last_updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            }
+        }
+        with open(BUDGET_POLICY_PATH, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        log(f"write_routing_policy: {e}", "ERROR")
+
+
 def compute_proxy_burn(hours=24):
     """Read token_usage.jsonl, sum input+output tokens in last N hours.
     Returns (token_total, request_count) or (0, 0) on error."""
@@ -317,8 +404,9 @@ QWEN_MULTIPLIERS: dict[str, float] = {
     "qwen3.7-max": 5.0,
     "qwen3.7-max-vision": 5.0,
 }
-# Empirical: ~10000 effective base-tokens ≈ 1 Token Plan credit
-EFFECTIVE_TOKENS_PER_CREDIT = 10000
+# Calibrated: 23,465.94 computed credits ≈ 42,522.50 real credits (1.812×)
+# 10,000 / 1.812 ≈ 5519
+EFFECTIVE_TOKENS_PER_CREDIT = 5519
 
 
 def _qwen_model_key(model: str) -> str | None:
@@ -383,27 +471,9 @@ def compute_qwen_total_credits():
     无时间过滤——反映 Token Plan 全生命周期消耗。
     返回 (credits_used: float, credits_total: int) 或 (0, 25000)。
     """
-    CREDITS_TOTAL = 66936
-    if not os.path.isfile(TOKEN_USAGE_PATH):
-        return 0, CREDITS_TOTAL
-    total_effective = 0
-    try:
-        with open(TOKEN_USAGE_PATH, "r", encoding="utf-8", errors="replace") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    rec = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                model = rec.get("model", "")
-                mk = _qwen_model_key(model)
-                if mk is None:
-                    continue
-                mult = QWEN_MULTIPLIERS.get(mk, 1.0)
-                total_effective += (rec.get("inputTokens", 0) + rec.get("outputTokens", 0)) * mult
-    except OSError:
-        return 0, CREDITS_TOTAL
-    credits_used = round(total_effective / EFFECTIVE_TOKENS_PER_CREDIT, 2)
-    return credits_used, CREDITS_TOTAL
+    used, _, _ = _compute_qwen_credits_all()
+    policy = load_budget_policy()
+    total = 25000
+    if policy:
+        total = policy.get("token_plan", {}).get("credits_total", total)
+    return used, total

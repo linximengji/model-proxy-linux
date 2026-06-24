@@ -23,12 +23,29 @@ model_list:
       max_tokens: 8192
       quota_backup: qwen3.7-max-ds
 
+  # ── Qwen3.7-Plus 多模态旗舰 ──
+  - model_name: qwen3.7-plus
+    litellm_params:
+      model: anthropic/qwen3.7-plus
+      api_base: https://token-plan.cn-beijing.maas.aliyuncs.com/apps/anthropic/v1/messages
+      api_key: os.environ/QWEN_MAAS_API_KEY
+      max_tokens: 8192
+    fallback: doubao-1.5-vision-pro
+
   # ── 豆包视觉 ──
   - model_name: doubao-1.5-vision-pro
     litellm_params:
       model: openai/ep-20260525224024-sg9th
       api_base: https://ark.cn-beijing.volces.com/api/v3
       api_key: os.environ/DOUBAO_API_KEY
+      max_tokens: 8192
+
+  # ── Token-Plan MAAS OpenAI 兼容（供 Presenton / OpenAI-only 客户端） ──
+  - model_name: qwen3.7-max-oai
+    litellm_params:
+      model: openai/qwen3.7-max
+      api_base: https://token-plan.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
+      api_key: os.environ/QWEN_MAAS_API_KEY
       max_tokens: 8192
 
   # ── DashScope OpenAI 配额备份 ──
