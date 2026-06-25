@@ -300,7 +300,8 @@ def _disable_thinking_if_mixed_history(body):
                 has_non_thinking = True
     if has_thinking and has_non_thinking:
         body["thinking"] = {"type": "disabled"}
-        telemetry.log("Mixed thinking/non-thinking history — disabled thinking for this request",
+        sanitize.strip_thinking_blocks(body)
+        telemetry.log("Mixed thinking/non-thinking history — disabled thinking and stripped blocks",
                       phase="SANITIZE")
 
 
