@@ -1,2 +1,156 @@
 C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\python.exe: Error while finding module specification for 'model_proxy.main' (ModuleNotFoundError: __path__ attribute not found on 'model_proxy' while trying to find 'model_proxy.main')
 C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\python.exe: Error while finding module specification for 'model_proxy.main' (ModuleNotFoundError: __path__ attribute not found on 'model_proxy' while trying to find 'model_proxy.main')
+D:\ClaudeProjects\proxy\model_proxy.py:675: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:681: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.89s.
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 2.22s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.89s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.93s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.19s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.06s.
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 2.27s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.17s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.08s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.82s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.87s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.82s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.97s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.89s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.05s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.81s.
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 2.31s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.08s.
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 3.48s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.92s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.19s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.13s.
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.77s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.88s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.00s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.82s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.02s.
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 3.67s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.02s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.81s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.80s.
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 2.15s.
+Failed to export traces to localhost:4317, error code: StatusCode.DEADLINE_EXCEEDED
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.87s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.16s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.05s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.97s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.16s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.93s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.97s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.99s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.09s.
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.83s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.08s.
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 4.33s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.14s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.87s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.03s.
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 2.12s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.13s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.87s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.16s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.00s.
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 3.42s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.19s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.88s.
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 2.01s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.15s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.83s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.86s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.02s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.04s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.93s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.98s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.89s.
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 3.51s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.05s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.95s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.89s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.94s.
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 2.27s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.99s.
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.92s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.10s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.91s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.83s.
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 3.56s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.06s.
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.84s.
+Failed to export traces to localhost:4317, error code: StatusCode.DEADLINE_EXCEEDED

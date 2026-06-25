@@ -1,0 +1,888 @@
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:675: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:681: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+[22:50:38] [614a1bbc] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:50:38] [614a1bbc] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:50:38] [614a1bbc] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:50:41] [f71aa67c] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:50:41] [f71aa67c] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[22:50:42] [f71aa67c] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[22:50:46] [66e0c461] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:50:46] [66e0c461] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:50:46] [66e0c461] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:50:49] [1def695d] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:50:49] [1def695d] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:50:49] [1def695d] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:50:56] [f2ed692c] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:50:56] [f2ed692c] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:50:56] [f2ed692c] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:50:59] [cda43229] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:50:59] [cda43229] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[22:51:06] [cda43229] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[22:51:08] [391be473] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[22:51:08] [391be473] [INFO] [L2] L2 classify: "<session>
+检查一下现在proxy的重启和自动备份策略是否完善，依赖在哪些点。
+刚刚有两次safekill都有问题
+</session>
+
+Write ..." ratio=0.00
+[22:51:08] [a670cca6] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[22:51:08] [a670cca6] [INFO] [L2] L2 classify: "<system-reminder>
+SessionStart hook additional context: ## 记忆索引（来自 memory-mcp）
+每..." ratio=0.00
+[22:51:08] [70280c50] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:51:08] [70280c50] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:51:08] [70280c50] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[22:51:09] [391be473] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[22:51:09] [391be473] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:51:09] [a670cca6] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[22:51:09] [a670cca6] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:51:18] [ea665ed6] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[22:51:18] [ea665ed6] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[22:51:22] [db1f5aec] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[22:51:22] [db1f5aec] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[22:51:25] [f9b42c1b] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[22:51:25] [f9b42c1b] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[22:51:28] [5c59adcc] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[22:51:28] [5c59adcc] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[22:51:31] [6da392b9] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[22:51:31] [6da392b9] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[22:51:34] [1f3a29df] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[22:51:34] [1f3a29df] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[22:51:38] [e3457f90] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[22:51:38] [e3457f90] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[22:51:40] [4bef2549] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[22:51:40] [4bef2549] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[22:51:41] [4fd5e5ed] [INFO] [ROUTE] BYPASS agent-model: doubao-1.5-vision-pro
+[22:51:41] [4fd5e5ed] [INFO] [UPSTREAM] doubao-1.5-vision-pro /v1/messages
+[22:51:42] [4fd5e5ed] [INFO] [UPSTREAM] <- 200 doubao-1.5-vision-pro non-stream
+[22:51:43] [0ccf2810] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[22:51:43] [0ccf2810] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[22:52:04] [090e948e] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[22:52:04] [090e948e] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[22:52:06] [c153f471] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[22:52:06] [c153f471] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[22:52:08] [9aeb3585] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[22:52:08] [9aeb3585] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[22:52:10] [cc394199] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[22:52:10] [cc394199] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[22:52:56] [3212d7a8] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:52:56] [3212d7a8] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:52:56] [3212d7a8] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:52:59] [423ad77c] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:52:59] [423ad77c] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[22:53:00] [423ad77c] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[22:53:04] [fbc37278] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:53:04] [fbc37278] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:53:04] [fbc37278] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:53:07] [e5d24584] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:53:07] [e5d24584] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:53:07] [e5d24584] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:53:14] [c06a5b14] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:53:14] [c06a5b14] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:53:14] [c06a5b14] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:53:18] [a625be09] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:53:18] [a625be09] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[22:53:24] [a625be09] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[22:53:26] [20094e24] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:53:26] [20094e24] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:53:26] [20094e24] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[22:54:08] [d6dfc444] [INFO] [ROUTE] BYPASS agent-model: doubao-1.5-vision-pro
+[22:54:08] [d6dfc444] [INFO] [UPSTREAM] doubao-1.5-vision-pro /v1/messages
+[22:54:09] [d6dfc444] [INFO] [UPSTREAM] <- 200 doubao-1.5-vision-pro non-stream
+[22:55:23] [30a56309] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:55:23] [30a56309] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:55:23] [30a56309] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:55:26] [eddc4b64] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:55:26] [eddc4b64] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[22:55:27] [eddc4b64] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[22:55:31] [4e13c99c] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:55:31] [4e13c99c] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:55:31] [4e13c99c] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:55:34] [71421e6e] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:55:34] [71421e6e] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:55:34] [71421e6e] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:55:41] [e0c39d70] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:55:41] [e0c39d70] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:55:41] [e0c39d70] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:55:45] [ed214698] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:55:45] [ed214698] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[22:55:50] [ed214698] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[22:55:52] [1b73b6b3] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:55:52] [1b73b6b3] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:55:52] [1b73b6b3] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[22:56:05] [110d1289] [INFO] [ROUTE] BYPASS agent-model: doubao-1.5-vision-pro
+[22:56:05] [110d1289] [INFO] [UPSTREAM] doubao-1.5-vision-pro /v1/messages
+[22:56:06] [110d1289] [INFO] [UPSTREAM] <- 200 doubao-1.5-vision-pro non-stream
+[22:57:22] [78833f61] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:57:22] [78833f61] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:57:22] [78833f61] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:57:25] [4961c33f] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:57:25] [4961c33f] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[22:57:26] [4961c33f] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[22:57:30] [ae16789b] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:57:30] [ae16789b] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:57:30] [ae16789b] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:57:33] [587a9b02] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:57:33] [587a9b02] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:57:33] [587a9b02] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:57:39] [10525e77] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:57:39] [10525e77] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:57:39] [10525e77] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:57:44] [b370d152] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:57:44] [b370d152] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[22:57:46] [b370d152] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[22:57:48] [8c20b8f0] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:57:48] [8c20b8f0] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:57:48] [8c20b8f0] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[22:58:36] [1f4cd2ed] [INFO] [ROUTE] BYPASS agent-model: doubao-1.5-vision-pro
+[22:58:36] [1f4cd2ed] [INFO] [UPSTREAM] doubao-1.5-vision-pro /v1/messages
+[22:58:37] [1f4cd2ed] [INFO] [UPSTREAM] <- 200 doubao-1.5-vision-pro non-stream
+[22:59:11] [9c919323] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[22:59:11] [9c919323] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[22:59:23] [0dc0e162] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:59:23] [0dc0e162] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:59:23] [0dc0e162] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:59:24] [07950ab7] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[22:59:24] [07950ab7] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[22:59:53] [f7cee439] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:59:53] [f7cee439] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:59:53] [f7cee439] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[22:59:56] [a3b769ec] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:59:56] [a3b769ec] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[22:59:57] [a3b769ec] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[23:00:01] [ff6158fa] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:00:01] [ff6158fa] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[23:00:01] [ff6158fa] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[23:00:04] [ce7b9673] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:00:04] [ce7b9673] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[23:00:04] [ce7b9673] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[23:00:11] [a58ad0a8] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:00:11] [a58ad0a8] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[23:00:11] [a58ad0a8] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[23:00:15] [5e89ee46] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[23:00:15] [5e89ee46] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[23:00:22] [5e89ee46] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[23:00:24] [e73498a0] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[23:00:24] [e73498a0] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:00:24] [e73498a0] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:00:44] [27316921] [INFO] [ROUTE] BYPASS agent-model: doubao-1.5-vision-pro
+[23:00:44] [27316921] [INFO] [UPSTREAM] doubao-1.5-vision-pro /v1/messages
+[23:00:44] [27316921] [INFO] [UPSTREAM] <- 200 doubao-1.5-vision-pro non-stream
+[23:01:49] [c60f26ad] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:01:49] [c60f26ad] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:01:53] [47d33972] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:01:53] [47d33972] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:01:59] [f9e9c133] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:01:59] [f9e9c133] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[23:01:59] [f9e9c133] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[23:02:00] [e80b5130] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:02:00] [e80b5130] [INFO] [L2] L2 classify: "<transcript>
+ User: 检查一下现在proxy的重启和自动备份策略是否完善，依赖在哪些点。
+刚刚有两次safekill都有问题
+ mcp__me..." ratio=0.00
+[23:02:01] [e80b5130] [INFO] [L2] L2: complex + high -> qwen3.7-max (ratio=0.00)
+[23:02:01] [e80b5130] [INFO] [UPSTREAM] qwen3.7-max /v1/messages
+[23:02:01] [e80b5130] [INFO] [HANDLER] Anthropic non-stream body samples: model=qwen3.7-max, has_rf=False, rf_body=False, has_stream=stream
+[23:02:01] [f549c55f] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:02:01] [f549c55f] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[23:02:02] [f549c55f] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[23:02:04] [8806cfa5] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:02:04] [8806cfa5] [INFO] [L2] L2 classify: "<system-reminder>
+The following skills are available for use with the Skill tool..." ratio=0.00
+[23:02:04] [8806cfa5] [INFO] [L2] L2: complex + high -> qwen3.7-max (ratio=0.00)
+[23:02:04] [8806cfa5] [INFO] [UPSTREAM] qwen3.7-max /v1/messages (stream)
+[23:02:06] [db7e7982] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:02:06] [db7e7982] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[23:02:06] [db7e7982] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[23:02:09] [2b1f5d7f] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:02:09] [2b1f5d7f] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[23:02:09] [2b1f5d7f] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[23:02:10] [ac6f92d2] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:02:10] [ac6f92d2] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:02:16] [828125e1] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:02:16] [828125e1] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[23:02:16] [828125e1] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[23:02:19] [28186271] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[23:02:19] [28186271] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[23:02:26] [41ed0743] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:02:26] [41ed0743] [INFO] [L2] L2 classify: "<system-reminder>
+## Exited Plan Mode
+
+You have exited plan mode. You can now ma..." ratio=0.00
+[23:02:26] [28186271] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[23:02:27] [41ed0743] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:02:27] [41ed0743] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[23:02:28] [8d63ad0a] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[23:02:28] [8d63ad0a] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:02:28] [8d63ad0a] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:02:50] [7d70153c] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:02:50] [7d70153c] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:02:52] [8f61de21] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:02:52] [8f61de21] [INFO] [L2] L2 classify: "Run the "execute-plan" workflow.
+
+按 plan 逐 task 串行执行 SDD 循环，遇 blocker 停止
+
+Phases..." ratio=0.00
+[23:02:53] [8f61de21] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:02:53] [8f61de21] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[23:02:56] [96be3975] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:02:56] [96be3975] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:02:59] [5f5c8d60] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:02:59] [5f5c8d60] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:03:03] [499352ec] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:03:03] [499352ec] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:03:08] [cfbbfbfe] [INFO] [ROUTE] BYPASS agent-model: doubao-1.5-vision-pro
+[23:03:08] [cfbbfbfe] [INFO] [UPSTREAM] doubao-1.5-vision-pro /v1/messages
+[23:03:08] [cfbbfbfe] [INFO] [UPSTREAM] <- 200 doubao-1.5-vision-pro non-stream
+[23:03:10] [ab726538] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:03:10] [ab726538] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:03:11] [7760f884] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:03:11] [7760f884] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:03:16] [473d9872] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:03:16] [473d9872] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:03:23] [ac0cde7b] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:03:23] [ac0cde7b] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:03:45] [e88a39e5] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:03:45] [e88a39e5] [INFO] [L2] L2 classify: "<transcript>
+ User: 检查一下现在proxy的重启和自动备份策略是否完善，依赖在哪些点。
+刚刚有两次safekill都有问题
+ mcp__me..." ratio=0.00
+[23:03:46] [e88a39e5] [INFO] [L2] L2: complex + high -> qwen3.7-max (ratio=0.00)
+[23:03:46] [e88a39e5] [INFO] [UPSTREAM] qwen3.7-max /v1/messages
+[23:03:46] [e88a39e5] [INFO] [HANDLER] Anthropic non-stream body samples: model=qwen3.7-max, has_rf=False, rf_body=False, has_stream=stream
+[23:03:47] [5e5904c5] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:03:47] [5e5904c5] [INFO] [L2] L2 classify: "Run the "sdd-task" workflow.
+
+SDD 单任务循环：实现 → 测试 → spec审查(flash) → 并行{code+securi..." ratio=0.00
+[23:03:48] [5e5904c5] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:03:48] [5e5904c5] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[23:03:53] [13c4a058] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:03:53] [13c4a058] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:03:58] [8a08a377] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:03:58] [8a08a377] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:04:01] [e1686cf2] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:04:01] [e1686cf2] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:04:03] [661819e9] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:04:03] [661819e9] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:04:09] [a2746f10] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:04:09] [a2746f10] [INFO] [L2] L2 classify: "<system-reminder>
+The following skills are available for use with the Skill tool..." ratio=0.00
+[23:04:09] [bf8ad47b] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:04:09] [bf8ad47b] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:04:10] [a2746f10] [INFO] [L2] L2: complex + high -> qwen3.7-max (ratio=0.00)
+[23:04:10] [a2746f10] [INFO] [UPSTREAM] qwen3.7-max /v1/messages (stream)
+[23:04:15] [74159a55] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:04:15] [74159a55] [INFO] [L2] L2 classify: "<system-reminder>
+## Auto Mode Active
+
+Bias toward working without stopping for ..." ratio=0.00
+[23:04:15] [74159a55] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:04:15] [74159a55] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[23:04:19] [d0bd2109] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:04:19] [d0bd2109] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:04:23] [7c99c0a4] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:04:23] [7c99c0a4] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:04:23] [57205051] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:04:23] [57205051] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[23:04:23] [57205051] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[23:04:25] [4a644f01] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:04:25] [4a644f01] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:04:26] [2a761590] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:04:26] [2a761590] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[23:04:26] [2a761590] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[23:04:27] [5805ceb7] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:04:27] [5805ceb7] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:04:30] [3084f61a] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:04:30] [3084f61a] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[23:04:30] [3084f61a] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[23:04:32] [9058bf4c] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:04:32] [9058bf4c] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:04:33] [ad7dab0f] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:04:33] [ad7dab0f] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[23:04:33] [ad7dab0f] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[23:04:34] [959b8354] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:04:34] [959b8354] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:04:40] [ac6d17f4] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:04:40] [ac6d17f4] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[23:04:40] [ac6d17f4] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[23:04:40] [4b5bf402] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:04:40] [4b5bf402] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:04:41] [4b5bf402] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:04:41] [4b5bf402] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:04:41] [4b5bf402] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:04:42] [eccdeca8] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:04:42] [eccdeca8] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:04:43] [e5255fd5] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[23:04:43] [e5255fd5] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[23:04:47] [c00c61d9] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:04:47] [c00c61d9] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:04:48] [e5255fd5] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[23:04:49] [a9613a72] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:04:49] [a9613a72] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:04:50] [0dd29f28] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[23:04:50] [0dd29f28] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:04:50] [0dd29f28] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:04:51] [c0e908e2] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:04:51] [c0e908e2] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:05:01] [128099e6] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:05:01] [128099e6] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:05:07] [bcba1409] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:05:07] [bcba1409] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:05:08] [41c6166f] [INFO] [ROUTE] BYPASS agent-model: doubao-1.5-vision-pro
+[23:05:08] [41c6166f] [INFO] [UPSTREAM] doubao-1.5-vision-pro /v1/messages
+[23:05:08] [41c6166f] [INFO] [UPSTREAM] <- 200 doubao-1.5-vision-pro non-stream
+[23:05:11] [bf40a3cb] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:05:11] [bf40a3cb] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:05:13] [bf40a3cb] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:05:13] [bf40a3cb] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:05:13] [bf40a3cb] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:05:15] [1a728a50] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:05:15] [1a728a50] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:05:21] [937eb8b3] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:05:21] [937eb8b3] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:05:21] [937eb8b3] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:05:22] [937eb8b3] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:05:22] [937eb8b3] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:05:23] [0aec1965] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:05:23] [0aec1965] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:05:24] [7cd5a2c7] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:05:24] [7cd5a2c7] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:05:31] [c22e17c0] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:05:31] [c22e17c0] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:05:35] [42fda9ad] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:05:35] [42fda9ad] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:05:36] [42fda9ad] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:05:36] [42fda9ad] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:05:36] [42fda9ad] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:05:38] [acbe1eb2] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:05:38] [acbe1eb2] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:05:38] [acbe1eb2] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:05:38] [acbe1eb2] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:05:38] [acbe1eb2] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:05:40] [7150dd94] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:05:40] [7150dd94] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:05:42] [f431d6b8] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:05:42] [f431d6b8] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:05:43] [f431d6b8] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:05:43] [f431d6b8] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:05:43] [f431d6b8] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:05:44] [a7d20eaa] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:05:44] [a7d20eaa] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:05:46] [7a85c009] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:05:46] [7a85c009] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:05:49] [21634bd6] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:05:49] [21634bd6] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:05:51] [33fb9ee1] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:05:51] [33fb9ee1] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:05:52] [33fb9ee1] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:05:52] [33fb9ee1] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:05:52] [33fb9ee1] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:05:53] [09d5700b] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:05:53] [09d5700b] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:05:56] [686b75e4] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:05:56] [686b75e4] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:05:57] [686b75e4] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:05:57] [686b75e4] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:05:57] [686b75e4] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:05:58] [7eeab1fd] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:05:58] [7eeab1fd] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:06:00] [e7a78e33] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:06:00] [e7a78e33] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:06:04] [7683e085] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:06:04] [7683e085] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:06:05] [7683e085] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:06:05] [7683e085] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:06:05] [7683e085] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:06:06] [c064cd3f] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:06:06] [c064cd3f] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:06:08] [dc519cd3] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:06:08] [dc519cd3] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:06:12] [46928212] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:06:12] [46928212] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:06:12] [46928212] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:06:12] [46928212] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:06:12] [46928212] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:06:14] [a7b79d0a] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:06:14] [a7b79d0a] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:06:16] [61095a09] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:06:16] [61095a09] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:06:17] [61095a09] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:06:17] [61095a09] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:06:17] [61095a09] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:06:19] [d8cbee9e] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:06:19] [d8cbee9e] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:06:19] [d8cbee9e] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:06:19] [d8cbee9e] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:06:19] [d8cbee9e] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:06:21] [0e85fe5d] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:06:21] [0e85fe5d] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:06:23] [f64f60a1] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:06:23] [f64f60a1] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:06:23] [a06b96dd] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:06:23] [a06b96dd] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[23:06:23] [a06b96dd] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[23:06:26] [36f8a01a] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:06:26] [36f8a01a] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[23:06:27] [36f8a01a] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[23:06:29] [21701549] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:06:29] [21701549] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:06:31] [60e53ffc] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:06:31] [60e53ffc] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[23:06:31] [60e53ffc] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[23:06:34] [ce5af8fa] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:06:34] [ce5af8fa] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[23:06:34] [ce5af8fa] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[23:06:35] [aa1f7501] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:06:35] [aa1f7501] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:06:36] [13b084d2] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:06:36] [13b084d2] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:06:41] [6be60ae0] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[23:06:41] [6be60ae0] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[23:06:41] [6be60ae0] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-flash, has_rf=False, rf_body=False, has_stream=stream
+[23:06:44] [8b53a254] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[23:06:44] [8b53a254] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[23:06:46] [ec25dbc1] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:06:46] [ec25dbc1] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:06:47] [ec25dbc1] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:06:47] [ec25dbc1] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:06:47] [ec25dbc1] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:06:48] [8ddeca0d] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:06:48] [8ddeca0d] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:06:50] [1d0c002b] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:06:50] [1d0c002b] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:06:51] [1d0c002b] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:06:51] [1d0c002b] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:06:51] [1d0c002b] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:06:51] [8b53a254] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[23:06:52] [1b0db8a7] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:06:52] [1b0db8a7] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:06:53] [1b0db8a7] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:06:53] [1b0db8a7] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:06:53] [1b0db8a7] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:06:53] [b9c9e2cb] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[23:06:53] [b9c9e2cb] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:06:53] [b9c9e2cb] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:06:56] [defcf730] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:06:56] [defcf730] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:06:59] [ff06fb31] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:06:59] [ff06fb31] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:07:00] [ff06fb31] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:07:00] [ff06fb31] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:07:00] [ff06fb31] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:07:01] [cacda05b] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:07:01] [cacda05b] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:07:03] [635e2c4c] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:07:03] [635e2c4c] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:07:04] [635e2c4c] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:07:04] [635e2c4c] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:07:04] [635e2c4c] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:07:06] [d54eff9a] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:07:06] [d54eff9a] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:07:08] [24e4a6c3] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:07:08] [24e4a6c3] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:07:09] [24e4a6c3] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:07:09] [24e4a6c3] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:07:09] [24e4a6c3] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:07:10] [7463080d] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:07:10] [7463080d] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:07:11] [7463080d] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:07:11] [7463080d] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:07:11] [7463080d] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:07:12] [56181082] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:07:12] [56181082] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:07:14] [4ce078b9] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:07:14] [4ce078b9] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:07:22] [55fa8a8a] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:07:22] [55fa8a8a] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:07:22] [55fa8a8a] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:07:22] [55fa8a8a] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:07:22] [55fa8a8a] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:07:24] [69259f08] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:07:24] [69259f08] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[23:07:26] [21b8832e] [INFO] [BUDGET] real-time: rem=24340 (36%) ratio=0.00
+[23:07:26] [21b8832e] [INFO] [L2] L2 classify: "<transcript>
+ User: 
+你是实现者。只做 task 描述的事，不多不少。
+
+## Task
+改 C:/Users/34971/.claude/..." ratio=0.00
+[23:07:27] [21b8832e] [INFO] [L2] L2: moderate + medium -> deepseek-v4-pro (ratio=0.00)
+[23:07:27] [21b8832e] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[23:07:27] [21b8832e] [INFO] [HANDLER] Anthropic non-stream body samples: model=deepseek-v4-pro, has_rf=False, rf_body=False, has_stream=stream
+[23:07:27] [3cf8d9f8] [INFO] [ROUTE] BYPASS agent-model: doubao-1.5-vision-pro
+[23:07:27] [3cf8d9f8] [INFO] [UPSTREAM] doubao-1.5-vision-pro /v1/messages
+[23:07:27] [3cf8d9f8] [INFO] [UPSTREAM] <- 200 doubao-1.5-vision-pro non-stream
+[23:07:29] [620707c0] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:07:29] [620707c0] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+UPSTREAM] <- 200 doubao-1.5-vision-pro non-stream
+[23:07:29] [620707c0] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[23:07:29] [620707c0] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:675: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:681: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 4000): [winerror 10048] 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:675: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:681: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 4000): [winerror 10048] 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:675: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:681: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 4000): [winerror 10048] 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:675: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:681: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 4000): [winerror 10048] 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:675: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:681: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 4000): [winerror 10048] 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:675: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:681: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 4000): [winerror 10048] 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:675: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:681: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 4000): [winerror 10048] 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:675: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:681: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 4000): [winerror 10048] 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:675: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:681: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 4000): [winerror 10048] 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:675: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:681: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 4000): [winerror 10048] 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:675: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:681: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 4000): [winerror 10048] 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:675: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:681: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 4000): [winerror 10048] 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:675: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:681: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 4000): [winerror 10048] 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:675: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:681: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 4000): [winerror 10048] 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:675: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:681: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 4000): [winerror 10048] 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。

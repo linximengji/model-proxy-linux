@@ -40,6 +40,15 @@ ALLOWED_OPENAI_KEYS = {
 
 http_client: httpx.AsyncClient | None = None
 
+# In-memory stats counters (monotonic, never reset)
+_stats = {"requests_total": 0, "errors_total": 0}
+
+
+def _incr_stats(error: bool = False):
+    _stats["requests_total"] += 1
+    if error:
+        _stats["errors_total"] += 1
+
 
 def _sanitize_anthropic(body: dict):
     """Strip CC-specific fields DeepSeek Anthropic endpoint doesn't support."""
@@ -149,6 +158,12 @@ async def list_models():
     })
 
 
+@app.get("/v1/stats")
+async def get_stats():
+    return JSONResponse({"requests_total": _stats["requests_total"],
+                         "errors_total": _stats["errors_total"]})
+
+
 @app.post("/v1/messages")
 async def proxy_anthropic(request: Request):
     body = await request.json()
@@ -158,9 +173,13 @@ async def proxy_anthropic(request: Request):
     upstream["model"] = DEGRADED_UPSTREAM
     upstream["stream"] = is_stream
     _sanitize_anthropic(upstream)
+    _incr_stats()
     if is_stream:
         return await _stream_forward(DEEPSEEK_ANTHROPIC_URL, upstream, api_key)
-    return await _request_forward(DEEPSEEK_ANTHROPIC_URL, upstream, api_key)
+    resp = await _request_forward(DEEPSEEK_ANTHROPIC_URL, upstream, api_key)
+    if resp.status_code >= 400:
+        _incr_stats(error=True)
+    return resp
 
 
 @app.post("/v1/chat/completions")
@@ -171,9 +190,13 @@ async def proxy_openai(request: Request):
     upstream = body.copy()
     upstream["model"] = DEGRADED_UPSTREAM
     _sanitize_openai(upstream)
+    _incr_stats()
     if is_stream:
         return await _stream_forward(DEEPSEEK_OPENAI_URL, upstream, api_key)
-    return await _request_forward(DEEPSEEK_OPENAI_URL, upstream, api_key)
+    resp = await _request_forward(DEEPSEEK_OPENAI_URL, upstream, api_key)
+    if resp.status_code >= 400:
+        _incr_stats(error=True)
+    return resp
 
 
 @app.post("/{path:path}")
