@@ -278,18 +278,19 @@ def load_budget_policy():
 _credits_cache: dict = {"rem": None, "total": None, "days": None, "ts": 0}
 
 
-def get_real_credits():
-    """Compute real-time Token Plan remaining from token_usage.jsonl.
+_days_cache: dict = {"days": None, "total": None, "ts": 0}
 
-    60s memory cache. Returns (credits_remaining, credits_total, days_to_expiry).
-    Doesn't trust routing_policy.json's stale credits_remaining —
-    always recalculates from actual qwen consumption logs.
+
+def _read_days_from_file():
+    """Read days_to_expiry and credits_total from file fresh every call.
+    Separated from the 60s compute cache so manual edits to routing_policy.json
+    (e.g. days_to_expiry=0 when plan is about to expire) are picked up immediately,
+    not overwritten by stale cached values in write_routing_policy.
     """
     now = time.time()
-    if now - _credits_cache["ts"] < 60:
-        return _credits_cache["rem"], _credits_cache["total"], _credits_cache["days"]
+    if now - _days_cache["ts"] < 60:
+        return _days_cache["total"], _days_cache["days"]
 
-    # Read credits_total and days_to_expiry from policy file (stable metadata)
     total = 25000
     days = 0
     policy = load_budget_policy()
@@ -298,13 +299,30 @@ def get_real_credits():
         total = tp.get("credits_total", total)
         days = tp.get("days_to_expiry", 0)
 
+    _days_cache["total"] = total
+    _days_cache["days"] = days
+    _days_cache["ts"] = now
+    return total, days
+
+
+def get_real_credits():
+    """Compute real-time Token Plan remaining from token_usage.jsonl.
+
+    60s cache for expensive qwen-credit computation.
+    days_to_expiry/credits_total read separately (cheap) for immediate manual edits.
+    Returns (credits_remaining, credits_total, days_to_expiry).
+    """
+    now = time.time()
+    total, days = _read_days_from_file()
+
+    if now - _credits_cache["ts"] < 60:
+        return _credits_cache["rem"], total, days
+
     # Compute actual used credits from token_usage.jsonl
     used, _, _ = _compute_qwen_credits_all()
     remaining = max(0, total - used)
 
     _credits_cache["rem"] = remaining
-    _credits_cache["total"] = total
-    _credits_cache["days"] = days
     _credits_cache["ts"] = now
 
     return remaining, total, days
