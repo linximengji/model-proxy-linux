@@ -322,7 +322,7 @@ def get_real_credits():
         return _credits_cache["rem"], total, days
 
     # Compute actual used credits from token_usage.jsonl (only records >= plan_start_ts)
-    used, _, _ = _compute_qwen_credits_all(plan_start_ts=start_ts)
+    used, _, _ = _compute_tp_credits_all(plan_start_ts=start_ts)
     remaining = max(0, total - used)
 
     _credits_cache["rem"] = remaining
@@ -331,8 +331,11 @@ def get_real_credits():
     return remaining, total, days
 
 
-def _compute_qwen_credits_all(plan_start_ts=None):
-    """Full-scan of token_usage.jsonl for qwen model credits.
+def _compute_tp_credits_all(plan_start_ts=None):
+    """Full-scan of token_usage.jsonl for TP-mapped model credits.
+
+    Uses direct pricing table (input/output separated), covers all models
+    routed through Token Plan (both native qwen and deepseek→TP mapping).
 
     Args:
         plan_start_ts: ISO timestamp string. Records with ts < plan_start_ts are skipped.
@@ -340,7 +343,7 @@ def _compute_qwen_credits_all(plan_start_ts=None):
     """
     if not os.path.isfile(TOKEN_USAGE_PATH):
         return 0, 0, {}
-    total_effective = 0
+    total = 0.0
     count = 0
     per_model = {}
     try:
@@ -353,21 +356,27 @@ def _compute_qwen_credits_all(plan_start_ts=None):
                     rec = json.loads(line)
                 except json.JSONDecodeError:
                     continue
+                # Skip costUSD records — claudetalk direct API calls,
+                # not consumed through Token Plan
+                if "costUSD" in rec:
+                    continue
                 # Skip records before plan start date
                 if plan_start_ts and rec.get("ts", "") < plan_start_ts:
                     continue
                 model = rec.get("model", "")
-                mk = _qwen_model_key(model)
-                if mk is None:
+                km = _tp_model_key(model)
+                price = TP_PRICING.get(km)
+                if not price:
                     continue
-                mult = QWEN_MULTIPLIERS.get(mk, 1.0)
-                eff = (rec.get("inputTokens", 0) + rec.get("outputTokens", 0)) * mult
-                total_effective += eff
+                inp = rec.get("inputTokens", 0)
+                out = rec.get("outputTokens", 0)
+                credits = _calc_tp_credits(inp, out, price)
+                total += credits
                 count += 1
-                per_model[mk] = per_model.get(mk, 0) + eff
+                per_model[model] = per_model.get(model, 0) + credits
     except OSError:
         return 0, 0, {}
-    return round(total_effective / EFFECTIVE_TOKENS_PER_CREDIT, 2), count, per_model
+    return round(total, 2), count, per_model
 
 
 def write_routing_policy(remaining, total, days):
@@ -412,6 +421,8 @@ def compute_proxy_burn(hours=24):
                     rec = json.loads(line)
                 except json.JSONDecodeError:
                     continue
+                if "costUSD" in rec:
+                    continue
                 ts = rec.get("ts", "")
                 if ts:
                     try:
@@ -427,47 +438,50 @@ def compute_proxy_burn(hours=24):
     return total, count
 
 
-# ── Token Plan credit estimation ────────────────────────────────────────────
-# qwen model → effective-token multiplier (qwen3.6-plus = 1x base)
-# Derived from pricing ratio: 0.010/0.002 = 5x (qwen3.7-max input vs plus)
-#
-# TP models not in this dict (kimi-k2.7-code, kimi-k2.6, glm-5.2, glm-5.1,
-# MiniMax-M2.5) are excluded from qwen-centric credit tracking — correct
-# since _qwen_model_key() filters by "qwen" in model name. Their consumption
-# is not subtracted from TP balance in the allocator ratio.
-QWEN_MULTIPLIERS: dict[str, float] = {
-    "qwen3.6-flash": 0.5,
-    "qwen3.6-plus": 1.0,
-    "qwen3.6-maas": 1.0,
-    "qwen3-coder-plus": 3.0,
-    "qwen3.7-max": 5.0,
-    "qwen3.7-max-vision": 5.0,
+# ── Token Plan credit calculation ───────────────────────────────────────────
+# Direct pricing table (credits/千token), matching Token Plan official rates
+TP_PRICING: dict[str, dict[str, float]] = {
+    "qwen3.7-max":       {"input": 0.010, "output": 0.040},
+    "qwen3.7-max-vision": {"input": 0.010, "output": 0.040},
+    "qwen3-coder-plus":  {"input": 0.007, "output": 0.036},
+    "qwen3.6-plus":      {"input": 0.002, "output": 0.012},
+    "qwen3.6-maas":      {"input": 0.002, "output": 0.012},
+    "qwen3.6-flash":     {"input": 0.001, "output": 0.006},
 }
-# Calibrated: 23,465.94 computed credits ≈ 42,522.50 real credits (1.812×)
-# 10,000 / 1.812 ≈ 5519
-EFFECTIVE_TOKENS_PER_CREDIT = 5519
+# DeepSeek models routed to TP → map to equivalent TP model pricing
+DS_TP_MAP: dict[str, str] = {
+    "deepseek-v4-pro":   "qwen3.7-max",
+    "deepseek-v4-flash": "qwen3.6-plus",
+}
 
 
-def _qwen_model_key(model: str) -> str | None:
-    """Extract qwen model name from model field (handles composite names like 'a,b').
-    Returns the model key if it's a qwen model, None otherwise.
-    Searches ALL comma-separated parts — qwen may be the first or last element
-    in a fallback chain (e.g. 'qwen3.7-max,deepseek-v4-flash' or 'deepseek-v4-flash,qwen3.7-max').
+def _tp_model_key(model: str) -> str | None:
+    """Resolve a model name (possibly composite 'a,b') to a TP_PRICING key.
+    Handles: direct qwen names, deepseek → TP mapping, composite fallback chains.
+    Returns the TP pricing key or None if not found.
     """
     for name in model.split(","):
         name = name.strip()
-        if "qwen" not in name.lower():
-            continue
-        for known in QWEN_MULTIPLIERS:
-            if known in name:
-                return known
+        # Direct qwen match
+        for km in TP_PRICING:
+            if km in name:
+                return km
+        # DeepSeek → TP mapping
+        for km, tp_key in DS_TP_MAP.items():
+            if km in name:
+                return tp_key
     return None
 
 
-def compute_qwen_since(iso_cutoff):
-    """Estimate Token Plan credits consumed since a given timestamp.
-    Applies model-specific multipliers and empirical conversion rate.
-    Returns estimated credits (float, 0 if no data or error).
+def _calc_tp_credits(inp: int, out: int, price: dict) -> float:
+    """(input/1000) * input_price + (output/1000) * output_price"""
+    return (inp / 1000) * price["input"] + (out / 1000) * price["output"]
+
+
+def compute_tp_credits_since(iso_cutoff):
+    """Compute TP credits consumed since a given timestamp.
+    Uses direct pricing table (input/output separated), covers all TP-mapped models.
+    Returns credits (float, 0 if no data or error).
     """
     if not os.path.isfile(TOKEN_USAGE_PATH) or not iso_cutoff:
         return 0
@@ -475,7 +489,7 @@ def compute_qwen_since(iso_cutoff):
         cutoff = datetime.fromisoformat(iso_cutoff).timestamp()
     except (ValueError, TypeError):
         return 0
-    total_effective = 0  # base-tokens adjusted by multiplier
+    total = 0.0
     try:
         with open(TOKEN_USAGE_PATH, "r", encoding="utf-8", errors="replace") as f:
             for line in f:
@@ -486,6 +500,8 @@ def compute_qwen_since(iso_cutoff):
                     rec = json.loads(line)
                 except json.JSONDecodeError:
                     continue
+                if "costUSD" in rec:
+                    continue
                 ts = rec.get("ts", "")
                 if not ts:
                     continue
@@ -494,23 +510,21 @@ def compute_qwen_since(iso_cutoff):
                         continue
                 except (ValueError, TypeError):
                     continue
-                model = rec.get("model", "")
-                mk = _qwen_model_key(model)
-                if mk is None:
+                km = _tp_model_key(rec.get("model", ""))
+                price = TP_PRICING.get(km)
+                if not price:
                     continue
-                mult = QWEN_MULTIPLIERS.get(mk, 1.0)
-                total_effective += (rec.get("inputTokens", 0) + rec.get("outputTokens", 0)) * mult
+                total += _calc_tp_credits(rec.get("inputTokens", 0), rec.get("outputTokens", 0), price)
     except OSError:
         return 0
-    return round(total_effective / EFFECTIVE_TOKENS_PER_CREDIT, 2)
+    return round(total, 2)
 
 
-def compute_qwen_total_credits():
-    """扫描 token_usage.jsonl 全量数据，计算 Qwen 模型消耗的总 credits。
-    无时间过滤——反映 Token Plan 全生命周期消耗。
+def compute_tp_total_credits():
+    """全量扫描，计算所有 TP-mapped 模型的总 credits 消耗。
     返回 (credits_used: float, credits_total: int) 或 (0, 25000)。
     """
-    used, _, _ = _compute_qwen_credits_all()
+    used, _, _ = _compute_tp_credits_all()
     policy = load_budget_policy()
     total = 25000
     if policy:
