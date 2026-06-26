@@ -430,7 +430,13 @@ def compute_proxy_burn(hours=24):
 # ── Token Plan credit estimation ────────────────────────────────────────────
 # qwen model → effective-token multiplier (qwen3.6-plus = 1x base)
 # Derived from pricing ratio: 0.010/0.002 = 5x (qwen3.7-max input vs plus)
+#
+# TP models not in this dict (kimi-k2.7-code, kimi-k2.6, glm-5.2, glm-5.1,
+# MiniMax-M2.5) are excluded from qwen-centric credit tracking — correct
+# since _qwen_model_key() filters by "qwen" in model name. Their consumption
+# is not subtracted from TP balance in the allocator ratio.
 QWEN_MULTIPLIERS: dict[str, float] = {
+    "qwen3.6-flash": 0.5,
     "qwen3.6-plus": 1.0,
     "qwen3.6-maas": 1.0,
     "qwen3-coder-plus": 3.0,

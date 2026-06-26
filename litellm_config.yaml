@@ -23,14 +23,62 @@ model_list:
       max_tokens: 8192
       quota_backup: qwen3.7-max-ds
 
-  # ── Qwen3.7-Plus 多模态旗舰 ──
   - model_name: qwen3.7-plus
     litellm_params:
       model: anthropic/qwen3.7-plus
       api_base: https://token-plan.cn-beijing.maas.aliyuncs.com/apps/anthropic/v1/messages
       api_key: os.environ/QWEN_MAAS_API_KEY
       max_tokens: 8192
-    fallback: doubao-1.5-vision-pro
+    fallback: deepseek-v4-pro
+
+  - model_name: qwen3.6-flash
+    litellm_params:
+      model: anthropic/qwen3.6-flash
+      api_base: https://token-plan.cn-beijing.maas.aliyuncs.com/apps/anthropic/v1/messages
+      api_key: os.environ/QWEN_MAAS_API_KEY
+      max_tokens: 8192
+    fallback: deepseek-v4-flash
+
+  # ── Token-Plan OpenAI 兼容（Kimi / GLM / MiniMax） ──
+  - model_name: kimi-k2.7-code
+    litellm_params:
+      model: openai/kimi-k2.7-code
+      api_base: https://token-plan.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
+      api_key: os.environ/QWEN_MAAS_API_KEY
+      max_tokens: 32768
+    fallback: deepseek-v4-pro
+
+  - model_name: kimi-k2.6
+    litellm_params:
+      model: openai/kimi-k2.6
+      api_base: https://token-plan.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
+      api_key: os.environ/QWEN_MAAS_API_KEY
+      max_tokens: 32768
+    fallback: deepseek-v4-pro
+
+  - model_name: glm-5.2
+    litellm_params:
+      model: openai/glm-5.2
+      api_base: https://token-plan.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
+      api_key: os.environ/QWEN_MAAS_API_KEY
+      max_tokens: 8192
+    fallback: deepseek-v4-pro
+
+  - model_name: glm-5.1
+    litellm_params:
+      model: openai/glm-5.1
+      api_base: https://token-plan.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
+      api_key: os.environ/QWEN_MAAS_API_KEY
+      max_tokens: 8192
+    fallback: deepseek-v4-pro
+
+  - model_name: MiniMax-M2.5
+    litellm_params:
+      model: openai/MiniMax-M2.5
+      api_base: https://token-plan.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
+      api_key: os.environ/QWEN_MAAS_API_KEY
+      max_tokens: 8192
+    fallback: deepseek-v4-pro
 
   # ── 豆包视觉 ──
   - model_name: doubao-1.5-vision-pro

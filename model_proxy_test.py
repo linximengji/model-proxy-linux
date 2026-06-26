@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 # OpenTelemetry — initialized in main()
 
 from proxy_lib import config, sanitize, convert, telemetry, fallback
-from proxy_lib.allocator import Allocator
+from proxy_lib.allocator import MultiModelAllocator
 from proxy_lib.handlers import (
     handle_anthropic, handle_anthropic_stream,
     handle_openai, handle_openai_stream,
@@ -57,7 +57,7 @@ _SUB_AGENT_CLASSIFIER_ROUTE = {
     "complex": "pro",      # sub-agent complex → pro (不碰 qwen 额度)
 }
 
-CLASSIFIER_SYSTEM_PROMPT = """Classify the user message along two dimensions.
+CLASSIFIER_SYSTEM_PROMPT = """Classify the user message along three dimensions.
 
 1. Complexity: trivial, simple, moderate, or complex
    - trivial: greetings, acknowledgments, one-word responses
@@ -65,18 +65,25 @@ CLASSIFIER_SYSTEM_PROMPT = """Classify the user message along two dimensions.
    - moderate: multi-step tasks, code generation, debugging
    - complex: architecture design, complex refactoring, multi-file changes
 
-2. Token budget estimate: low, medium, or high
+2. Task type: code, creative, reasoning, long_context, or general
+   - code: code generation, debugging, refactoring, API design
+   - creative: writing, translation, rewriting, summarization, copywriting
+   - reasoning: architecture planning, multi-step deduction, trade-off analysis
+   - long_context: long document analysis (history >12K tokens)
+   - general: anything not matching the above
+
+3. Token budget estimate: low, medium, or high
    - low: short response expected (<2K tokens)
    - medium: moderate response expected (2-8K tokens)
    - high: long response expected (>8K tokens)
 
 {budget_context}
-Reply with exactly two words: COMPLEXITY BUDGET
-Example: "moderate medium" or "simple low" """
+Reply with exactly three words: COMPLEXITY TASK_TYPE BUDGET
+Example: "moderate code medium" or "complex reasoning high" """
 
 http_client: httpx.AsyncClient | None = None
 ROUTES: dict = {}
-ALLOCATOR = Allocator()  # Token Plan 比例分配器
+ALLOCATOR = MultiModelAllocator()  # Token Plan 多模型分配器
 
 
 def reload_cfg():
@@ -133,7 +140,7 @@ async def _resolve_classifier(resp_future):
     try:
         resp = await resp_future
         if resp is None or resp.status_code != 200:
-            return None, None
+            return None, None, None
         data = resp.json()
         content = ""
         for b in data.get("content", []):
@@ -141,15 +148,18 @@ async def _resolve_classifier(resp_future):
                 content += b.get("text", "")
         words = content.strip().lower().split()
         valid_complexity = {"trivial", "simple", "moderate", "complex"}
+        valid_task_type = {"code", "creative", "reasoning", "long_context", "general"}
         valid_budget = {"low", "medium", "high"}
         complexity = words[0].rstrip(".,;:!?") if len(words) >= 1 else ""
-        budget_est = words[1].rstrip(".,;:!?") if len(words) >= 2 else ""
+        task_type = words[1].rstrip(".,;:!?") if len(words) >= 2 else "general"
+        budget_est = words[2].rstrip(".,;:!?") if len(words) >= 3 else ""
         complexity = complexity if complexity in valid_complexity else None
+        task_type = task_type if task_type in valid_task_type else "general"
         budget_est = budget_est if budget_est in valid_budget else None
-        return complexity, budget_est
+        return complexity, task_type, budget_est
     except Exception as e:
         telemetry.log(f"_resolve_classifier: {type(e).__name__}: {e}", "ERROR", "L2")
-        return None, None
+        return None, None, None
 
 
 # ── Budget-aware routing adjustment ─────────────────────────────────────────
@@ -173,13 +183,13 @@ def _build_budget_context(policy):
     telemetry.write_routing_policy(remaining, credits_total, days)
 
     if days <= 0:
-        ctx = "Token Plan is expired — 0% moderate to qwen."
+        ctx = "Token Plan is expired — 0% moderate/complex to TP models."
     elif ratio >= 0.8:
         ctx = (f"Token Plan: est {remaining:.0f}/{credits_total} credits "
-               f"({remaining/credits_total*100:.0f}%). Burn — {ratio*100:.0f}% moderate to qwen.")
+               f"({remaining/credits_total*100:.0f}%). Burn — {ratio*100:.0f}% TP routing.")
     elif ratio <= 0.2:
         ctx = (f"Token Plan: est {remaining:.0f}/{credits_total} credits "
-               f"({remaining/credits_total*100:.0f}%). Conserve — {ratio*100:.0f}% moderate to qwen.")
+               f"({remaining/credits_total*100:.0f}%). Conserve — {ratio*100:.0f}% TP routing.")
     else:
         ctx = (f"Token Plan: est {remaining:.0f}/{credits_total} credits "
                f"({remaining/credits_total*100:.0f}%). ratio={ratio:.2f}.")
@@ -187,11 +197,9 @@ def _build_budget_context(policy):
     return ctx, ratio
 
 
-def _budget_adjust(complexity, req_id, ratio):
-    """Hash-based 概率分流。只处理 moderate→max tier。"""
-    if ALLOCATOR.should_route_to_max(complexity, req_id, ratio):
-        return _TIERS["max"]
-    return None
+def _allocator_select(complexity, task_type, req_id, ratio):
+    """Multi-model allocator select. Returns TP model name or None."""
+    return ALLOCATOR.select(complexity, task_type, req_id, ratio)
 
 
 # ── Prompt-level @model routing ──────────────────────────────────────────
@@ -200,10 +208,16 @@ _PROMPT_MODEL_RE = re.compile(r'(?:^|\s)@(\S+)\s*$')
 
 
 def _get_alias(tag):
-    """Resolve @tag alias -> model name (tier keys resolved via _TIERS)."""
+    """Resolve @tag alias -> model name."""
     if tag in _TIERS:
         return _TIERS[tag]
     static = {
+        "plus": "qwen3.7-plus",
+        "coder": "kimi-k2.7-code",
+        "kimi": "kimi-k2.6",
+        "glm": "glm-5.2",
+        "minimax": "MiniMax-M2.5",
+        "cheap": "qwen3.6-flash",
         "ds": "qwen3.7-max-ds",
         "qwen": _TIERS["max"],
         "deepseek": _TIERS["pro"],
@@ -315,26 +329,28 @@ def _append_text_to_last_user(body, text):
 
 async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False):
     """Resolve L2 classifier output → route + sanitization."""
-    complexity, budget_est = await _resolve_classifier(l2_future)
+    complexity, task_type, budget_est = await _resolve_classifier(l2_future)
     if complexity is None:
         complexity = "moderate"
+    if task_type is None:
+        task_type = "general"
     route_map = _SUB_AGENT_CLASSIFIER_ROUTE if is_sub_agent else _CLASSIFIER_ROUTE
     tier_key = route_map.get(complexity, "pro")
     model_name = _TIERS.get(tier_key, _TIERS["pro"])
     tag = "L2-sub" if is_sub_agent else "L2"
-    # sub-agent: no budget adjust — always use mapped model
+    # sub-agent: no allocator — always use mapped model
     if is_sub_agent:
-        telemetry.log(f"{tag}: {complexity} + {budget_est or '?'} -> {model_name}", phase="L2")
+        telemetry.log(f"{tag}: {complexity}:{task_type} + {budget_est or '?'} -> {model_name}", phase="L2")
     else:
-        adjusted = _budget_adjust(complexity, telemetry.get_req_id(), ratio)
+        adjusted = _allocator_select(complexity, task_type, telemetry.get_req_id(), ratio)
         if adjusted:
             telemetry.log(
-                f"L2: {complexity} + {budget_est or '?'} -> {model_name}, allocator -> {adjusted} (ratio={ratio:.2f})",
+                f"{tag}: {complexity}:{task_type} + {budget_est or '?'} -> {model_name}, allocator -> {adjusted} (ratio={ratio:.2f})",
                 phase="L2"
             )
             model_name = adjusted
         else:
-            telemetry.log(f"L2: {complexity} + {budget_est or '?'} -> {model_name} (ratio={ratio:.2f})",
+            telemetry.log(f"{tag}: {complexity}:{task_type} + {budget_est or '?'} -> {model_name} (ratio={ratio:.2f})",
                          phase="L2")
     body["model"] = model_name
     route = ROUTES.get(model_name)
