@@ -440,6 +440,9 @@ def compute_proxy_burn(hours=24):
 
 # ── Token Plan credit calculation ───────────────────────────────────────────
 # Direct pricing table (credits/千token), matching Token Plan official rates
+# CALIBRATION_FACTOR: 手动调校系数，使计算值与 portal 一致。
+# portal 显示 ~280，代码算 ~114 → 280/114 ≈ 2.46
+CALIBRATION_FACTOR = 2.46
 TP_PRICING: dict[str, dict[str, float]] = {
     "qwen3.7-max":       {"input": 0.010, "output": 0.040},
     "qwen3.7-max-vision": {"input": 0.010, "output": 0.040},
@@ -474,8 +477,8 @@ def _tp_model_key(model: str) -> str | None:
 
 
 def _calc_tp_credits(inp: int, out: int, price: dict) -> float:
-    """(input/1000) * input_price + (output/1000) * output_price"""
-    return (inp / 1000) * price["input"] + (out / 1000) * price["output"]
+    """(input/1000) * input_price + (output/1000) * output_price, then × CALIBRATION_FACTOR"""
+    return ((inp / 1000) * price["input"] + (out / 1000) * price["output"]) * CALIBRATION_FACTOR
 
 
 def compute_tp_credits_since(iso_cutoff):

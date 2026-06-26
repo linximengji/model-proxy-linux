@@ -239,6 +239,19 @@ def _fuzzy_resolve_model(tag):
     return None
 
 
+def _has_thinking_history(body):
+    """Check if any assistant message in history has thinking blocks."""
+    for msg in body.get("messages", []):
+        if msg.get("role") != "assistant":
+            continue
+        content = msg.get("content", "")
+        if not isinstance(content, list):
+            continue
+        if any(isinstance(b, dict) and b.get("type") == "thinking" for b in content):
+            return True
+    return False
+
+
 def _resolve_prompt_model(body):
     """Scan last user message for trailing @tag, strip it and bypass if recognized."""
     model_name = None
@@ -274,7 +287,7 @@ def _resolve_prompt_model(body):
         body["model"] = model_name
         route = ROUTES[model_name]
         if route.get("provider") == "deepseek":
-            if model_name == _TIERS["flash"] and "thinking" not in body:
+            if model_name == _TIERS["flash"] and "thinking" not in body and not _has_thinking_history(body):
                 body["thinking"] = {"type": "disabled"}
             sanitize.sanitize_for_deepseek(body)
         elif route.get("provider") == "anthropic":
@@ -295,7 +308,7 @@ def _resolve_bypass(body, headers):
         body["model"] = explicit
         route = ROUTES[explicit]
         if route.get("provider") == "deepseek":
-            if explicit == _TIERS["flash"] and "thinking" not in body:
+            if explicit == _TIERS["flash"] and "thinking" not in body and not _has_thinking_history(body):
                 body["thinking"] = {"type": "disabled"}
             sanitize.sanitize_for_deepseek(body)
         elif route.get("provider") == "anthropic":
@@ -359,7 +372,7 @@ async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False):
     body["model"] = model_name
     route = ROUTES.get(model_name)
     if route and route.get("provider") == "deepseek":
-        if model_name == _TIERS["flash"] and "thinking" not in body:
+        if model_name == _TIERS["flash"] and "thinking" not in body and not _has_thinking_history(body):
             body["thinking"] = {"type": "disabled"}
         sanitize.sanitize_for_deepseek(body)
         sanitize.strip_redacted_thinking_only(body)
@@ -430,7 +443,7 @@ def _route_and_sanitize(body):
     if model_name in ROUTES:
         route = ROUTES[model_name]
         if route.get("provider") == "deepseek":
-            if model_name == _TIERS["flash"] and "thinking" not in body:
+            if model_name == _TIERS["flash"] and "thinking" not in body and not _has_thinking_history(body):
                 body["thinking"] = {"type": "disabled"}
             sanitize.sanitize_for_deepseek(body)
             sanitize.strip_redacted_thinking_only(body)
@@ -528,7 +541,7 @@ def _route_and_sanitize(body):
     body["model"] = routed_model
     route = ROUTES.get(routed_model) or ROUTES.get(re.sub(r'\[.*\]', '', routed_model))
     if route and route.get("provider") == "deepseek":
-        if routed_model == _TIERS["flash"] and "thinking" not in body:
+        if routed_model == _TIERS["flash"] and "thinking" not in body and not _has_thinking_history(body):
             body["thinking"] = {"type": "disabled"}
         sanitize.sanitize_for_deepseek(body)
         sanitize.strip_redacted_thinking_only(body)
