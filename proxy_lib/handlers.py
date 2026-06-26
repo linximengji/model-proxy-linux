@@ -308,6 +308,10 @@ async def handle_openai(body, route, model_name, routes, http_client,
                 upstream[key] = _body[key]
             elif r.get(key) is not None and key not in upstream:
                 upstream[key] = r[key]
+        if r["provider"] == "deepseek":
+            bt = _body.get("thinking", {})
+            if isinstance(bt, dict) and bt.get("type") != "enabled":
+                upstream["no_reasoning"] = True
         if "response_format" in upstream and upstream["response_format"].get("type") == "json_object" and r["provider"] == "deepseek":
             upstream["messages"].append({
                 "role": "system",
@@ -418,6 +422,10 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
                 upstream[key] = _body[key]
             elif r.get(key) is not None and key not in upstream:
                 upstream[key] = r[key]
+        if r["provider"] == "deepseek":
+            bt = _body.get("thinking", {})
+            if isinstance(bt, dict) and bt.get("type") != "enabled":
+                upstream["no_reasoning"] = True
         if "response_format" in upstream and upstream["response_format"].get("type") == "json_object" and r["provider"] == "deepseek":
             upstream["messages"].append({
                 "role": "system",
