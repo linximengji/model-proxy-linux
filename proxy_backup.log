@@ -24,3 +24,71 @@ ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 
 --- spawning D:\ClaudeProjects\proxy\proxy_backup.py on 4002 ---
 
 --- spawning D:\ClaudeProjects\proxy\proxy_backup.py on 4002 ---
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 56, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\fastapi\applications.py", line 1159, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\fastapi\routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\fastapi\routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\fastapi\routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\fastapi\routing.py", line 328, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\ClaudeProjects\proxy\proxy_backup.py", line 187, in proxy_openai
+    body = await request.json()
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\site-packages\starlette\requests.py", line 264, in json
+    self._json = json.loads(body)
+                 ~~~~~~~~~~^^^^^^
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\34971\.workbuddy\binaries\python\versions\3.13.12\Lib\json\decoder.py", line 361, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ~~~~~~~~~~~~~~^^^^^^^^
+json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
