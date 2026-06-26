@@ -74,5 +74,5 @@ class MultiModelAllocator:
 
     def _hash_gate(self, key: str, ratio: float) -> bool:
         """确定性 hash 门。返回 True 表示通过（ratio% 的概率）。"""
-        h = int(hashlib.md5(key.encode()).hexdigest(), 16) % 10000
+        h = int(hashlib.md5(key.encode(), usedforsecurity=False).hexdigest(), 16) % 10000
         return h < ratio * 10000

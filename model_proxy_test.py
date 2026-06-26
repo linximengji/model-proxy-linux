@@ -279,6 +279,8 @@ def _resolve_prompt_model(body):
             sanitize.sanitize_for_deepseek(body)
         elif route.get("provider") == "anthropic":
             sanitize.strip_thinking_blocks(body)
+        else:
+            sanitize.strip_thinking_blocks(body)
         telemetry.log(f"BYPASS @model: {model_name}", phase="ROUTE")
         return route, model_name, "prompt-bypass"
     return None, None, None
@@ -297,6 +299,8 @@ def _resolve_bypass(body, headers):
                 body["thinking"] = {"type": "disabled"}
             sanitize.sanitize_for_deepseek(body)
         elif route.get("provider") == "anthropic":
+            sanitize.strip_thinking_blocks(body)
+        else:
             sanitize.strip_thinking_blocks(body)
         telemetry.log(f"BYPASS X-Proxy-Model: {explicit}", phase="ROUTE")
         return route, explicit, "header-bypass"
@@ -360,6 +364,8 @@ async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False):
         sanitize.sanitize_for_deepseek(body)
         sanitize.strip_redacted_thinking_only(body)
     elif route and route.get("provider") == "anthropic":
+        sanitize.strip_thinking_blocks(body)
+    else:
         sanitize.strip_thinking_blocks(body)
     return route, model_name
 
@@ -429,6 +435,8 @@ def _route_and_sanitize(body):
             sanitize.sanitize_for_deepseek(body)
             sanitize.strip_redacted_thinking_only(body)
         elif route.get("provider") == "anthropic":
+            sanitize.strip_thinking_blocks(body)
+        else:
             sanitize.strip_thinking_blocks(body)
         telemetry.log(f"BYPASS agent-model: {model_name}", phase="ROUTE")
         return route, model_name, "agent-model", None, None, False
@@ -525,6 +533,8 @@ def _route_and_sanitize(body):
         sanitize.sanitize_for_deepseek(body)
         sanitize.strip_redacted_thinking_only(body)
     elif route and route.get("provider") == "anthropic":
+        sanitize.strip_thinking_blocks(body)
+    else:
         sanitize.strip_thinking_blocks(body)
     return route, routed_model, reason, None, None, False
 
