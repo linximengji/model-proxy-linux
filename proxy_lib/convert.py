@@ -3,6 +3,21 @@ import json
 import uuid
 
 
+def is_openai_format(body: dict) -> bool:
+    """Detect if body is already in OpenAI message format vs Anthropic format.
+
+    OpenAI format has message-level tool_calls or tool_call_id fields,
+    or tools with a "function" wrapper key.
+    """
+    for msg in body.get("messages", []):
+        if "tool_calls" in msg or "tool_call_id" in msg:
+            return True
+    for t in body.get("tools", []):
+        if "function" in t:
+            return True
+    return False
+
+
 def anthropic_to_openai(body, strip_images=False):
     messages = []
     system = body.get("system")
@@ -105,14 +120,21 @@ def anthropic_to_openai(body, strip_images=False):
         oai["stop"] = body["stop_sequences"]
 
     if body.get("tools"):
-        oai["tools"] = [{
-            "type": "function",
-            "function": {
-                "name": t["name"],
-                "description": t.get("description", ""),
-                "parameters": t.get("input_schema", {}),
-            }
-        } for t in body["tools"]]
+        oai["tools"] = []
+        for t in body["tools"]:
+            if "function" in t:
+                # OpenAI format: {"type": "function", "function": {"name": "...", "parameters": {...}}}
+                oai["tools"].append(t)
+            else:
+                # Anthropic format: {"name": "...", "description": "...", "input_schema": {...}}
+                oai["tools"].append({
+                    "type": "function",
+                    "function": {
+                        "name": t["name"],
+                        "description": t.get("description", ""),
+                        "parameters": t.get("input_schema", {}),
+                    }
+                })
 
     return oai
 

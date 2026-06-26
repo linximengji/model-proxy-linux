@@ -292,10 +292,17 @@ async def handle_openai(body, route, model_name, routes, http_client,
         # Non-deepseek providers often don't support strict in json_schema
         if r["provider"] != "deepseek":
             _body = _strip_strict_from_rf(body)
-        oai_body = convert.anthropic_to_openai(_body)
+        if convert.is_openai_format(_body):
+            messages = list(_body.get("messages", []))
+            sys_text = _body.get("system")
+            if sys_text and (not messages or messages[0].get("role") != "system"):
+                messages.insert(0, {"role": "system", "content": sys_text})
+            oai_messages = messages
+        else:
+            oai_messages = convert.anthropic_to_openai(_body)["messages"]
         upstream = {
             "model": r["model"],
-            "messages": oai_body["messages"],
+            "messages": oai_messages,
             "max_tokens": _body.get("max_tokens", r.get("max_tokens", 4096)),
         }
         for key in ("temperature", "tools", "tool_choice", "top_p", "frequency_penalty", "presence_penalty", "response_format"):
@@ -404,10 +411,17 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
         _body = body
         if r["provider"] != "deepseek":
             _body = _strip_strict_from_rf(body)
-        oai_body = convert.anthropic_to_openai(_body)
+        if convert.is_openai_format(_body):
+            messages = list(_body.get("messages", []))
+            sys_text = _body.get("system")
+            if sys_text and (not messages or messages[0].get("role") != "system"):
+                messages.insert(0, {"role": "system", "content": sys_text})
+            oai_messages = messages
+        else:
+            oai_messages = convert.anthropic_to_openai(_body)["messages"]
         upstream = {
             "model": r["model"],
-            "messages": oai_body["messages"],
+            "messages": oai_messages,
             "max_tokens": _body.get("max_tokens", r.get("max_tokens", 4096)),
             "stream": True,
             "stream_options": {"include_usage": True},
