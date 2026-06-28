@@ -302,10 +302,16 @@ def _has_thinking_history(body):
 
 
 def _disable_thinking_if_mixed_history(body):
-    """If thinking is enabled but conversation has mixed thinking/no-thinking
-    assistant messages (due to model switching mid-conversation), disable thinking
-    to avoid DeepSeek 400 error 'content[].thinking must be passed back.'"""
-    if body.get("thinking", {}).get("type") != "enabled":
+    """Disable thinking when conversation has mixed thinking/non-thinking
+    assistant messages. DeepSeek returns 400 'content[].thinking must be passed
+    back' when thinking is enabled (explicitly or by default) but some assistant
+    messages in history lack thinking blocks."""
+    thinking_val = body.get("thinking", {})
+    if not isinstance(thinking_val, dict):
+        return
+    thinking_type = thinking_val.get("type") if isinstance(thinking_val, dict) else None
+    thinking_is_explicitly_disabled = thinking_type == "disabled"
+    if thinking_is_explicitly_disabled:
         return
     has_thinking = False
     has_non_thinking = False
@@ -328,7 +334,7 @@ def _disable_thinking_if_mixed_history(body):
         body["thinking"] = {"type": "disabled"}
         sanitize.strip_thinking_blocks(body)
         telemetry.log("Mixed thinking/non-thinking history — disabled thinking and stripped blocks",
-                      phase="SANITIZE")
+                      "WARN", "SANITIZE")
 
 
 # ── Routing ────────────────────────────────────────────────────────────────
@@ -617,6 +623,7 @@ def _resanitize_for_upgrade(body, new_route, old_route):
     if new_prov == old_prov or new_prov is None:
         return
     if new_prov == "deepseek":
+        _disable_thinking_if_mixed_history(body)
         sanitize.sanitize_for_deepseek(body)
         sanitize.strip_redacted_thinking_only(body)
     elif new_prov == "anthropic":

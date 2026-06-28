@@ -181,7 +181,7 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                                     if not ms:
                                         ms = True
                                         yield sse_encode("message_start", {
-                                            "type": "message_start", "message": {"id": "", "model": m, "role": "assistant", "content": []},
+                                            "type": "message_start", "message": {"id": "", "model": m, "role": "assistant", "content": [], "usage": {"input_tokens": 0}},
                                         })
                                     ti = nbi; nbi += 1
                                     yield sse_encode("content_block_start", {
@@ -201,7 +201,7 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                                         if not ms:
                                             ms = True
                                             yield sse_encode("message_start", {
-                                                "type": "message_start", "message": {"id": "", "model": m, "role": "assistant", "content": []},
+                                                "type": "message_start", "message": {"id": "", "model": m, "role": "assistant", "content": [], "usage": {"input_tokens": 0}},
                                             })
                                         tb = {"idx": nbi, "id": tc.get("id", ""), "name": func_delta.get("name", "")}
                                         tbs[tci] = tb
@@ -237,7 +237,7 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                                 yield sse_encode("message_delta", {
                                     "type": "message_delta",
                                     "delta": {"stop_reason": sr},
-                                    "usage": {"output_tokens": out},
+                                    "usage": {"input_tokens": inp, "output_tokens": out},
                                 })
                                 yield sse_encode("message_stop", {"type": "message_stop"})
                         if inp or out:
