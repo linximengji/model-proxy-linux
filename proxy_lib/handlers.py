@@ -40,10 +40,13 @@ async def _error_response(e):
     return JSONResponse({"error": str(e)}, status_code=502)
 
 
+def _inject_attribution(model_name: str) -> str:
+    return f"\n\n[来自 @model: {model_name}]"
+
 # Anthropic non-stream
 
 async def handle_anthropic(body, route, model_name, routes, http_client,
-                           work_dir=None, session_id=None):
+                           work_dir=None, session_id=None, _reason=None):
     def build_kwargs(r, _m):
         if r["provider"] in ("deepseek", "anthropic"):
             upstream = body.copy()
@@ -87,6 +90,11 @@ async def handle_anthropic(body, route, model_name, routes, http_client,
                                         usage.get("output_tokens", 0),
                                         usage.get("cache_read_input_tokens", 0),
                                         work_dir, session_id)
+            if _reason == "prompt-bypass" and resp.status_code == 200:
+                attribution = _inject_attribution(used_model)
+                raw.setdefault("content", []).append(
+                    {"type": "text", "text": attribution}
+                )
             data = json.dumps(raw).encode("utf-8")
             if resp.status_code == 400:
                 err_text = data.decode("utf-8", errors="replace") if isinstance(data, bytes) else str(data)
@@ -101,6 +109,10 @@ async def handle_anthropic(body, route, model_name, routes, http_client,
             await telemetry.record_tokens(used_model, usage.get("prompt_tokens", 0),
                                     usage.get("completion_tokens", 0),
                                     work_dir=work_dir, session_id=session_id)
+        if _reason == "prompt-bypass":
+            result.setdefault("content", []).append(
+                {"type": "text", "text": _inject_attribution(used_model)}
+            )
         return JSONResponse(result)
     except httpx.HTTPStatusError as e:
         log(f"<- ERR {e.response.status_code} {model_name}: {e.response.reason_phrase}", "ERROR", "UPSTREAM")
@@ -113,11 +125,11 @@ async def handle_anthropic(body, route, model_name, routes, http_client,
 # Anthropic stream
 
 async def handle_anthropic_stream(body, route, model_name, routes, http_client,
-                                  work_dir=None, session_id=None):
+                                  work_dir=None, session_id=None, _reason=None):
     models_to_try = fallback.build_fallback_chain(route, model_name, routes)
 
     async def event_generator():
-        nonlocal model_name
+        nonlocal model_name, _reason
         last_err = None
         i = 0
         while i < len(models_to_try):
@@ -151,6 +163,11 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                         if inp or out:
                             await telemetry.record_tokens(model_name, inp, out, cache,
                                                     work_dir, session_id)
+                        if _reason == "prompt-bypass":
+                            attr = _inject_attribution(model_name)
+                            yield sse_encode("content_block_start", {"type": "content_block_start", "index": 999, "content_block": {"type": "text", "text": ""}})
+                            yield sse_encode("content_block_delta", {"type": "content_block_delta", "index": 999, "delta": {"type": "text_delta", "text": attr}})
+                            yield sse_encode("content_block_stop", {"type": "content_block_stop", "index": 999})
                         return
                 else:
                     kwargs = _openai_stream_kwargs(body, r, m)
@@ -240,6 +257,12 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                                 for tci in sorted(tbs):
                                     yield sse_encode("content_block_stop",
                                                      {"type": "content_block_stop", "index": tbs[tci]["idx"]})
+                                if _reason == "prompt-bypass":
+                                    nbi += 1
+                                    attr = _inject_attribution(model_name)
+                                    yield sse_encode("content_block_start", {"type": "content_block_start", "index": nbi, "content_block": {"type": "text", "text": ""}})
+                                    yield sse_encode("content_block_delta", {"type": "content_block_delta", "index": nbi, "delta": {"type": "text_delta", "text": attr}})
+                                    yield sse_encode("content_block_stop", {"type": "content_block_stop", "index": nbi})
                                 sr = "end_turn"
                                 if finish == "length": sr = "max_tokens"
                                 elif finish == "tool_calls": sr = "tool_use"
@@ -290,7 +313,7 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
 # OpenAI non-stream
 
 async def handle_openai(body, route, model_name, routes, http_client,
-                        work_dir=None, session_id=None):
+                        work_dir=None, session_id=None, _reason=None):
     def build_kwargs(r, _m):
         if r["provider"] == "deepseek":
             api_base = "https://api.deepseek.com/v1"
@@ -398,6 +421,11 @@ async def handle_openai(body, route, model_name, routes, http_client,
                     except json.JSONDecodeError:
                         pass  # leave original
         log(f"<- 200 {model_name} openai-nonstream", phase="UPSTREAM")
+        if _reason == "prompt-bypass" and body_json.get("choices"):
+            attr = _inject_attribution(model_name)
+            for c in body_json["choices"]:
+                existing = c.get("message", {}).get("content", "") or ""
+                c["message"]["content"] = existing + attr
         return JSONResponse(content=body_json, status_code=resp.status_code)
     except httpx.HTTPStatusError as e:
         log(f"<- ERR {e.response.status_code} {model_name} openai: {e.response.reason_phrase}", "ERROR", "UPSTREAM")
@@ -410,7 +438,7 @@ async def handle_openai(body, route, model_name, routes, http_client,
 # OpenAI stream
 
 async def handle_openai_stream(body, route, model_name, routes, http_client,
-                                work_dir=None, session_id=None):
+                                work_dir=None, session_id=None, _reason=None):
     def build_kwargs(r, _m):
         if r["provider"] == "deepseek":
             api_base = "https://api.deepseek.com/v1"
@@ -521,7 +549,7 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
         return b"".join(out_parts)
 
     async def event_generator():
-        nonlocal line_buffer
+        nonlocal line_buffer, _reason
         last_err = None
         for i, (r, m) in enumerate(models_to_try):
             try:
@@ -563,6 +591,12 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
                     if inp or out:
                         await telemetry.record_tokens(m, inp, out,
                                                 work_dir=work_dir, session_id=session_id)
+                    if _reason == "prompt-bypass":
+                        attr = _inject_attribution(model_name)
+                        attr_chunk = {
+                            "choices": [{"delta": {"content": attr}, "index": 0, "finish_reason": None}]
+                        }
+                        yield b"data: " + json.dumps(attr_chunk).encode("utf-8") + b"\n\n"
                     return
             except httpx.HTTPStatusError as e:
                 code = e.response.status_code

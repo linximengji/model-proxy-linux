@@ -1,0 +1,599 @@
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:708: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:714: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+[21:44:50] [9f0e50b8] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:44:50] [9f0e50b8] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:44:50] [9f0e50b8] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:44:53] [83823857] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:44:53] [83823857] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[21:44:54] [83823857] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[21:44:58] [09482ac5] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:44:58] [09482ac5] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:44:58] [09482ac5] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:45:01] [b03bfce6] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:45:01] [b03bfce6] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:45:01] [b03bfce6] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:45:08] [55f4afb7] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:45:08] [55f4afb7] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:45:08] [55f4afb7] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:45:12] [3a333e83] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:45:12] [3a333e83] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[21:45:17] [3a333e83] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[21:46:41] [0dbce92b] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:46:41] [0dbce92b] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:46:41] [0dbce92b] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:46:44] [7f02ea96] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:46:44] [7f02ea96] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[21:46:44] [7f02ea96] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[21:46:49] [cfa6ac79] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:46:49] [cfa6ac79] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:46:49] [cfa6ac79] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:46:51] [6379e1af] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:46:51] [6379e1af] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:46:51] [6379e1af] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:46:58] [8e9de120] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:46:58] [8e9de120] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:46:58] [8e9de120] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:47:01] [c6bc7b56] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:47:01] [c6bc7b56] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[21:47:07] [c6bc7b56] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[21:48:31] [74be51ed] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:48:31] [74be51ed] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:48:31] [74be51ed] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:48:34] [e00f0eaf] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:48:34] [e00f0eaf] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[21:48:34] [e00f0eaf] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[21:48:38] [158722d5] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:48:38] [158722d5] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:48:38] [158722d5] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:48:41] [ded3fd29] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:48:41] [ded3fd29] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:48:41] [ded3fd29] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:48:48] [7e636e00] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:48:48] [7e636e00] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:48:48] [7e636e00] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:48:53] [e7ec3fdd] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:48:53] [e7ec3fdd] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[21:49:05] [e7ec3fdd] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[21:49:14] [5493fbd0] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:49:14] [5493fbd0] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:49:15] [0c011339] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:49:15] [0c011339] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:49:15] [0c011339] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'adaptive'}, no_reasoning=None, asst_msgs=18, asst_with_thinking=0
+[21:49:38] [96b34527] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:49:38] [96b34527] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:49:38] [96b34527] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:49:38] [2d360f97] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:49:38] [2d360f97] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:49:38] [2d360f97] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:49:38] [2d360f97] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=19, asst_with_thinking=0
+[21:49:49] [70c68349] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:49:49] [70c68349] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:49:49] [70c68349] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:49:50] [ec3d6fb2] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:49:50] [ec3d6fb2] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:49:50] [ec3d6fb2] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:49:50] [ec3d6fb2] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=20, asst_with_thinking=0
+[21:49:59] [6ed2ca09] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:49:59] [6ed2ca09] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:49:59] [6ed2ca09] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:49:59] [75cc7e10] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:49:59] [75cc7e10] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:49:59] [75cc7e10] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:49:59] [75cc7e10] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=21, asst_with_thinking=0
+[21:50:09] [5abdcc20] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:09] [5abdcc20] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:09] [5abdcc20] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:50:09] [5db047a8] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:09] [5db047a8] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:09] [5db047a8] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:50:09] [5db047a8] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=22, asst_with_thinking=0
+[21:50:11] [3aa16147] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:11] [3aa16147] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:11] [3aa16147] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:50:11] [878cd908] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:11] [878cd908] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:11] [878cd908] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:50:11] [878cd908] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=23, asst_with_thinking=0
+[21:50:14] [7227cff3] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:14] [7227cff3] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:14] [7227cff3] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:50:14] [4e0ecfcf] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:14] [4e0ecfcf] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:14] [4e0ecfcf] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:50:14] [4e0ecfcf] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=24, asst_with_thinking=0
+[21:50:18] [93801e1d] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:18] [93801e1d] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:18] [93801e1d] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:50:18] [e122ed74] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:18] [e122ed74] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:18] [e122ed74] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:50:18] [e122ed74] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=25, asst_with_thinking=0
+[21:50:26] [319be349] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:26] [319be349] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:26] [319be349] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:50:27] [407d95fc] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:50:27] [407d95fc] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:50:27] [407d95fc] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:50:27] [1f162e54] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:27] [1f162e54] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:27] [1f162e54] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:50:27] [1f162e54] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=26, asst_with_thinking=0
+[21:50:29] [4f382b1c] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:29] [4f382b1c] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:29] [4f382b1c] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:50:29] [629ae027] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:29] [629ae027] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:29] [629ae027] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:50:29] [629ae027] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=27, asst_with_thinking=0
+[21:50:30] [6410e198] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:50:30] [6410e198] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[21:50:31] [6410e198] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[21:50:32] [9c9ead57] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:32] [9c9ead57] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:32] [9c9ead57] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:50:32] [842b3758] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:32] [842b3758] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:32] [842b3758] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:50:32] [842b3758] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=28, asst_with_thinking=0
+[21:50:34] [9f3454be] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:34] [9f3454be] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:34] [9f3454be] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:50:35] [884801e8] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:50:35] [884801e8] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:50:35] [884801e8] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:50:35] [78191dfe] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:35] [78191dfe] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:35] [78191dfe] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:50:35] [78191dfe] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=29, asst_with_thinking=0
+[21:50:37] [8843f81d] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:50:37] [8843f81d] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:50:37] [8843f81d] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:50:44] [a19bb4af] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:50:44] [a19bb4af] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:50:44] [a19bb4af] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:50:45] [4c4d0faa] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:45] [4c4d0faa] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:45] [4c4d0faa] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:50:45] [823393e6] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:45] [823393e6] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:45] [823393e6] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:50:45] [823393e6] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=30, asst_with_thinking=0
+[21:50:48] [52c104b1] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:48] [52c104b1] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[21:50:52] [52c104b1] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[21:50:57] [ea57e436] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:57] [ea57e436] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:57] [ea57e436] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:50:57] [6dd2871a] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:50:57] [6dd2871a] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:50:57] [6dd2871a] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:50:57] [6dd2871a] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=31, asst_with_thinking=0
+[21:51:05] [759e1212] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:51:05] [759e1212] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:51:05] [759e1212] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:51:05] [baa07535] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:51:05] [baa07535] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:51:05] [baa07535] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:51:05] [baa07535] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=32, asst_with_thinking=0
+[21:51:15] [2b286e61] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:51:15] [2b286e61] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:51:15] [2b286e61] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:51:16] [a9f9ae23] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:51:16] [a9f9ae23] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:51:16] [a9f9ae23] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:51:16] [a9f9ae23] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=33, asst_with_thinking=0
+[21:51:18] [c7e5a272] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:51:18] [c7e5a272] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:51:18] [c7e5a272] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:51:19] [530a2d0d] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:51:19] [530a2d0d] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:51:19] [530a2d0d] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:51:19] [530a2d0d] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=34, asst_with_thinking=0
+[21:52:15] [801cdf61] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:52:15] [801cdf61] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:52:15] [801cdf61] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:52:18] [4dd9e287] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:52:18] [4dd9e287] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[21:52:19] [4dd9e287] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[21:52:23] [212bdbfa] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:52:23] [212bdbfa] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:52:23] [212bdbfa] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:52:26] [f4dc7b02] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:52:26] [f4dc7b02] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:52:26] [f4dc7b02] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:52:33] [06039938] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:52:33] [06039938] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:52:33] [06039938] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:52:36] [4e91c79f] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:52:36] [4e91c79f] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[21:52:42] [4e91c79f] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[21:54:06] [6e700c19] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:54:06] [6e700c19] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:54:06] [6e700c19] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:54:09] [2bbc3daa] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:54:09] [2bbc3daa] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[21:54:10] [2bbc3daa] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[21:54:14] [197847c3] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:54:14] [197847c3] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:54:14] [197847c3] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:54:17] [abd03342] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:54:17] [abd03342] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:54:17] [abd03342] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:54:24] [3fc97338] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:54:24] [3fc97338] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:54:24] [3fc97338] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:54:27] [7ac8946d] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:54:27] [7ac8946d] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[21:54:35] [7ac8946d] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[21:54:47] [6cf19ea1] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:54:47] [6cf19ea1] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:54:47] [6cf19ea1] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:54:48] [6604ce23] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:54:48] [6604ce23] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:54:48] [6604ce23] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:54:48] [6604ce23] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=35, asst_with_thinking=0
+[21:55:01] [e801af7f] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:55:01] [e801af7f] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:55:01] [e801af7f] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:55:03] [f4c176af] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:55:03] [f4c176af] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:55:03] [f4c176af] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:55:03] [f4c176af] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=36, asst_with_thinking=0
+[21:55:10] [7183032a] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:55:10] [7183032a] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:55:10] [7183032a] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:55:11] [84ce32ac] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:55:11] [84ce32ac] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:55:11] [84ce32ac] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:55:11] [84ce32ac] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=37, asst_with_thinking=0
+[21:55:23] [c1e29a76] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:55:23] [c1e29a76] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:55:23] [c1e29a76] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:55:23] [6f19f5cb] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:55:23] [6f19f5cb] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:55:23] [6f19f5cb] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:55:23] [6f19f5cb] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=38, asst_with_thinking=0
+[21:55:26] [52900158] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:55:26] [52900158] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:55:26] [52900158] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:55:27] [676ad0a5] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:55:27] [676ad0a5] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:55:27] [676ad0a5] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:55:27] [676ad0a5] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=39, asst_with_thinking=0
+[21:55:29] [ab7714fa] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:55:29] [ab7714fa] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:55:29] [ab7714fa] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:55:29] [ebe7acdf] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:55:29] [ebe7acdf] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:55:29] [ebe7acdf] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:55:29] [ebe7acdf] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=40, asst_with_thinking=0
+[21:55:44] [f2cc2e01] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:55:44] [f2cc2e01] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:55:44] [f2cc2e01] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:55:44] [785ec145] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:55:44] [785ec145] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:55:44] [785ec145] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:55:44] [785ec145] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=41, asst_with_thinking=0
+[21:55:52] [27c84b34] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:55:52] [27c84b34] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:55:52] [27c84b34] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:55:53] [cf7deb18] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:55:53] [cf7deb18] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:55:53] [cf7deb18] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:55:53] [cf7deb18] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=42, asst_with_thinking=0
+[21:55:59] [32381e4c] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:55:59] [32381e4c] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:55:59] [32381e4c] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:56:02] [5c0aa02e] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:56:02] [5c0aa02e] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[21:56:03] [5c0aa02e] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[21:56:04] [e2958064] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:56:04] [e2958064] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:56:04] [e2958064] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:56:05] [6f7319bc] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:56:05] [6f7319bc] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:56:05] [6f7319bc] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:56:05] [6f7319bc] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=43, asst_with_thinking=0
+[21:56:07] [64f222b9] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:56:07] [64f222b9] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:56:07] [64f222b9] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:56:10] [9ea54df5] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:56:10] [9ea54df5] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:56:10] [9ea54df5] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:56:17] [5160ae87] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:56:17] [5160ae87] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:56:17] [5160ae87] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:56:17] [4895df2b] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:56:17] [4895df2b] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:56:17] [4895df2b] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:56:17] [ab48fce8] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:56:17] [ab48fce8] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:56:17] [ab48fce8] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:56:17] [ab48fce8] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=44, asst_with_thinking=0
+[21:56:19] [ca69444e] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:56:19] [ca69444e] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:56:19] [ca69444e] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:56:20] [c1ffdfbb] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:56:20] [c1ffdfbb] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:56:20] [c1ffdfbb] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:56:20] [c1ffdfbb] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=45, asst_with_thinking=0
+[21:56:20] [eb797b7a] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:56:20] [eb797b7a] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[21:56:23] [26ed5f6b] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:56:23] [26ed5f6b] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:56:23] [26ed5f6b] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:56:23] [8b2723f3] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:56:23] [8b2723f3] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:56:23] [8b2723f3] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:56:23] [8b2723f3] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=46, asst_with_thinking=0
+[21:56:25] [eb797b7a] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[21:56:30] [36607372] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:56:30] [36607372] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:56:30] [36607372] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:56:31] [6aa42975] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:56:31] [6aa42975] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:56:31] [6aa42975] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:56:31] [6aa42975] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=47, asst_with_thinking=0
+[21:56:33] [65e42b02] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:56:33] [65e42b02] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:56:33] [65e42b02] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:56:33] [0880af45] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:56:33] [0880af45] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:56:33] [0880af45] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:56:33] [0880af45] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=48, asst_with_thinking=0
+[21:56:36] [e78fd53b] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:56:36] [e78fd53b] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:56:36] [e78fd53b] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:56:37] [e12d3ef7] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:56:37] [e12d3ef7] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:56:37] [e12d3ef7] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:56:37] [e12d3ef7] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=49, asst_with_thinking=0
+[21:56:53] [7625cd44] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:56:53] [7625cd44] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:56:53] [7625cd44] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:56:53] [6a8cf8bb] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:56:53] [6a8cf8bb] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:56:53] [6a8cf8bb] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:56:53] [6a8cf8bb] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=50, asst_with_thinking=0
+[21:57:10] [cb5ec294] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:57:10] [cb5ec294] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:57:10] [cb5ec294] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[21:57:11] [de0593a9] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:57:11] [de0593a9] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:57:11] [de0593a9] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[21:57:11] [de0593a9] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=51, asst_with_thinking=0
+[21:57:48] [f05577c5] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:57:48] [f05577c5] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:57:48] [f05577c5] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:57:51] [a0e46aa3] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:57:51] [a0e46aa3] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[21:57:52] [a0e46aa3] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[21:57:56] [7102612e] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:57:56] [7102612e] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:57:56] [7102612e] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:57:59] [14e016cc] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:57:59] [14e016cc] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:57:59] [14e016cc] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:58:06] [960f31f9] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:58:06] [960f31f9] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:58:06] [960f31f9] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:58:10] [c3f7e2e3] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:58:10] [c3f7e2e3] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[21:58:14] [c3f7e2e3] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[21:59:38] [d674c2c1] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:59:38] [d674c2c1] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:59:38] [d674c2c1] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:59:41] [00e26b7c] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:59:41] [00e26b7c] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[21:59:42] [00e26b7c] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[21:59:46] [9549a8d7] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:59:46] [9549a8d7] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:59:46] [9549a8d7] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:59:49] [506b2378] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:59:49] [506b2378] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:59:49] [506b2378] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:59:56] [4cdc3917] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[21:59:56] [4cdc3917] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[21:59:56] [4cdc3917] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[21:59:59] [e31db195] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:59:59] [e31db195] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[21:59:59] [2832e914] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[21:59:59] [2832e914] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[21:59:59] [2832e914] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:00:00] [c6c5069a] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:00] [c6c5069a] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:00] [c6c5069a] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:00:00] [c6c5069a] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=52, asst_with_thinking=0
+[22:00:01] [e31db195] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[22:00:08] [27a54618] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:08] [27a54618] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:08] [27a54618] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:00:08] [2812013b] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:08] [2812013b] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:08] [2812013b] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:00:08] [2812013b] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=53, asst_with_thinking=0
+[22:00:11] [143d27fb] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:11] [143d27fb] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:11] [143d27fb] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:00:11] [db0ddbe8] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:11] [db0ddbe8] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:11] [db0ddbe8] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:00:11] [db0ddbe8] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=54, asst_with_thinking=0
+[22:00:14] [bd0df7ed] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:14] [bd0df7ed] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:14] [bd0df7ed] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:00:14] [6d5d6717] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:14] [6d5d6717] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:14] [6d5d6717] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:00:14] [6d5d6717] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=55, asst_with_thinking=0
+[22:00:18] [14bd2e71] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:18] [14bd2e71] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:18] [14bd2e71] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:00:18] [163aeab3] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:18] [163aeab3] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:18] [163aeab3] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:00:18] [163aeab3] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=56, asst_with_thinking=0
+[22:00:21] [2d4c6eb6] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:21] [2d4c6eb6] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:21] [2d4c6eb6] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:00:22] [33218f3e] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:22] [33218f3e] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:22] [33218f3e] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:00:22] [33218f3e] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=57, asst_with_thinking=0
+[22:00:24] [650c40bd] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:24] [650c40bd] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:24] [650c40bd] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:00:25] [fded82a1] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:25] [fded82a1] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:25] [fded82a1] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:00:25] [fded82a1] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=58, asst_with_thinking=0
+[22:00:27] [87666f25] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:27] [87666f25] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:27] [87666f25] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:00:28] [412867b9] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:28] [412867b9] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:28] [412867b9] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:00:28] [412867b9] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=59, asst_with_thinking=0
+[22:00:36] [0b4cadde] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:36] [0b4cadde] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:36] [0b4cadde] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:00:36] [c0080a01] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:36] [c0080a01] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:36] [c0080a01] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:00:36] [c0080a01] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=60, asst_with_thinking=0
+[22:00:50] [29ea9d35] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:50] [29ea9d35] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:50] [29ea9d35] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:00:51] [b5c445dd] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:51] [b5c445dd] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:51] [b5c445dd] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:00:51] [b5c445dd] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=61, asst_with_thinking=0
+[22:00:54] [76c34ddd] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:54] [76c34ddd] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:54] [76c34ddd] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:00:54] [8787a0e3] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:00:54] [8787a0e3] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:00:54] [8787a0e3] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:00:54] [8787a0e3] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=62, asst_with_thinking=0
+[22:01:03] [7fbd43ac] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:03] [7fbd43ac] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:03] [7fbd43ac] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:01:03] [5ecd11d3] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:03] [5ecd11d3] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:03] [5ecd11d3] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:01:03] [5ecd11d3] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=63, asst_with_thinking=0
+[22:01:06] [c13799b5] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:06] [c13799b5] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:06] [c13799b5] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:01:07] [88206d64] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:07] [88206d64] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:07] [88206d64] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:01:07] [88206d64] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=64, asst_with_thinking=0
+[22:01:09] [cec5ecd0] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:09] [cec5ecd0] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:09] [cec5ecd0] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:01:10] [e2f57b7d] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:10] [e2f57b7d] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:10] [e2f57b7d] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:01:10] [e2f57b7d] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=65, asst_with_thinking=0
+[22:01:13] [114a826b] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:13] [114a826b] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:13] [114a826b] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:01:14] [f6344c35] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:14] [f6344c35] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:14] [f6344c35] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:01:14] [f6344c35] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=66, asst_with_thinking=0
+[22:01:17] [eccccc69] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:17] [eccccc69] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:17] [eccccc69] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:01:18] [e55c1668] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:18] [e55c1668] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:18] [e55c1668] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:01:18] [e55c1668] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=67, asst_with_thinking=0
+[22:01:24] [f7e3cf3a] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:25] [f7e3cf3a] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:25] [f7e3cf3a] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:01:25] [fa61c2b2] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:01:25] [fa61c2b2] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:01:25] [fa61c2b2] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[22:01:25] [825321b4] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:25] [825321b4] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:25] [825321b4] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:01:25] [825321b4] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=68, asst_with_thinking=0
+[22:01:28] [8130dd29] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:01:28] [8130dd29] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[22:01:28] [8130dd29] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[22:01:32] [7356c2fd] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:01:32] [7356c2fd] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:01:32] [7356c2fd] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[22:01:33] [8703bc40] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:33] [8703bc40] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:33] [8703bc40] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:01:34] [70ffd559] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:34] [70ffd559] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:34] [70ffd559] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:01:34] [70ffd559] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=69, asst_with_thinking=0
+[22:01:35] [6a2706a1] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:01:35] [6a2706a1] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:01:35] [6a2706a1] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[22:01:37] [f491f925] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:37] [f491f925] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:37] [f491f925] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:01:37] [9a8acaeb] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:37] [9a8acaeb] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:37] [9a8acaeb] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:01:37] [9a8acaeb] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=70, asst_with_thinking=0
+[22:01:42] [1303b10e] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:01:42] [1303b10e] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:01:42] [1303b10e] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[22:01:44] [716655bb] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:44] [716655bb] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:44] [716655bb] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:01:45] [7e571245] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:01:45] [7e571245] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:45] [7e571245] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:01:45] [7e571245] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=71, asst_with_thinking=0
+[22:01:45] [0a6cb10a] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:01:45] [0a6cb10a] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[22:01:53] [0a6cb10a] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[22:02:46] [fc9dc681] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:02:46] [fc9dc681] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:02:46] [fc9dc681] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:02:47] [a180b7e3] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:02:47] [a180b7e3] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:02:47] [a180b7e3] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:02:47] [a180b7e3] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=72, asst_with_thinking=0
+[22:02:56] [558328fd] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:02:56] [558328fd] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:02:56] [558328fd] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[22:02:56] [e09c31d5] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[22:02:56] [e09c31d5] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[22:02:56] [e09c31d5] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[22:02:56] [e09c31d5] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=73, asst_with_thinking=0
+[22:03:16] [a9731886] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:03:16] [a9731886] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:03:16] [a9731886] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[22:03:19] [31c7ef81] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:03:19] [31c7ef81] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[22:03:20] [31c7ef81] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[22:03:24] [869a145a] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:03:24] [869a145a] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:03:24] [869a145a] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[22:03:27] [ce40a216] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[22:03:27] [ce40a216] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[22:03:27] [ce40a216] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[22:03:27] [ce40a216] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0

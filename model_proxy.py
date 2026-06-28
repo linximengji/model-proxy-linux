@@ -25,6 +25,8 @@ from proxy_lib.handlers import (
 )
 
 START_TIME = time.time()
+_restart_port = 4000
+_restart_args: list = []
 
 # ── Model tiers ─────────────────────────────────────────────────────────────
 # Maps tier key → actual model name (from .env TIER_* vars, fallback defaults).
@@ -751,13 +753,35 @@ async def reload_endpoint():
 
 @app.post("/v1/restart")
 async def restart_self():
-    """Graceful self-restart. Sends SIGTERM to self; ops-daemon auto-restores."""
-    telemetry.log("Restart requested via /v1/restart — exiting", phase="SYSTEM")
-    import threading
-    def _die():
+    """Graceful restart: spawn new process, then shutdown current uvicorn.
+    New process inherits same port and args. No downtime — new process starts
+    before old one exits, and port binding happens after old process releases it
+    (~1-2s window, acceptable for internal proxy)."""
+    import subprocess as _sp
+    telemetry.log("Restart requested via /v1/restart", phase="SYSTEM")
+
+    port = _restart_port
+    extra_args = _restart_args
+    py = sys.executable
+    script = os.path.abspath(__file__)
+
+    # Spawn replacement
+    cmd = [py, script, str(port)] + extra_args
+    _sp.Popen(cmd, creationflags=0x08000000 if sys.platform == "win32" else 0)  # CREATE_NO_WINDOW
+
+    # Shutdown uvicorn after 0.5s (let response flush)
+    def _shutdown():
+        import asyncio as _asyncio
         time.sleep(0.5)
-        os.kill(os.getpid(), signal.SIGTERM)
-    threading.Thread(target=_die, daemon=True).start()
+        try:
+            _loop = _asyncio.new_event_loop()
+            _loop.run_until_complete(telemetry.shutdown())
+        except Exception:
+            pass
+        os._exit(0)
+
+    import threading
+    threading.Thread(target=_shutdown, daemon=True).start()
     return JSONResponse({"status": "restarting"})
 
 
@@ -826,10 +850,11 @@ async def proxy_anthropic(request: Request):
     try:
         if is_stream:
             return await handle_anthropic_stream(body, route, model_name, ROUTES,
-                                                  http_client, work_dir, session_id)
+                                                  http_client, work_dir, session_id,
+                                                  _reason=_reason)
         else:
             return await handle_anthropic(body, route, model_name, ROUTES, http_client,
-                                          work_dir, session_id)
+                                          work_dir, session_id, _reason=_reason)
     finally:
         await telemetry.record_latency(model_name, (time.time() - _t0) * 1000)
 
@@ -871,10 +896,11 @@ async def proxy_openai(request: Request):
     try:
         if is_stream:
             return await handle_openai_stream(body, route, model_name_display, ROUTES,
-                                               http_client, work_dir, session_id)
+                                               http_client, work_dir, session_id,
+                                               _reason=_reason)
         else:
             return await handle_openai(body, route, model_name_display, ROUTES, http_client,
-                                       work_dir, session_id)
+                                       work_dir, session_id, _reason=_reason)
     finally:
         await telemetry.record_latency(model_name_display, (time.time() - _t0) * 1000)
 
@@ -927,6 +953,11 @@ def main():
 
     import uvicorn
     port = int(args[0]) if args else 4000
+
+    # Store for /v1/restart
+    global _restart_port, _restart_args
+    _restart_port = port
+    _restart_args = [a for a in sys.argv[1:] if a.startswith("-")]
 
     pid_path = os.path.join(log_dir, "proxy.pid")
     with open(pid_path, "w") as f:

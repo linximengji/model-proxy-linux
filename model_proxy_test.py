@@ -784,10 +784,11 @@ async def proxy_anthropic(request: Request):
     try:
         if is_stream:
             return await handle_anthropic_stream(body, route, model_name, ROUTES,
-                                                  http_client, work_dir, session_id)
+                                                  http_client, work_dir, session_id,
+                                                  _reason=_reason)
         else:
             return await handle_anthropic(body, route, model_name, ROUTES, http_client,
-                                          work_dir, session_id)
+                                          work_dir, session_id, _reason=_reason)
     finally:
         await telemetry.record_latency(model_name, (time.time() - _t0) * 1000)
 
@@ -825,9 +826,11 @@ async def proxy_openai(request: Request):
     _t0 = time.time()
     try:
         if is_stream:
-            return await handle_openai_stream(body, route, model_name_display, ROUTES, http_client)
+            return await handle_openai_stream(body, route, model_name_display, ROUTES, http_client,
+                                               _reason=_reason)
         else:
-            return await handle_openai(body, route, model_name_display, ROUTES, http_client)
+            return await handle_openai(body, route, model_name_display, ROUTES, http_client,
+                                       _reason=_reason)
     finally:
         await telemetry.record_latency(model_name_display, (time.time() - _t0) * 1000)
 
