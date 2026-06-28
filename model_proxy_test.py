@@ -227,13 +227,13 @@ def _get_alias(tag):
 
 
 def _fuzzy_resolve_model(tag):
-    """@tag -> ROUTES key。优先 exact，再 alias，再前缀唯一匹配。"""
+    """@tag -> ROUTES key。优先 exact，再 alias，再后缀唯一匹配。"""
     if tag in ROUTES:
         return tag
     resolved = _get_alias(tag)
     if resolved:
         return resolved
-    candidates = [k for k in ROUTES if k.startswith(tag)]
+    candidates = [k for k in ROUTES if k.endswith(tag)]
     if len(candidates) == 1:
         return candidates[0]
     return None

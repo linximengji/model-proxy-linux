@@ -74,16 +74,17 @@ async def handle_anthropic(body, route, model_name, routes, http_client,
             route, model_name, routes, http_client, build_kwargs, timeout=180)
         used_route = routes.get(used_model, route)
         if used_route["provider"] in ("deepseek", "anthropic"):
-            data = resp.content
-            try:
-                usage = json.loads(data).get("usage", {})
-                if usage:
-                    await telemetry.record_tokens(used_model, usage.get("input_tokens", 0),
-                                            usage.get("output_tokens", 0),
-                                            usage.get("cache_read_input_tokens", 0),
-                                            work_dir, session_id)
-            except (json.JSONDecodeError, AttributeError):
-                pass
+            raw = json.loads(resp.content)
+            usage = raw.get("usage", {})
+            if usage:
+                usage.setdefault("cache_creation_input_tokens", 0)
+                usage.setdefault("cache_read_input_tokens", 0)
+                raw["usage"] = usage
+                await telemetry.record_tokens(used_model, usage.get("input_tokens", 0),
+                                        usage.get("output_tokens", 0),
+                                        usage.get("cache_read_input_tokens", 0),
+                                        work_dir, session_id)
+            data = json.dumps(raw).encode("utf-8")
             if resp.status_code == 400:
                 err_text = data.decode("utf-8", errors="replace") if isinstance(data, bytes) else str(data)
                 log(f"<- 400 {used_model} body: {err_text[:2000]}", "WARN", "UPSTREAM")
@@ -127,18 +128,23 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                         model_name = m
                         inp = out = cache = 0
                         async for line in resp.aiter_lines():
-                            lb = line.encode("utf-8") if isinstance(line, str) else line
-                            yield lb + b"\n"
                             s = line.strip()
                             if s.startswith("data: ") and '"usage"' in s:
                                 try:
-                                    usage = json.loads(s[6:]).get("usage", {})
-                                    if usage:
-                                        inp = usage.get("input_tokens", inp)
-                                        out = usage.get("output_tokens", out)
-                                        cache = usage.get("cache_read_input_tokens", cache)
+                                    obj = json.loads(s[6:])
+                                    u = obj.get("usage", {})
+                                    if u:
+                                        u.setdefault("cache_creation_input_tokens", 0)
+                                        u.setdefault("cache_read_input_tokens", 0)
+                                        obj["usage"] = u
+                                        inp = u.get("input_tokens", inp)
+                                        out = u.get("output_tokens", out)
+                                        cache = u.get("cache_read_input_tokens", cache)
+                                    line = json.dumps(obj, ensure_ascii=False)
                                 except json.JSONDecodeError:
                                     pass
+                            lb = line.encode("utf-8") if isinstance(line, str) else line
+                            yield lb + b"\n"
                         if inp or out:
                             await telemetry.record_tokens(model_name, inp, out, cache,
                                                     work_dir, session_id)
@@ -181,7 +187,7 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                                     if not ms:
                                         ms = True
                                         yield sse_encode("message_start", {
-                                            "type": "message_start", "message": {"id": "", "model": m, "role": "assistant", "content": [], "usage": {"input_tokens": 0}},
+                                            "type": "message_start", "message": {"id": "", "model": m, "role": "assistant", "content": [], "usage": {"input_tokens": 0, "cache_creation_input_tokens": 0, "cache_read_input_tokens": 0}},
                                         })
                                     ti = nbi; nbi += 1
                                     yield sse_encode("content_block_start", {
@@ -237,7 +243,7 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                                 yield sse_encode("message_delta", {
                                     "type": "message_delta",
                                     "delta": {"stop_reason": sr},
-                                    "usage": {"input_tokens": inp, "output_tokens": out},
+                                    "usage": {"input_tokens": inp, "output_tokens": out, "cache_creation_input_tokens": 0, "cache_read_input_tokens": 0},
                                 })
                                 yield sse_encode("message_stop", {"type": "message_stop"})
                         if inp or out:
