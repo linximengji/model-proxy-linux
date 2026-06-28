@@ -51,7 +51,10 @@ async def handle_anthropic(body, route, model_name, routes, http_client,
             upstream["stream"] = False
             if r["provider"] == "deepseek":
                 sanitize.sanitize_for_deepseek(upstream)
-            log(f"Anthropic non-stream body samples: model={body.get('model')}, has_rf={'response_format' in body}, rf_body={bool(body.get('response_format'))}, has_stream=stream", phase="HANDLER")
+            msgs = upstream.get("messages", [])
+            asst_thinking = sum(1 for m in msgs if m.get("role") == "assistant" and isinstance(m.get("content"), list) and any(b.get("type") == "thinking" for b in m["content"] if isinstance(b, dict)))
+            asst_total = sum(1 for m in msgs if m.get("role") == "assistant")
+            log(f"Anthropic non-stream body: model={upstream.get('model')}, thinking={upstream.get('thinking')}, no_reasoning={upstream.get('no_reasoning')}, asst_msgs={asst_total}, asst_with_thinking={asst_thinking}", phase="HANDLER")
             return {
                 "method": "POST", "url": r["api_base"],
                 "content": json.dumps(upstream).encode("utf-8"),
