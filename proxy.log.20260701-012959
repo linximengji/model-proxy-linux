@@ -1,0 +1,38 @@
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:710: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:716: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+[01:25:10] [0addfb69] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:25:10] [0addfb69] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:25:10] [0addfb69] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:25:13] [55301055] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:25:13] [55301055] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[01:25:14] [55301055] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[01:25:18] [50b59af5] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:25:18] [50b59af5] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:25:18] [50b59af5] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:25:21] [4b06947b] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:25:21] [4b06947b] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:25:21] [4b06947b] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:25:28] [6c417969] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:25:28] [6c417969] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:25:28] [6c417969] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:25:31] [0fc099f3] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[01:25:31] [0fc099f3] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[01:25:36] [0fc099f3] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[01:28:17] [67df4131] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:28:17] [67df4131] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:28:17] [67df4131] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:28:17] [67df4131] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0

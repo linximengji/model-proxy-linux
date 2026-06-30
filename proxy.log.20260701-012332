@@ -1,0 +1,573 @@
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:710: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:716: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+[01:06:54] [596db69c] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:06:54] [596db69c] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:06:54] [596db69c] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=89, asst_with_thinking=0
+[01:06:56] [be1a71fb] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:06:56] [be1a71fb] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:06:57] [21930b3a] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:06:57] [21930b3a] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:06:57] [21930b3a] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=90, asst_with_thinking=0
+[01:07:11] [d9cdb526] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:07:11] [d9cdb526] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:07:11] [d9cdb526] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:07:15] [33820d0a] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:07:15] [33820d0a] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[01:07:15] [33820d0a] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[01:07:19] [fddd6763] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:07:19] [fddd6763] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:07:19] [fddd6763] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:07:22] [81e61dbb] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:07:22] [81e61dbb] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:07:22] [81e61dbb] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:07:29] [95b6ca43] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:07:29] [95b6ca43] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:07:29] [95b6ca43] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:07:33] [a27a0915] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[01:07:33] [a27a0915] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[01:07:37] [a27a0915] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[01:07:49] [bb7dfa5e] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:07:49] [bb7dfa5e] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:07:50] [73b7788f] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:07:50] [73b7788f] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:07:50] [73b7788f] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=91, asst_with_thinking=0
+[01:07:55] [17ea9b0a] [INFO] [ROUTE] L1 L1:very-long: claude-sonnet-4-6 -> deepseek-v4-pro
+[01:07:55] [17ea9b0a] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:07:55] [17ea9b0a] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:07:57] [908d5f66] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:07:57] [908d5f66] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:07:58] [0786303e] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:07:58] [0786303e] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:07:58] [0786303e] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=92, asst_with_thinking=0
+[01:08:59] [b31bcb06] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:08:59] [b31bcb06] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:08:59] [b31bcb06] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:09:02] [da7142f7] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:09:02] [da7142f7] [INFO] [UPSTREAM] deepseek-v4-flash /v1/chat/completions
+[01:09:02] [da7142f7] [INFO] [UPSTREAM] <- 200 deepseek-v4-flash openai-nonstream
+[01:09:06] [5ce44346] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:09:06] [5ce44346] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:09:06] [5ce44346] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:09:09] [028ec2c5] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:09:09] [028ec2c5] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:09:09] [028ec2c5] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:09:16] [318d79e9] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:09:16] [318d79e9] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:09:16] [318d79e9] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:09:19] [3f45d3bd] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[01:09:19] [3f45d3bd] [INFO] [UPSTREAM] deepseek-v4-pro /v1/chat/completions
+[01:09:22] [3f45d3bd] [INFO] [UPSTREAM] <- 200 deepseek-v4-pro openai-nonstream
+[01:09:58] [70c3cc66] [INFO] [BUDGET] real-time: rem=24150 (97%) ratio=0.49
+[01:09:58] [70c3cc66] [INFO] [L2] L2 classify: "是不是有问题只有7504存在，其他都不存在，你识别进程的能力是不是有问题" ratio=0.49
+[01:10:00] [70c3cc66] [INFO] [L2] L2: simple:general + low -> deepseek-v4-flash (ratio=0.49)
+[01:10:00] [70c3cc66] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:10:00] [754510fd] [INFO] [BUDGET] real-time: rem=24150 (97%) ratio=0.49
+[01:10:00] [754510fd] [INFO] [L2] L2 classify: "是不是有问题只有7504存在，其他都不存在，你识别进程的能力是不是有问题" ratio=0.49
+[01:10:01] [754510fd] [INFO] [L2] L2: simple:general + low -> deepseek-v4-flash (ratio=0.49)
+[01:10:01] [754510fd] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:10:01] [754510fd] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=93, asst_with_thinking=0
+[01:10:04] [058cb289] [INFO] [ROUTE] L1 L1:very-long: claude-sonnet-4-6 -> deepseek-v4-pro
+[01:10:04] [058cb289] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:10:04] [058cb289] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:10:05] [2910d824] [INFO] [ROUTE] L1 L1:very-long: claude-sonnet-4-6 -> deepseek-v4-pro
+[01:10:05] [2910d824] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:10:05] [2910d824] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:10:15] [fbc22fa5] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:10:15] [fbc22fa5] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:10:16] [7dd901b3] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:10:16] [7dd901b3] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:10:16] [7dd901b3] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=94, asst_with_thinking=0
+[01:10:20] [d4a03870] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:10:20] [d4a03870] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:10:20] [3e671b7f] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:10:20] [3e671b7f] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:10:20] [3e671b7f] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=95, asst_with_thinking=0
+[01:10:27] [a50fd130] [INFO] [ROUTE] L1 L1:very-long: claude-sonnet-4-6 -> deepseek-v4-pro
+[01:10:27] [a50fd130] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:10:27] [a50fd130] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:10:29] [8d0f7ecd] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:10:29] [8d0f7ecd] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:10:29] [7173519a] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:10:29] [7173519a] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:10:29] [7173519a] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=96, asst_with_thinking=0
+[01:10:32] [c5273fed] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:10:32] [c5273fed] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:10:33] [cd165884] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:10:33] [cd165884] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:10:33] [cd165884] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=97, asst_with_thinking=0
+[01:10:40] [924a7199] [INFO] [ROUTE] L1 L1:very-long: claude-sonnet-4-6 -> deepseek-v4-pro
+[01:10:40] [924a7199] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:10:40] [924a7199] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:10:41] [048999d0] [INFO] [ROUTE] L1 L1:very-long: claude-sonnet-4-6 -> deepseek-v4-pro
+[01:10:41] [048999d0] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:10:41] [048999d0] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:10:44] [640c78bc] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:10:44] [640c78bc] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:10:45] [7886c2a1] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:10:45] [7886c2a1] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:10:45] [7886c2a1] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=98, asst_with_thinking=0
+[01:10:50] [e0d32c95] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:10:50] [e0d32c95] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:10:50] [768605c4] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:10:50] [768605c4] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:10:50] [768605c4] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=99, asst_with_thinking=0
+[01:10:56] [b1a21070] [INFO] [ROUTE] L1 L1:very-long: claude-sonnet-4-6 -> deepseek-v4-pro
+[01:10:56] [b1a21070] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:10:56] [b1a21070] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:10:58] [52213b99] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:10:58] [52213b99] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:10:59] [fbe03dd3] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:10:59] [fbe03dd3] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:10:59] [fbe03dd3] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=100, asst_with_thinking=0
+[01:11:04] [78b85d39] [INFO] [ROUTE] L1 L1:very-long: claude-sonnet-4-6 -> deepseek-v4-pro
+[01:11:04] [78b85d39] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:11:04] [78b85d39] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:11:05] [23e4c623] [INFO] [ROUTE] L1 L1:very-long: claude-sonnet-4-6 -> deepseek-v4-pro
+[01:11:05] [23e4c623] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:11:05] [23e4c623] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:11:23] [5afc669c] [INFO] [BUDGET] real-time: rem=24150 (97%) ratio=0.49
+[01:11:23] [5afc669c] [INFO] [L2] L2 classify: "[Request interrupted by user for tool use]
+ 你在执行命令的时候，一堆弹窗，正常？" ratio=0.49
+[01:11:23] [5afc669c] [INFO] [L2] L2: simple:general + low -> deepseek-v4-flash (ratio=0.49)
+[01:11:23] [5afc669c] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:11:24] [7d772237] [INFO] [BUDGET] real-time: rem=24150 (97%) ratio=0.49
+[01:11:24] [7d772237] [INFO] [L2] L2 classify: "[Request interrupted by user for tool use]
+ 你在执行命令的时候，一堆弹窗，正常？" ratio=0.49
+[01:11:25] [7d772237] [INFO] [L2] L2: simple:general + low -> deepseek-v4-flash (ratio=0.49)
+[01:11:25] [7d772237] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:11:25] [7d772237] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=101, asst_with_thinking=0
+[01:11:31] [a3552dfa] [INFO] [ROUTE] L1 L1:very-long: claude-sonnet-4-6 -> deepseek-v4-pro
+[01:11:31] [a3552dfa] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:11:31] [a3552dfa] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:11:33] [7ee2c499] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:11:33] [7ee2c499] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:11:34] [88e582e8] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:11:34] [88e582e8] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:11:34] [88e582e8] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=102, asst_with_thinking=0
+[01:11:37] [264f958c] [INFO] [ROUTE] L1 L1:very-long: claude-sonnet-4-6 -> deepseek-v4-pro
+[01:11:37] [264f958c] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:11:37] [264f958c] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:11:42] [c36e28fb] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:11:42] [c36e28fb] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:11:43] [882df896] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:11:43] [882df896] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:11:43] [882df896] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=103, asst_with_thinking=0
+[01:11:49] [564cc2ae] [INFO] [ROUTE] L1 L1:very-long: claude-sonnet-4-6 -> deepseek-v4-pro
+[01:11:49] [564cc2ae] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:11:49] [564cc2ae] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:11:51] [b071b794] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:11:51] [b071b794] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:11:52] [fda827f4] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:11:52] [fda827f4] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:11:52] [fda827f4] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=104, asst_with_thinking=0
+[01:11:55] [5b34ca76] [INFO] [ROUTE] L1 L1:very-long: claude-sonnet-4-6 -> deepseek-v4-pro
+[01:11:55] [5b34ca76] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:11:55] [5b34ca76] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:11:57] [eb4138ae] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:11:57] [eb4138ae] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:11:57] [87f96728] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:11:57] [87f96728] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:11:57] [87f96728] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=105, asst_with_thinking=0
+[01:12:02] [1a9e86a4] [INFO] [ROUTE] L1 L1:very-long: claude-sonnet-4-6 -> deepseek-v4-pro
+[01:12:02] [1a9e86a4] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:12:02] [1a9e86a4] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:12:04] [9708c48d] [INFO] [ROUTE] L1 L1:very-long: claude-sonnet-4-6 -> deepseek-v4-pro
+[01:12:04] [9708c48d] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:12:04] [9708c48d] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:12:39] [3203a00e] [INFO] [BUDGET] real-time: rem=24149 (97%) ratio=0.49
+[01:12:39] [3203a00e] [INFO] [L2] L2 classify: "[Request interrupted by user for tool use]
+ 要不先调查一下windowns平台是不是有同样的问题，好的解决方案是什么..." ratio=0.49
+[01:12:40] [3203a00e] [INFO] [L2] L2: simple:reasoning + low -> deepseek-v4-flash (ratio=0.49)
+[01:12:40] [3203a00e] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:12:41] [00069af9] [INFO] [BUDGET] real-time: rem=24149 (97%) ratio=0.49
+[01:12:41] [00069af9] [INFO] [L2] L2 classify: "[Request interrupted by user for tool use]
+ 要不先调查一下windowns平台是不是有同样的问题，好的解决方案是什么..." ratio=0.49
+[01:12:42] [00069af9] [INFO] [L2] L2: simple:reasoning + low -> deepseek-v4-flash (ratio=0.49)
+[01:12:42] [00069af9] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:12:42] [00069af9] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=106, asst_with_thinking=0
+[01:12:44] [78d75a8e] [INFO] [BUDGET] real-time: rem=24149 (97%) ratio=0.49
+[01:12:44] [78d75a8e] [INFO] [L2] L2 classify: "Perform a web search for the query: Windows daemon singleton msvcrt locking file..." ratio=0.49
+[01:12:45] [78d75a8e] [INFO] [L2] L2: complex:code + medium -> qwen3.7-max, allocator -> kimi-k2.7-code (ratio=0.49)
+[01:12:45] [78d75a8e] [INFO] [UPSTREAM] kimi-k2.7-code /v1/messages (stream)
+[01:12:47] [90b73fbe] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:12:47] [90b73fbe] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:12:48] [3c05deee] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:12:48] [3c05deee] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:12:48] [3c05deee] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=107, asst_with_thinking=0
+[01:12:49] [2c1ac4fa] [INFO] [BUDGET] real-time: rem=24149 (97%) ratio=0.49
+[01:12:49] [2c1ac4fa] [INFO] [L2] L2 classify: "Perform a web search for the query: Windows Named Mutex vs msvcrt.lock file lock..." ratio=0.49
+[01:12:50] [2c1ac4fa] [INFO] [L2] L2: moderate:code + medium -> deepseek-v4-pro (ratio=0.49)
+[01:12:50] [2c1ac4fa] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[01:12:50] [9472588a] [INFO] [BUDGET] real-time: rem=24149 (97%) ratio=0.49
+[01:12:50] [9472588a] [INFO] [L2] L2 classify: "Perform a web search for the query: Windows Named Mutex vs msvcrt.lock file lock..." ratio=0.49
+[01:12:51] [9472588a] [INFO] [L2] L2: moderate:code + medium -> deepseek-v4-pro (ratio=0.49)
+[01:12:51] [9472588a] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:12:51] [9472588a] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:12:54] [893e5d15] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:12:54] [893e5d15] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:12:55] [a2b043d6] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:12:55] [a2b043d6] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:12:55] [a2b043d6] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=108, asst_with_thinking=0
+[01:12:57] [9b6a28da] [INFO] [BUDGET] real-time: rem=24149 (97%) ratio=0.49
+[01:12:57] [9b6a28da] [INFO] [L2] L2 classify: "Perform a web search for the query: windows named mutex single instance process ..." ratio=0.49
+[01:12:58] [9b6a28da] [INFO] [L2] L2: complex:code + medium -> qwen3.7-max, allocator -> kimi-k2.7-code (ratio=0.49)
+[01:12:58] [9b6a28da] [INFO] [UPSTREAM] kimi-k2.7-code /v1/messages (stream)
+[01:13:00] [b836c5d9] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:13:00] [b836c5d9] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:13:01] [84deabf3] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:13:01] [84deabf3] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:13:01] [84deabf3] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=109, asst_with_thinking=0
+[01:13:02] [c98adf6a] [INFO] [BUDGET] real-time: rem=24149 (97%) ratio=0.49
+[01:13:02] [c98adf6a] [INFO] [L2] L2 classify: "Perform a web search for the query: python windows named mutex single instance m..." ratio=0.49
+[01:13:03] [c98adf6a] [INFO] [L2] L2: moderate:code + medium -> deepseek-v4-pro, allocator -> kimi-k2.7-code (ratio=0.49)
+[01:13:03] [c98adf6a] [INFO] [UPSTREAM] kimi-k2.7-code /v1/messages (stream)
+[01:13:05] [9dda1ae5] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:13:05] [9dda1ae5] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:13:06] [bc17a616] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:13:06] [bc17a616] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:13:06] [bc17a616] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=110, asst_with_thinking=0
+[01:13:08] [76899f07] [INFO] [BUDGET] real-time: rem=24149 (97%) ratio=0.49
+[01:13:08] [76899f07] [INFO] [L2] L2 classify: "Perform a web search for the query: daemon single instance named mutex file lock..." ratio=0.49
+[01:13:08] [76899f07] [INFO] [L2] L2: moderate:code + medium -> deepseek-v4-pro, allocator -> kimi-k2.7-code (ratio=0.49)
+[01:13:08] [76899f07] [INFO] [UPSTREAM] kimi-k2.7-code /v1/messages (stream)
+[01:13:12] [fa483ecd] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:13:12] [fa483ecd] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:13:12] [78021a2e] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:13:12] [78021a2e] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:13:12] [78021a2e] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=111, asst_with_thinking=0
+[01:13:14] [3d6adeee] [INFO] [BUDGET] real-time: rem=24149 (97%) ratio=0.49
+[01:13:14] [3d6adeee] [INFO] [L2] L2 classify: "Perform a web search for the query: Windows kill process with taskkill popup win..." ratio=0.49
+[01:13:15] [3d6adeee] [INFO] [L2] L2: moderate:code + medium -> deepseek-v4-pro (ratio=0.49)
+[01:13:15] [3d6adeee] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[01:13:15] [0f2f6cea] [INFO] [BUDGET] real-time: rem=24149 (97%) ratio=0.49
+[01:13:15] [0f2f6cea] [INFO] [L2] L2 classify: "Perform a web search for the query: Windows kill process with taskkill popup win..." ratio=0.49
+[01:13:16] [0f2f6cea] [INFO] [L2] L2: moderate:code + medium -> deepseek-v4-pro (ratio=0.49)
+[01:13:16] [0f2f6cea] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:13:16] [0f2f6cea] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:13:24] [932a075a] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:13:24] [932a075a] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:13:25] [1012faf0] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:13:25] [1012faf0] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:13:25] [1012faf0] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=112, asst_with_thinking=0
+[01:17:29] [9bc46451] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:17:29] [9bc46451] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:17:29] [76291ae5] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:17:29] [76291ae5] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:17:29] [76291ae5] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=113, asst_with_thinking=0
+[01:17:34] [3c5210b0] [INFO] [ROUTE] L1 L1:very-long: claude-sonnet-4-6 -> deepseek-v4-pro
+[01:17:34] [3c5210b0] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:17:34] [3c5210b0] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:17:36] [6d5e7751] [INFO] [BUDGET] real-time: rem=24149 (97%) ratio=0.49
+[01:17:36] [6d5e7751] [INFO] [L2] L2 classify: "<system-reminder>
+The following skills are available for use with the Skill tool..." ratio=0.49
+[01:17:37] [6d5e7751] [INFO] [L2] L2: complex:reasoning + medium -> qwen3.7-max (ratio=0.49)
+[01:17:37] [6d5e7751] [INFO] [UPSTREAM] qwen3.7-max /v1/messages (stream)
+[01:17:50] [85bda94e] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:17:50] [85bda94e] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:17:50] [9b3b1780] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:17:50] [9b3b1780] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:17:50] [9b3b1780] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=1, asst_with_thinking=0
+[01:17:56] [c7de1042] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:17:56] [c7de1042] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:17:57] [e62100ae] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:17:57] [e62100ae] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:17:57] [e62100ae] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=2, asst_with_thinking=0
+[01:18:03] [d9708354] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:03] [d9708354] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:18:03] [263cf56e] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:03] [263cf56e] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:18:03] [263cf56e] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=3, asst_with_thinking=0
+[01:18:08] [e62fc520] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:08] [e62fc520] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:18:09] [e905b64f] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:09] [e905b64f] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:18:09] [e905b64f] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=4, asst_with_thinking=0
+[01:18:13] [8a1676f1] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:13] [8a1676f1] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:18:13] [3d95fee1] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:13] [3d95fee1] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:18:13] [3d95fee1] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=5, asst_with_thinking=0
+[01:18:14] [d242654b] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:14] [d242654b] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:18:14] [f3d7c612] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:14] [f3d7c612] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:18:14] [f3d7c612] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=6, asst_with_thinking=0
+[01:18:16] [a2799755] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:16] [a2799755] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:18:16] [00894652] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:16] [00894652] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:18:16] [00894652] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=6, asst_with_thinking=0
+[01:18:44] [33d63e64] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:44] [33d63e64] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:18:44] [65014ca7] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:44] [65014ca7] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:18:44] [65014ca7] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=114, asst_with_thinking=0
+[01:18:47] [fa8acef5] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:47] [fa8acef5] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:18:47] [521a92de] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:47] [521a92de] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:18:47] [521a92de] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=115, asst_with_thinking=0
+[01:18:50] [5f825c42] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:50] [5f825c42] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:18:50] [2e15554d] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:50] [2e15554d] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:18:50] [2e15554d] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=116, asst_with_thinking=0
+[01:18:53] [92a817c8] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:53] [92a817c8] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:18:54] [fe187028] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:54] [fe187028] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:18:54] [fe187028] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=117, asst_with_thinking=0
+[01:18:56] [ea72eb7d] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:56] [ea72eb7d] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:18:56] [d6e13ccb] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:56] [d6e13ccb] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:18:56] [d6e13ccb] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=118, asst_with_thinking=0
+[01:18:59] [5ec21a4d] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:18:59] [5ec21a4d] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:19:00] [f687034f] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:19:00] [f687034f] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:19:00] [f687034f] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=119, asst_with_thinking=0
+[01:19:11] [a11e6396] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:19:11] [a11e6396] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:19:11] [7a8c9603] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:19:11] [7a8c9603] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:19:11] [7a8c9603] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=7, asst_with_thinking=0
+[01:19:17] [7649c73a] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:19:17] [7649c73a] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:19:18] [a9fb1519] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:19:18] [a9fb1519] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:19:18] [64fdec1d] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:19:18] [64fdec1d] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:19:18] [64fdec1d] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=120, asst_with_thinking=0
+[01:19:18] [e1fe5fc6] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:19:18] [e1fe5fc6] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:19:18] [e1fe5fc6] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=8, asst_with_thinking=0
+[01:19:21] [e92df4a6] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:19:21] [e92df4a6] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:19:21] [6ff8b4e0] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:19:21] [6ff8b4e0] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:19:21] [6ff8b4e0] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=9, asst_with_thinking=0
+[01:19:33] [bad069ab] [INFO] [BUDGET] real-time: rem=24148 (97%) ratio=0.49
+[01:19:33] [bad069ab] [INFO] [L2] L2 classify: "[Request interrupted by user]
+ 我说先把这个任务加入待办" ratio=0.49
+[01:19:35] [bad069ab] [INFO] [L2] L2: trivial:general + low -> deepseek-v4-flash (ratio=0.49)
+[01:19:35] [bad069ab] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:19:36] [1a9a1910] [INFO] [BUDGET] real-time: rem=24148 (97%) ratio=0.49
+[01:19:36] [1a9a1910] [INFO] [L2] L2 classify: "[Request interrupted by user]
+ 我说先把这个任务加入待办" ratio=0.49
+[01:19:37] [1a9a1910] [INFO] [L2] L2: trivial:general + low -> deepseek-v4-flash (ratio=0.49)
+[01:19:37] [1a9a1910] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:19:37] [1a9a1910] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=9, asst_with_thinking=0
+[01:19:39] [347fcaa0] [INFO] [BUDGET] real-time: rem=24148 (97%) ratio=0.49
+[01:19:39] [347fcaa0] [INFO] [L2] L2 classify: "<system-reminder>
+The task tools haven't been used recently. If you're working o..." ratio=0.49
+[01:19:40] [347fcaa0] [INFO] [L2] L2: moderate:code + medium -> deepseek-v4-pro, allocator -> kimi-k2.7-code (ratio=0.49)
+[01:19:40] [347fcaa0] [INFO] [UPSTREAM] kimi-k2.7-code /v1/messages (stream)
+[01:19:52] [d6e317f2] [INFO] [BUDGET] real-time: rem=24148 (97%) ratio=0.49
+[01:19:52] [d6e317f2] [INFO] [L2] L2 classify: "<conversation>
+# Named Mutex 替换文件锁 + 孤儿清理
+
+## Context
+
+当前 daemon 单例用 `msvcrt.loc..." ratio=0.49
+[01:19:52] [4d35245f] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:19:52] [4d35245f] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:19:53] [fcd93ba5] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:19:53] [fcd93ba5] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:19:53] [fcd93ba5] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=121, asst_with_thinking=0
+[01:19:53] [d6e317f2] [INFO] [L2] L2: complex:reasoning + medium -> qwen3.7-max, allocator -> qwen3.7-max (ratio=0.49)
+[01:19:53] [d6e317f2] [INFO] [UPSTREAM] qwen3.7-max /v1/messages (stream)
+[01:19:58] [4f3e7871] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:19:58] [4f3e7871] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:19:58] [5732c8fe] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:19:58] [5732c8fe] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:19:58] [5732c8fe] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=122, asst_with_thinking=0
+[01:20:00] [262e7052] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:20:00] [262e7052] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:20:01] [beb48264] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:20:01] [beb48264] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:20:01] [beb48264] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=123, asst_with_thinking=0
+[01:20:05] [32de40f4] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:20:05] [32de40f4] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:20:05] [41a9b46e] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:20:05] [41a9b46e] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:20:05] [41a9b46e] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=124, asst_with_thinking=0
+[01:20:08] [06323434] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:20:08] [06323434] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:20:09] [e0617d0c] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:20:09] [e0617d0c] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:20:09] [e0617d0c] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=125, asst_with_thinking=0
+[01:20:12] [31240b21] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:20:12] [31240b21] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:20:13] [59c44ef2] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:20:13] [59c44ef2] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:20:13] [59c44ef2] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=126, asst_with_thinking=0
+[01:20:21] [e62453bb] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:20:21] [e62453bb] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:20:21] [733ae40b] [INFO] [BUDGET] real-time: rem=24148 (97%) ratio=0.49
+[01:20:21] [733ae40b] [INFO] [L2] L2 classify: "<session>
+git CIerror还在报警什么原因
+</session>
+
+Write the title in the language the us..." ratio=0.49
+[01:20:21] [bc44fd59] [INFO] [BUDGET] real-time: rem=24148 (97%) ratio=0.49
+[01:20:21] [bc44fd59] [INFO] [L2] L2 classify: "<system-reminder>
+SessionStart hook additional context: ## 记忆索引（来自 memory-mcp）
+每..." ratio=0.49
+[01:20:21] [06fe6562] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:20:21] [06fe6562] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:20:21] [06fe6562] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=127, asst_with_thinking=0
+[01:20:21] [733ae40b] [INFO] [L2] L2: simple:code + low -> deepseek-v4-flash (ratio=0.49)
+[01:20:21] [733ae40b] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:20:22] [a3a27d46] [INFO] [BUDGET] real-time: rem=24148 (97%) ratio=0.49
+[01:20:22] [a3a27d46] [INFO] [L2] L2 classify: "<session>
+git CIerror还在报警什么原因
+</session>
+
+Write the title in the language the us..." ratio=0.49
+[01:20:22] [bc44fd59] [INFO] [L2] L2: moderate:general + medium -> deepseek-v4-pro (ratio=0.49)
+[01:20:22] [bc44fd59] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[01:20:22] [a20ba2d0] [INFO] [BUDGET] real-time: rem=24148 (97%) ratio=0.49
+[01:20:22] [a20ba2d0] [INFO] [L2] L2 classify: "<system-reminder>
+SessionStart hook additional context: ## 记忆索引（来自 memory-mcp）
+每..." ratio=0.49
+[01:20:22] [a3a27d46] [INFO] [L2] L2: simple:code + low -> deepseek-v4-flash (ratio=0.49)
+[01:20:22] [a3a27d46] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:20:22] [a3a27d46] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:20:23] [a20ba2d0] [INFO] [L2] L2: moderate:general + medium -> deepseek-v4-pro (ratio=0.49)
+[01:20:23] [a20ba2d0] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:20:23] [a20ba2d0] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'adaptive'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:20:25] [4b2beab0] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:20:25] [4b2beab0] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:20:25] [79dc6cb4] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:20:25] [79dc6cb4] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:20:26] [79dc6cb4] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=128, asst_with_thinking=0
+[01:20:31] [12b04f42] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:20:31] [12b04f42] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:20:32] [78e3de10] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:20:32] [78e3de10] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:20:32] [78e3de10] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=129, asst_with_thinking=0
+[01:20:35] [6d0b6217] [INFO] [BUDGET] real-time: rem=24148 (97%) ratio=0.49
+[01:20:35] [6d0b6217] [INFO] [L2] L2 classify: "CRITICAL: Respond with TEXT ONLY. Do NOT call any tools.
+
+- Do NOT use Read, Bas..." ratio=0.49
+[01:20:37] [6d0b6217] [INFO] [L2] L2: moderate:general + ? -> deepseek-v4-pro (ratio=0.49)
+[01:20:37] [6d0b6217] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages (stream)
+[01:20:37] [37beca60] [INFO] [BUDGET] real-time: rem=24148 (97%) ratio=0.49
+[01:20:37] [37beca60] [INFO] [L2] L2 classify: "CRITICAL: Respond with TEXT ONLY. Do NOT call any tools.
+
+- Do NOT use Read, Bas..." ratio=0.49
+[01:20:38] [37beca60] [INFO] [L2] L2: moderate:general + ? -> deepseek-v4-pro (ratio=0.49)
+[01:20:38] [37beca60] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:20:38] [37beca60] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking={'type': 'adaptive'}, no_reasoning=None, asst_msgs=129, asst_with_thinking=0
+[01:20:40] [bea95c4d] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:20:40] [bea95c4d] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:20:41] [c30498a3] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:20:41] [c30498a3] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:20:41] [c30498a3] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=1, asst_with_thinking=0
+[01:21:24] [f3131cc6] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:21:24] [f3131cc6] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:21:25] [0ec7656e] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:21:25] [0ec7656e] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:21:25] [0ec7656e] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=35, asst_with_thinking=0
+[01:21:30] [817e77a8] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:21:30] [817e77a8] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:21:30] [817e77a8] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:21:33] [da50061c] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[01:21:33] [da50061c] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:21:33] [da50061c] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking=None, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:21:40] [a2b6386b] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:21:40] [a2b6386b] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:21:40] [b0639f5a] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:21:40] [b0639f5a] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:21:40] [b0639f5a] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=1, asst_with_thinking=0
+[01:21:48] [2312b7ca] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:21:48] [2312b7ca] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:21:48] [4e1eada4] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:21:48] [4e1eada4] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:21:48] [4e1eada4] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=2, asst_with_thinking=0
+[01:21:50] [ee74d232] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:21:50] [ee74d232] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:21:51] [dee5bfed] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:21:51] [dee5bfed] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:21:51] [dee5bfed] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=3, asst_with_thinking=0
+[01:21:53] [c851f8eb] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:21:53] [c851f8eb] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:21:54] [3d22ffdc] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:21:54] [3d22ffdc] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:21:54] [3d22ffdc] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=4, asst_with_thinking=0
+[01:21:56] [7a5ad6f2] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:21:56] [7a5ad6f2] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:21:56] [acd46472] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:21:56] [acd46472] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:21:56] [acd46472] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=5, asst_with_thinking=0
+[01:21:58] [d3d1806c] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:21:58] [d3d1806c] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:21:58] [e076486f] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:21:58] [e076486f] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:21:58] [e076486f] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=6, asst_with_thinking=0
+[01:22:03] [d3457613] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:22:03] [d3457613] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:22:03] [d3457613] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:22:06] [1cd0aca5] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[01:22:06] [1cd0aca5] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:22:06] [1cd0aca5] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking=None, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:22:08] [ec687130] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:22:08] [ec687130] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:22:08] [79a36365] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:22:08] [79a36365] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:22:08] [79a36365] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=7, asst_with_thinking=0
+[01:22:12] [949ba0ae] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:22:12] [949ba0ae] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:22:12] [50b4e073] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:22:12] [50b4e073] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:22:12] [50b4e073] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=8, asst_with_thinking=0
+[01:22:15] [291a7983] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:22:15] [291a7983] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:22:16] [5ee46ab3] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:22:16] [5ee46ab3] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:22:16] [5ee46ab3] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=9, asst_with_thinking=0
+[01:22:18] [465be70c] [INFO] [BUDGET] real-time: rem=24144 (97%) ratio=0.49
+[01:22:18] [465be70c] [INFO] [L2] L2 classify: "<transcript>
+ User: This session is being continued from a previous conversation..." ratio=0.49
+[01:22:18] [beeeb9e4] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-flash
+[01:22:18] [beeeb9e4] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:22:18] [beeeb9e4] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:22:19] [465be70c] [INFO] [L2] L2: complex:code + medium -> qwen3.7-max, allocator -> kimi-k2.7-code (ratio=0.49)
+[01:22:19] [465be70c] [INFO] [UPSTREAM] kimi-k2.7-code /v1/messages
+[01:22:21] [eef040f5] [INFO] [ROUTE] BYPASS agent-model: deepseek-v4-pro
+[01:22:21] [eef040f5] [INFO] [UPSTREAM] deepseek-v4-pro /v1/messages
+[01:22:21] [eef040f5] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-pro, thinking=None, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+[01:22:33] [465be70c] [INFO] [UPSTREAM] <- 200 kimi-k2.7-code non-stream
+[01:22:34] [b9255ce3] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:22:34] [b9255ce3] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:22:34] [72f1c7fd] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:22:34] [72f1c7fd] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:22:34] [72f1c7fd] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=10, asst_with_thinking=0
+[01:22:37] [563f7600] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:22:37] [563f7600] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[01:22:37] [115eac8e] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[01:22:37] [115eac8e] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[01:22:37] [115eac8e] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=11, asst_with_thinking=0
+[01:22:39] [1c7fe8f6] [INFO] [BUDGET] real-time: rem=24144 (97%) ratio=0.49
+[01:22:39] [1c7fe8f6] [INFO] [L2] L2 classify: "<transcript>
+ User: This session is being continued from a previous conversation..." ratio=0.49
+[01:22:40] [1c7fe8f6] [INFO] [L2] L2: complex:code + medium -> qwen3.7-max (ratio=0.49)
+[01:22:40] [1c7fe8f6] [INFO] [UPSTREAM] qwen3.7-max /v1/messages
+[01:22:40] [1c7fe8f6] [INFO] [HANDLER] Anthropic non-stream body: model=qwen3.7-max, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
+REAM] qwen3.7-max /v1/messages
+[01:22:40] [1c7fe8f6] [INFO] [HANDLER] Anthropic non-stream body: model=qwen3.7-max, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=0, asst_with_thinking=0
