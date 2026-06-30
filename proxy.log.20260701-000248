@@ -1,0 +1,22 @@
+
+--- spawning D:\ClaudeProjects\proxy\model_proxy.py on 4000 ---
+D:\ClaudeProjects\proxy\model_proxy.py:710: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\ClaudeProjects\proxy\model_proxy.py:716: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+[00:02:45] [3627f67c] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[00:02:45] [3627f67c] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages (stream)
+[00:02:46] [55bcfef6] [INFO] [ROUTE] L1 L1:trivial: claude-sonnet-4-6 -> deepseek-v4-flash
+[00:02:46] [55bcfef6] [INFO] [UPSTREAM] deepseek-v4-flash /v1/messages
+[00:02:46] [55bcfef6] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=115, asst_with_thinking=0
+[00:02:46] [55bcfef6] [INFO] [HANDLER] Anthropic non-stream body: model=deepseek-v4-flash, thinking={'type': 'disabled'}, no_reasoning=None, asst_msgs=115, asst_with_thinking=0
