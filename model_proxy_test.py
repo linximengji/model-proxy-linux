@@ -204,7 +204,8 @@ def _allocator_select(complexity, task_type, req_id, ratio):
 
 # ── Prompt-level @model routing ──────────────────────────────────────────
 
-_PROMPT_MODEL_RE = re.compile(r'(?:^|\s)@(\S+)\s*$')
+_PROMPT_MODEL_RE = re.compile(r'(?:^|\s)@([a-zA-Z0-9_.-]+)')
+_STRIP_TAG_RE = re.compile(r'\s*@[a-zA-Z0-9_.-]+')
 
 
 def _get_alias(tag):
@@ -260,25 +261,25 @@ def _resolve_prompt_model(body):
             continue
         content = msg.get("content", "")
         if isinstance(content, str):
-            m = _PROMPT_MODEL_RE.search(content)
-            if m:
-                tag = m.group(1)
+            matches = list(_PROMPT_MODEL_RE.finditer(content))
+            if matches:
+                tag = matches[-1].group(1)
                 resolved = _fuzzy_resolve_model(tag)
                 if resolved:
                     model_name = resolved
-                    msg["content"] = _PROMPT_MODEL_RE.sub("", content).rstrip()
+                    msg["content"] = _STRIP_TAG_RE.sub("", content).strip()
                     break
         elif isinstance(content, list):
             for block in reversed(content):
                 if isinstance(block, dict) and block.get("type") == "text":
                     text = block.get("text", "")
-                    m = _PROMPT_MODEL_RE.search(text)
-                    if m:
-                        tag = m.group(1)
+                    matches = list(_PROMPT_MODEL_RE.finditer(text))
+                    if matches:
+                        tag = matches[-1].group(1)
                         resolved = _fuzzy_resolve_model(tag)
                         if resolved:
                             model_name = resolved
-                            block["text"] = _PROMPT_MODEL_RE.sub("", text).rstrip()
+                            block["text"] = _STRIP_TAG_RE.sub("", text).strip()
                             break
             if model_name:
                 break
