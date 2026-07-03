@@ -282,29 +282,45 @@ _days_cache: dict = {"days": None, "total": None, "start_ts": None, "ts": 0}
 
 
 def _read_days_from_file():
-    """Read days_to_expiry, credits_total, and plan_start_ts from file fresh every call.
-    Separated from the 60s compute cache so manual edits to routing_policy.json
-    (e.g. days_to_expiry=0 when plan is about to expire) are picked up immediately,
-    not overwritten by stale cached values in write_routing_policy.
+    """Read credits_total and plan_start_ts from file fresh every call.
+
+    days_to_expiry is auto-computed from plan_start_ts + stored_days_to_expiry,
+    not read directly — ensures it decays naturally with wall-clock time.
+
+    60s cache, Separated from compute cache so manual edits (e.g. plan_start_ts reset)
+    are picked up within a minute.
     """
-    now = time.time()
-    if now - _days_cache["ts"] < 60:
+    now_ts = time.time()
+    if now_ts - _days_cache["ts"] < 60:
         return _days_cache["total"], _days_cache["days"], _days_cache["start_ts"]
 
     total = 25000
-    days = 0
+    stored_days = 0
     start_ts = None
     policy = load_budget_policy()
     if policy:
         tp = policy.get("token_plan", {})
         total = tp.get("credits_total", total)
-        days = tp.get("days_to_expiry", 0)
+        stored_days = tp.get("days_to_expiry", 0)
         start_ts = tp.get("plan_start_ts")
+
+    # Auto-decay days_to_expiry from plan_start_ts + stored_days
+    if start_ts:
+        try:
+            plan_start = datetime.fromisoformat(start_ts)
+            if plan_start.tzinfo is None:
+                plan_start = plan_start.replace(tzinfo=timezone.utc)
+            elapsed = (datetime.now(timezone.utc) - plan_start).days
+            days = max(0, stored_days - elapsed)
+        except (ValueError, TypeError):
+            days = stored_days
+    else:
+        days = stored_days
 
     _days_cache["total"] = total
     _days_cache["days"] = days
     _days_cache["start_ts"] = start_ts
-    _days_cache["ts"] = now
+    _days_cache["ts"] = now_ts
     return total, days, start_ts
 
 
@@ -334,8 +350,8 @@ def get_real_credits():
 def _compute_tp_credits_all(plan_start_ts=None):
     """Full-scan of token_usage.jsonl for TP-mapped model credits.
 
-    Uses direct pricing table (input/output separated), covers all models
-    routed through Token Plan (both native qwen and deepseek→TP mapping).
+    Uses flat rate per 1K total tokens per model (TP_PRICING_FLAT).
+    DeepSeek models are excluded — they use native DeepSeek API keys, not TP.
 
     Args:
         plan_start_ts: ISO timestamp string. Records with ts < plan_start_ts are skipped.
@@ -356,21 +372,20 @@ def _compute_tp_credits_all(plan_start_ts=None):
                     rec = json.loads(line)
                 except json.JSONDecodeError:
                     continue
-                # Skip costUSD records — claudetalk direct API calls,
-                # not consumed through Token Plan
                 if "costUSD" in rec:
                     continue
-                # Skip records before plan start date
                 if plan_start_ts and rec.get("ts", "") < plan_start_ts:
                     continue
                 model = rec.get("model", "")
+                if model.startswith("deepseek-") or model.startswith("doubao-"):
+                    continue
                 km = _tp_model_key(model)
-                price = TP_PRICING.get(km)
-                if not price:
+                rate = TP_PRICING_FLAT.get(km)
+                if not rate:
                     continue
                 inp = rec.get("inputTokens", 0)
                 out = rec.get("outputTokens", 0)
-                credits = _calc_tp_credits(inp, out, price)
+                credits = _calc_tp_credits(inp, out, rate)
                 total += credits
                 count += 1
                 per_model[model] = per_model.get(model, 0) + credits
@@ -439,51 +454,51 @@ def compute_proxy_burn(hours=24):
 
 
 # ── Token Plan credit calculation ───────────────────────────────────────────
-# Direct pricing table (credits/千token), matching Token Plan official rates
-# CALIBRATION_FACTOR: 手动调校系数，使计算值与 portal 一致。
-# portal 显示 ~280，代码算 ~114 → 280/114 ≈ 2.46
-CALIBRATION_FACTOR = 2.46
-TP_PRICING: dict[str, dict[str, float]] = {
-    "qwen3.7-max":       {"input": 0.010, "output": 0.040},
-    "qwen3.7-max-vision": {"input": 0.010, "output": 0.040},
-    "qwen3-coder-plus":  {"input": 0.007, "output": 0.036},
-    "qwen3.6-plus":      {"input": 0.002, "output": 0.012},
-    "qwen3.6-maas":      {"input": 0.002, "output": 0.012},
-    "qwen3.6-flash":     {"input": 0.001, "output": 0.006},
+# Flat rate per 1K total tokens (不分 input/output), per-model calibration
+# Calibrated 2026-07-03 against portal billing since new Token Plan:
+#   kimi-k2.7-code:  6,724,676 tokens → 7,823.52 credits → 1.1634/1K
+#   qwen3.7-max:       210,197 tokens → 7,239.09 credits → 34.4395/1K
+# Models without portal data use nearest-match pricing.
+TP_PRICING_FLAT: dict[str, float] = {
+    # Calibrated from portal
+    "kimi-k2.7-code": 1.1634,
+    # Uncalibrated — estimated similar-to-kimi rates
+    "kimi-k2.6":      1.16,
+    "glm-5.2":        1.16,
+    "glm-5.1":        1.16,
+    "MiniMax-M2.5":   1.16,
+    # Calibrated from portal
+    "qwen3.7-max":       34.4395,
+    "qwen3.7-max-vision": 34.4395,
+    # Estimated — placeholder rates (not yet seen in portal)
+    "qwen3.7-plus":      34.0,
+    "qwen3-coder-plus":  34.0,
+    "qwen3.6-plus":      34.0,
+    "qwen3.6-maas":      34.0,
+    "qwen3.6-flash":     34.0,
 }
-# DeepSeek models routed to TP → map to equivalent TP model pricing
-DS_TP_MAP: dict[str, str] = {
-    "deepseek-v4-pro":   "qwen3.7-max",
-    "deepseek-v4-flash": "qwen3.6-plus",
-}
-
 
 def _tp_model_key(model: str) -> str | None:
-    """Resolve a model name (possibly composite 'a,b') to a TP_PRICING key.
-    Handles: direct qwen names, deepseek → TP mapping, composite fallback chains.
-    Returns the TP pricing key or None if not found.
+    """Resolve a model name to a TP_PRICING_FLAT key.
+
+    Scans for substring match against TP_PRICING_FLAT keys.
     """
     for name in model.split(","):
         name = name.strip()
-        # Direct qwen match
-        for km in TP_PRICING:
+        for km in TP_PRICING_FLAT:
             if km in name:
                 return km
-        # DeepSeek → TP mapping
-        for km, tp_key in DS_TP_MAP.items():
-            if km in name:
-                return tp_key
     return None
 
 
-def _calc_tp_credits(inp: int, out: int, price: dict) -> float:
-    """(input/1000) * input_price + (output/1000) * output_price, then × CALIBRATION_FACTOR"""
-    return ((inp / 1000) * price["input"] + (out / 1000) * price["output"]) * CALIBRATION_FACTOR
+def _calc_tp_credits(inp: int, out: int, rate: float) -> float:
+    """(input + output) / 1000 * flat_rate per 1K tokens"""
+    return ((inp + out) / 1000) * rate
 
 
 def compute_tp_credits_since(iso_cutoff):
     """Compute TP credits consumed since a given timestamp.
-    Uses direct pricing table (input/output separated), covers all TP-mapped models.
+    Uses flat rate per 1K total tokens per model.
     Returns credits (float, 0 if no data or error).
     """
     if not os.path.isfile(TOKEN_USAGE_PATH) or not iso_cutoff:
@@ -514,10 +529,10 @@ def compute_tp_credits_since(iso_cutoff):
                 except (ValueError, TypeError):
                     continue
                 km = _tp_model_key(rec.get("model", ""))
-                price = TP_PRICING.get(km)
-                if not price:
+                rate = TP_PRICING_FLAT.get(km)
+                if not rate:
                     continue
-                total += _calc_tp_credits(rec.get("inputTokens", 0), rec.get("outputTokens", 0), price)
+                total += _calc_tp_credits(rec.get("inputTokens", 0), rec.get("outputTokens", 0), rate)
     except OSError:
         return 0
     return round(total, 2)
