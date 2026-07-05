@@ -1,8 +1,9 @@
 """Route loading and env resolution. No external deps beyond yaml + os."""
 import os
+_PROXY_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-CONFIG_PATH = r"D:\ClaudeProjects\proxy\litellm_config.yaml"
-DOTENV_PATH = r"D:\ClaudeProjects\proxy\.env"
+CONFIG_PATH = os.path.join(_PROXY_DIR, "litellm_config.yaml")
+DOTENV_PATH = os.path.join(_PROXY_DIR, ".env")
 
 ENV_KEY_MAP = {
     "deepseek": "DEEPSEEK_API_KEY",
