@@ -988,7 +988,7 @@ def main():
                      f"{response.status_code} {dt:.0f}ms\n")
         return response
 
-    uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="warning")
 
 
 if __name__ == "__main__":
