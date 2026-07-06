@@ -328,8 +328,11 @@ def _read_days_from_file():
 def get_real_credits():
     """Compute real-time Token Plan remaining from token_usage.jsonl.
 
+    If the user manually set manual_baseline + manual_updated_at, the manual value
+    serves as the baseline and only credits consumed SINCE that timestamp are subtracted.
+    Otherwise computes from plan_start_ts.
+
     60s cache for expensive qwen-credit computation.
-    days_to_expiry/credits_total/plan_start_ts read separately (cheap) for immediate manual edits.
     Returns (credits_remaining, credits_total, days_to_expiry).
     """
     now = time.time()
@@ -338,9 +341,26 @@ def get_real_credits():
     if now - _credits_cache["ts"] < 60:
         return _credits_cache["rem"], total, days
 
-    # Compute actual used credits from token_usage.jsonl (only records >= plan_start_ts)
-    used, _, _ = _compute_tp_credits_all(plan_start_ts=start_ts)
-    remaining = max(0, total - used)
+    # Check for manual baseline
+    policy = load_budget_policy()
+    manual_baseline = None
+    manual_ts = None
+    if policy:
+        tp = policy.get("token_plan", {})
+        manual_baseline = tp.get("manual_baseline")
+        manual_ts = tp.get("manual_updated_at")
+        last_proxy_at = tp.get("last_updated_at")
+        if not (manual_ts and last_proxy_at and manual_ts > last_proxy_at):
+            manual_baseline = None
+
+    if manual_baseline is not None and manual_ts:
+        # Compute credits consumed since manual baseline timestamp
+        used_since, _, _ = _compute_tp_credits_all(plan_start_ts=manual_ts)
+        remaining = max(0, manual_baseline - used_since)
+    else:
+        # Full scan from plan_start_ts
+        used, _, _ = _compute_tp_credits_all(plan_start_ts=start_ts)
+        remaining = max(0, total - used)
 
     _credits_cache["rem"] = remaining
     _credits_cache["ts"] = now
@@ -397,25 +417,31 @@ def _compute_tp_credits_all(plan_start_ts=None):
 
 def write_routing_policy(remaining, total, days):
     """Back-write correct credits to routing_policy.json so dashboard reads right values.
-    Preserves plan_start_ts, plan_duration_days, and respects manual_updated_at edits."""
+    Preserves plan_start_ts, plan_duration_days, and respects manual_updated_at edits.
+
+    When manual_updated_at > last_updated_at (manual baseline active):
+    - writes the newly computed remaining (decremented from manual baseline)
+    - does NOT update last_updated_at — this keeps the manual baseline active for subsequent
+      proxy requests, allowing credits to accumulate on top of the manual value
+    - only when the user removes manual_updated_at (or it becomes stale) does proxy revert
+      to full-scan from plan_start_ts
+    """
     try:
         existing = load_budget_policy()
         existing_tp = (existing or {}).get("token_plan", {})
         plan_start_ts = existing_tp.get("plan_start_ts")
         duration_days = existing_tp.get("plan_duration_days", existing_tp.get("days_to_expiry", 0))
+        manual_at = existing_tp.get("manual_updated_at")
+        last_proxy_at = existing_tp.get("last_updated_at")
 
         now_str = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-        # Respect manual credits_remaining edit if newer than our last write.
-        # When respecting a manual edit, advance last_updated_at to match manual_updated_at
-        # so that only the next NEXT proxy request (after the one that detects the edit) falls back
-        # to auto-computed values. This gives the dashboard a full refresh cycle to display the
-        # manual value before the proxy takes over again.
-        manual_at = existing_tp.get("manual_updated_at")
-        last_proxy_at = existing_tp.get("last_updated_at")
+        # Manual baseline active: write back decremented value but keep last_updated_at
+        # at old_proxy_at so manual_ts > last_updated_at remains true. This keeps the
+        # manual baseline active across all subsequent proxy requests.
         if manual_at and last_proxy_at and manual_at > last_proxy_at:
-            final_remaining = existing_tp.get("credits_remaining", round(remaining, 2))
-            final_updated_at = manual_at
+            final_remaining = round(remaining, 2)
+            final_updated_at = last_proxy_at  # freeze — don't advance past manual_ts
         else:
             final_remaining = round(remaining, 2)
             final_updated_at = now_str
@@ -427,6 +453,8 @@ def write_routing_policy(remaining, total, days):
                 "plan_duration_days": duration_days,
                 "days_to_expiry": days,
                 "plan_start_ts": plan_start_ts,
+                "manual_baseline": existing_tp.get("manual_baseline"),
+                "manual_updated_at": manual_at,
                 "last_updated_at": final_updated_at,
             }
         }
