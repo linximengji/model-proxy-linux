@@ -1,0 +1,28 @@
+
+--- spawning /home/ubuntu/projects/proxy/model_proxy.py on 4000 ---
+Traceback (most recent call last):
+  File "/home/ubuntu/projects/proxy/model_proxy.py", line 12, in <module>
+    from fastapi import FastAPI, Request, Response
+ModuleNotFoundError: No module named 'fastapi'
+[11:46:12] [d0e2bf80] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[11:46:17] [125b4983] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[16:25:13] [f723ce67] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[16:25:14] [fcac7a87] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[16:37:51] [e870cdd4] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[16:37:53] [fee2ff09] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[16:38:54] [ed481b53] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[16:38:56] [6729b0b4] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[16:42:26] [e6154f7d] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[16:42:27] [d48d75cc] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[16:46:33] [2e577e31] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[16:46:35] [85a7469f] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[16:49:31] [0bc855d5] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[16:49:33] [8aacbdf3] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[16:59:05] [8f426d70] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[16:59:07] [abadb70a] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[17:04:41] [3a4e6a80] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[17:04:45] [266e7129] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[17:27:35] [c86a6ea8] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[17:27:38] [3dc883ca] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[17:34:06] [9eb8b361] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
+[17:34:10] [a4e669f4] [WARN] [SANITIZE] Mixed thinking/non-thinking history — disabled thinking and stripped blocks
