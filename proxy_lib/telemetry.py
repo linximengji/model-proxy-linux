@@ -486,9 +486,10 @@ TP_PRICING_FLAT: dict[str, float] = {
     "glm-5.2":        1.16,
     "glm-5.1":        1.16,
     "MiniMax-M2.5":   1.16,
-    # Calibrated from portal
-    "qwen3.7-max":       34.4395,
-    "qwen3.7-max-vision": 34.4395,
+    # Calibrated from portal (portal: 11602.10 credits / 214084 tokens → 54.19/1K;
+    # local has 240983 tokens in same period → effective rate = 11602.10 / (240983/1000) = 48.14)
+    "qwen3.7-max":       48.14,
+    "qwen3.7-max-vision": 48.14,
     # Estimated — placeholder rates (not yet seen in portal)
     "qwen3.7-plus":      34.0,
     "qwen3-coder-plus":  34.0,
