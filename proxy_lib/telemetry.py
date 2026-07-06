@@ -262,7 +262,7 @@ async def reset_stats():
 
 # ── Budget policy (Token Plan aware routing) ─────────────────────────────────
 
-BUDGET_POLICY_PATH = r"D:\ClaudeProjects\.claudetalk\routing_policy.json"
+BUDGET_POLICY_PATH = "/home/ubuntu/projects/.claudetalk/routing_policy.json"
 TOKEN_USAGE_PATH = "/home/ubuntu/projects/claudetalk/.claudetalk/token_usage.jsonl"
 
 
