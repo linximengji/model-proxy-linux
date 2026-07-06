@@ -5132,3 +5132,8 @@
 {"ts": "2026-07-06T14:25:59", "model": "deepseek-v4-flash", "inputTokens": 59, "outputTokens": 82, "cacheReadTokens": 108416}
 {"ts": "2026-07-06T14:26:11", "model": "deepseek-v4-flash", "inputTokens": 120, "outputTokens": 104, "cacheReadTokens": 108544}
 {"ts": "2026-07-06T14:26:16", "model": "deepseek-v4-flash", "inputTokens": 7, "outputTokens": 75, "cacheReadTokens": 108800}
+{"ts": "2026-07-06T14:26:18", "model": "deepseek-v4-flash", "inputTokens": 12443, "outputTokens": 13, "cacheReadTokens": 0}
+{"ts": "2026-07-06T14:26:53", "model": "deepseek-v4-pro", "inputTokens": 26483, "outputTokens": 2133, "cacheReadTokens": 0}
+{"ts": "2026-07-06T14:26:54", "model": "deepseek-v4-flash", "inputTokens": 12448, "outputTokens": 1, "cacheReadTokens": 0}
+{"ts": "2026-07-06T14:27:15", "model": "deepseek-v4-pro", "inputTokens": 1417, "outputTokens": 1299, "cacheReadTokens": 0}
+{"ts": "2026-07-06T14:27:54", "model": "deepseek-v4-flash", "inputTokens": 66, "outputTokens": 4, "cacheReadTokens": 108928}
