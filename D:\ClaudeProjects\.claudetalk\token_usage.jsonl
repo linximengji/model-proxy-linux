@@ -5119,3 +5119,16 @@
 {"ts": "2026-07-06T14:11:11", "model": "deepseek-v4-pro", "inputTokens": 951, "outputTokens": 3204, "cacheReadTokens": 0}
 {"ts": "2026-07-06T14:11:43", "model": "deepseek-v4-pro", "inputTokens": 935, "outputTokens": 3340, "cacheReadTokens": 0}
 {"ts": "2026-07-06T14:12:13", "model": "deepseek-v4-pro", "inputTokens": 1083, "outputTokens": 2976, "cacheReadTokens": 0}
+{"ts": "2026-07-06T14:25:03", "model": "deepseek-v4-flash", "inputTokens": 22, "outputTokens": 291, "cacheReadTokens": 104832}
+{"ts": "2026-07-06T14:25:09", "model": "deepseek-v4-flash", "inputTokens": 18, "outputTokens": 115, "cacheReadTokens": 105216}
+{"ts": "2026-07-06T14:25:14", "model": "deepseek-v4-flash", "inputTokens": 70, "outputTokens": 89, "cacheReadTokens": 105344}
+{"ts": "2026-07-06T14:25:19", "model": "deepseek-v4-flash", "inputTokens": 120, "outputTokens": 115, "cacheReadTokens": 105728}
+{"ts": "2026-07-06T14:25:25", "model": "deepseek-v4-flash", "inputTokens": 109, "outputTokens": 307, "cacheReadTokens": 106368}
+{"ts": "2026-07-06T14:25:29", "model": "deepseek-v4-flash", "inputTokens": 97, "outputTokens": 97, "cacheReadTokens": 106752}
+{"ts": "2026-07-06T14:25:34", "model": "deepseek-v4-flash", "inputTokens": 1, "outputTokens": 312, "cacheReadTokens": 107136}
+{"ts": "2026-07-06T14:25:38", "model": "deepseek-v4-flash", "inputTokens": 105, "outputTokens": 85, "cacheReadTokens": 107392}
+{"ts": "2026-07-06T14:25:49", "model": "deepseek-v4-flash", "inputTokens": 99, "outputTokens": 90, "cacheReadTokens": 107648}
+{"ts": "2026-07-06T14:25:54", "model": "deepseek-v4-flash", "inputTokens": 64, "outputTokens": 314, "cacheReadTokens": 108032}
+{"ts": "2026-07-06T14:25:59", "model": "deepseek-v4-flash", "inputTokens": 59, "outputTokens": 82, "cacheReadTokens": 108416}
+{"ts": "2026-07-06T14:26:11", "model": "deepseek-v4-flash", "inputTokens": 120, "outputTokens": 104, "cacheReadTokens": 108544}
+{"ts": "2026-07-06T14:26:16", "model": "deepseek-v4-flash", "inputTokens": 7, "outputTokens": 75, "cacheReadTokens": 108800}
