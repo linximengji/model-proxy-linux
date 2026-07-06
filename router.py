@@ -244,8 +244,9 @@ def classify(body):
     if last_tok > 8000:
         return TIERS["pro"], "L1:very-long"
 
-    # Sub-agent: use adjusted L2 mapping instead of standard
-    if body.get("model") == TIERS["flash"] + "-sub":
+    # Sub-agent: any model name ending with -sub uses sub-agent routing
+    model_val = (body.get("model") or "")
+    if model_val.endswith("-sub"):
         return None, "l2-sub-agent"
 
     # L2 classifier needed (no L1 rule matched)

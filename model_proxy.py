@@ -399,16 +399,29 @@ def _append_text_to_last_user(body, text):
         break
 
 
-async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False):
+async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False, sub_model=""):
     """Resolve L2 classifier output → route + sanitization."""
     complexity, task_type, budget_est = await _resolve_classifier(l2_future)
     if complexity is None:
         complexity = "moderate"
     if task_type is None:
         task_type = "general"
-    route_map = _SUB_AGENT_CLASSIFIER_ROUTE if is_sub_agent else _CLASSIFIER_ROUTE
-    tier_key = route_map.get(complexity, "pro")
-    model_name = _TIERS.get(tier_key, _TIERS["pro"])
+    # Sub-agent: use model name prefix to pick base tier, then apply sub-agent map
+    if is_sub_agent and sub_model:
+        base_model = sub_model.removesuffix("-sub")
+        rev = {v: k for k, v in _TIERS.items()}
+        base_tier = rev.get(base_model, "pro")
+        route_map = _SUB_AGENT_CLASSIFIER_ROUTE
+        tier_key = route_map.get(complexity, "pro")
+        # Use the higher of base_tier and route_map tier
+        tier_order = {"flash": 0, "pro": 1, "max": 2, "vision": 2}
+        if tier_order.get(base_tier, 1) < tier_order.get(tier_key, 1):
+            base_tier = tier_key
+        model_name = _TIERS.get(base_tier, _TIERS["pro"])
+    else:
+        route_map = _SUB_AGENT_CLASSIFIER_ROUTE if is_sub_agent else _CLASSIFIER_ROUTE
+        tier_key = route_map.get(complexity, "pro")
+        model_name = _TIERS.get(tier_key, _TIERS["pro"])
     tag = "L2-sub" if is_sub_agent else "L2"
     # sub-agent: no allocator — always use mapped model
     if is_sub_agent:
@@ -501,7 +514,7 @@ def _route_and_sanitize(body):
         else:
             sanitize.strip_thinking_blocks(body)
         telemetry.log(f"BYPASS agent-model: {model_name}", phase="ROUTE")
-        return route, model_name, "agent-model", None, None, False
+        return route, model_name, "agent-model", None, None, False, ""
 
     try:
         routed_model, reason = classify(body)
@@ -583,8 +596,9 @@ def _route_and_sanitize(body):
         l2_future = _classify_via_flash(user_query, budget_ctx=budget_ctx) if user_query else None
         preview = user_query[:80] if user_query else ""
         is_sub = reason == "l2-sub-agent"
+        sub_model_name = model_name if is_sub else ""
         telemetry.log(f"L2 classify: \"{preview}{'...' if len(user_query)>80 else ''}\" ratio={ratio:.2f}", phase="L2")
-        return None, None, "l2-pending", l2_future, ratio, is_sub
+        return None, None, "l2-pending", l2_future, ratio, is_sub, sub_model_name
 
     telemetry.log(f"L1 {reason}: {model_name or 'auto'} -> {routed_model}", phase="ROUTE")
     body["model"] = routed_model
@@ -595,7 +609,7 @@ def _route_and_sanitize(body):
         sanitize.strip_thinking_blocks(body)
     else:
         sanitize.strip_thinking_blocks(body)
-    return route, routed_model, reason, None, None, False
+    return route, routed_model, reason, None, None, False, ""
 
 
 # ── Model tier ladder for stuck escalation ──────────────────────────────────
@@ -828,10 +842,10 @@ async def proxy_anthropic(request: Request):
         route, model_name = _maybe_escalate(body, route, model_name)
 
     if not route:
-        route, model_name, _reason, l2_future, ratio, is_sub = _route_and_sanitize(body)
+        route, model_name, _reason, l2_future, ratio, is_sub, sub_model = _route_and_sanitize(body)
 
         if l2_future is not None:
-            route, model_name = await _resolve_l2(body, l2_future, ratio, is_sub)
+            route, model_name = await _resolve_l2(body, l2_future, ratio, is_sub, sub_model)
 
         route, model_name = _maybe_escalate(body, route, model_name)
 
@@ -874,10 +888,10 @@ async def proxy_openai(request: Request):
         route, model_name = _maybe_escalate(body, route, model_name)
 
     if not route:
-        route, model_name, _reason, l2_future, ratio, is_sub = _route_and_sanitize(body)
+        route, model_name, _reason, l2_future, ratio, is_sub, sub_model = _route_and_sanitize(body)
 
         if l2_future is not None:
-            route, model_name = await _resolve_l2(body, l2_future, ratio, is_sub)
+            route, model_name = await _resolve_l2(body, l2_future, ratio, is_sub, sub_model)
 
         route, model_name = _maybe_escalate(body, route, model_name)
 
