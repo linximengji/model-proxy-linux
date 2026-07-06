@@ -455,13 +455,14 @@ def compute_proxy_burn(hours=24):
 
 # ── Token Plan credit calculation ───────────────────────────────────────────
 # Flat rate per 1K total tokens (不分 input/output), per-model calibration
-# Calibrated 2026-07-03 against portal billing since new Token Plan:
-#   kimi-k2.7-code:  6,724,676 tokens → 7,823.52 credits → 1.1634/1K
-#   qwen3.7-max:       210,197 tokens → 7,239.09 credits → 34.4395/1K
+# Calibrated 2026-07-07 against portal billing for New Token Plan (6/26~):
+#   kimi-k2.7-code: 7,629,786 tokens → 8,523.46 credits → 1.1171/1K  (2026-07-07)
+#   qwen3.7-max:      214,084 tokens → 11,602.10 credits → 54.19/1K (local data incomplete)
+#   glm-5.2:          No local records → 1,567.35 credits (cannot calibrate)
 # Models without portal data use nearest-match pricing.
 TP_PRICING_FLAT: dict[str, float] = {
-    # Calibrated from portal
-    "kimi-k2.7-code": 1.1634,
+    # Calibrated from portal (2026-07-07)
+    "kimi-k2.7-code": 1.1171,
     # Uncalibrated — estimated similar-to-kimi rates
     "kimi-k2.6":      1.16,
     "glm-5.2":        1.16,
