@@ -96,8 +96,15 @@ def test_regex_not_matches_at_sign_in_email(mp):
     assert not mp._PROMPT_MODEL_RE.search("联系 user@example.com")
 
 
-def test_regex_not_matches_at_sign_in_middle_word(mp):
-    assert not mp._PROMPT_MODEL_RE.search("价格@100元")
+def test_regex_not_matches_at_sign_in_ascii_word(mp):
+    """@ inside an ASCII word (foo@bar) must not match — protects email-like patterns."""
+    assert not mp._PROMPT_MODEL_RE.search("foo@bar")
+
+
+def test_regex_matches_cjk_adjacent_at(mp):
+    """CJK char directly before @ should match (Chinese habit: 能力@qwen)."""
+    m = mp._PROMPT_MODEL_RE.search("我现在测试显式调用模型的能力@qwen")
+    assert m is not None and m.group(1) == "qwen"
 
 
 # ── Strip tag tests ─────────────────────────────────────────────────────

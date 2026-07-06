@@ -204,7 +204,7 @@ def _allocator_select(complexity, task_type, req_id, ratio):
 
 # ── Prompt-level @model routing ──────────────────────────────────────────
 
-_PROMPT_MODEL_RE = re.compile(r'(?:^|\s)@([a-zA-Z0-9_.-]+)')
+_PROMPT_MODEL_RE = re.compile(r'(?<![a-zA-Z0-9_])@([a-zA-Z0-9_.-]+)')
 _STRIP_TAG_RE = re.compile(r'\s*@[a-zA-Z0-9_.-]+')
 
 
