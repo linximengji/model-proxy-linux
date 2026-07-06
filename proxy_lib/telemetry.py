@@ -284,7 +284,7 @@ _days_cache: dict = {"days": None, "total": None, "start_ts": None, "ts": 0}
 def _read_days_from_file():
     """Read credits_total and plan_start_ts from file fresh every call.
 
-    days_to_expiry is auto-computed from plan_start_ts + stored_days_to_expiry,
+    days_to_expiry is auto-computed from plan_start_ts + plan_duration_days,
     not read directly — ensures it decays naturally with wall-clock time.
 
     60s cache, Separated from compute cache so manual edits (e.g. plan_start_ts reset)
@@ -295,27 +295,28 @@ def _read_days_from_file():
         return _days_cache["total"], _days_cache["days"], _days_cache["start_ts"]
 
     total = 25000
-    stored_days = 0
+    duration_days = 0
     start_ts = None
     policy = load_budget_policy()
     if policy:
         tp = policy.get("token_plan", {})
         total = tp.get("credits_total", total)
-        stored_days = tp.get("days_to_expiry", 0)
+        # plan_duration_days is the canonical field; fall back to days_to_expiry for legacy
+        duration_days = tp.get("plan_duration_days", tp.get("days_to_expiry", 0))
         start_ts = tp.get("plan_start_ts")
 
-    # Auto-decay days_to_expiry from plan_start_ts + stored_days
+    # Auto-decay from plan_start_ts + duration_days
     if start_ts:
         try:
             plan_start = datetime.fromisoformat(start_ts)
             if plan_start.tzinfo is None:
                 plan_start = plan_start.replace(tzinfo=timezone.utc)
             elapsed = (datetime.now(timezone.utc) - plan_start).days
-            days = max(0, stored_days - elapsed)
+            days = max(0, duration_days - elapsed)
         except (ValueError, TypeError):
-            days = stored_days
+            days = duration_days
     else:
-        days = stored_days
+        days = duration_days
 
     _days_cache["total"] = total
     _days_cache["days"] = days
@@ -396,20 +397,37 @@ def _compute_tp_credits_all(plan_start_ts=None):
 
 def write_routing_policy(remaining, total, days):
     """Back-write correct credits to routing_policy.json so dashboard reads right values.
-    Preserves plan_start_ts (manual reset marker) from existing file."""
+    Preserves plan_start_ts, plan_duration_days, and respects manual_updated_at edits."""
     try:
-        # Read existing to preserve plan_start_ts
         existing = load_budget_policy()
-        plan_start_ts = None
-        if existing:
-            plan_start_ts = existing.get("token_plan", {}).get("plan_start_ts")
+        existing_tp = (existing or {}).get("token_plan", {})
+        plan_start_ts = existing_tp.get("plan_start_ts")
+        duration_days = existing_tp.get("plan_duration_days", existing_tp.get("days_to_expiry", 0))
+
+        now_str = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        # Respect manual credits_remaining edit if newer than our last write.
+        # When respecting a manual edit, advance last_updated_at to match manual_updated_at
+        # so that only the next NEXT proxy request (after the one that detects the edit) falls back
+        # to auto-computed values. This gives the dashboard a full refresh cycle to display the
+        # manual value before the proxy takes over again.
+        manual_at = existing_tp.get("manual_updated_at")
+        last_proxy_at = existing_tp.get("last_updated_at")
+        if manual_at and last_proxy_at and manual_at > last_proxy_at:
+            final_remaining = existing_tp.get("credits_remaining", round(remaining, 2))
+            final_updated_at = manual_at
+        else:
+            final_remaining = round(remaining, 2)
+            final_updated_at = now_str
+
         data = {
             "token_plan": {
-                "credits_remaining": round(remaining, 2),
+                "credits_remaining": final_remaining,
                 "credits_total": total,
+                "plan_duration_days": duration_days,
                 "days_to_expiry": days,
                 "plan_start_ts": plan_start_ts,
-                "last_updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "last_updated_at": final_updated_at,
             }
         }
         with open(BUDGET_POLICY_PATH, "w", encoding="utf-8") as f:
