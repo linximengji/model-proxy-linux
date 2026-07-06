@@ -5112,3 +5112,10 @@
 {"ts": "2026-07-06T13:19:21", "model": "qwen3.7-max", "inputTokens": 8, "outputTokens": 8, "cacheReadTokens": 17703}
 {"ts": "2026-07-06T13:19:34", "model": "deepseek-v4-flash", "inputTokens": 65, "outputTokens": 1031, "cacheReadTokens": 82048}
 {"ts": "2026-07-06T13:19:38", "model": "deepseek-v4-flash", "inputTokens": 125, "outputTokens": 144, "cacheReadTokens": 83072}
+{"ts": "2026-07-06T14:07:44", "model": "deepseek-v4-pro", "inputTokens": 1309, "outputTokens": 5191, "cacheReadTokens": 0}
+{"ts": "2026-07-06T14:10:04", "model": "deepseek-v4-pro", "inputTokens": 1748, "outputTokens": 1459, "cacheReadTokens": 0}
+{"ts": "2026-07-06T14:10:12", "model": "deepseek-v4-pro", "inputTokens": 1846, "outputTokens": 634, "cacheReadTokens": 0}
+{"ts": "2026-07-06T14:10:40", "model": "deepseek-v4-pro", "inputTokens": 714, "outputTokens": 1377, "cacheReadTokens": 0}
+{"ts": "2026-07-06T14:11:11", "model": "deepseek-v4-pro", "inputTokens": 951, "outputTokens": 3204, "cacheReadTokens": 0}
+{"ts": "2026-07-06T14:11:43", "model": "deepseek-v4-pro", "inputTokens": 935, "outputTokens": 3340, "cacheReadTokens": 0}
+{"ts": "2026-07-06T14:12:13", "model": "deepseek-v4-pro", "inputTokens": 1083, "outputTokens": 2976, "cacheReadTokens": 0}
