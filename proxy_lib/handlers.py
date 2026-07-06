@@ -41,7 +41,7 @@ async def _error_response(e):
 
 
 def _inject_attribution(model_name: str) -> str:
-    return f"\n\n[来自 @model: {model_name}]"
+    return f"\n\n[model: {model_name}]"
 
 # Anthropic non-stream
 

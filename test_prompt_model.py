@@ -425,7 +425,7 @@ def test_inject_attribution():
     """Verify the attribution format string from handlers module."""
     from proxy_lib.handlers import _inject_attribution
     text = _inject_attribution("deepseek-v4-pro")
-    assert "@model: deepseek-v4-pro" in text
+    assert "model: deepseek-v4-pro" in text
     assert text.startswith("\n\n")
 
 
