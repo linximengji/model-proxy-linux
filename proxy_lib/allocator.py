@@ -23,7 +23,9 @@ class MultiModelAllocator:
         ("complex",  "creative"):      "glm-5.2",
         ("complex",  "reasoning"):     "qwen3.7-max",
         ("complex",  "long_context"):  "qwen3.7-plus",
-        ("complex",  "general"):       "qwen3.7-max",
+        # 不映射 general — 留 DeepSeek，避免 general 任务烧 TP 额度
+        # ("complex",  "general"):       "qwen3.7-max",
+
     }
 
     def compute_ratio(self, remaining: float, total: float, days: float) -> float:

@@ -960,7 +960,7 @@ def main():
     verbose = "-v" in flags or "--verbose" in flags
 
     log_dir = os.path.dirname(os.path.abspath(__file__))
-    token_log = r"D:\ClaudeProjects\.claudetalk\token_usage.jsonl"
+    token_log = os.path.expanduser("~/.claudetalk/token_usage.jsonl")
     log_file = os.path.join(log_dir, "proxy.log")
     access_log = os.path.join(log_dir, "proxy_access.log")
 

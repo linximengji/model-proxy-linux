@@ -41,21 +41,7 @@ async def _error_response(e):
 
 
 def _inject_attribution(model_name: str) -> str:
-    return f"[model: {model_name}]\n\n"
-
-
-def _prepend_to_first_text(content: list, attribution: str) -> None:
-    """Prepend attribution to the first text block in-place.
-
-    Merges into the first text block so the attribution renders as part of
-    the reply body (not a trailing standalone block that gets shown as a
-    separate last message). If no text block exists, insert one at index 0.
-    """
-    for block in content:
-        if isinstance(block, dict) and block.get("type") == "text":
-            block["text"] = attribution + block.get("text", "")
-            return
-    content.insert(0, {"type": "text", "text": attribution})
+    return f"\n\n[model: {model_name}]"
 
 # Anthropic non-stream
 
@@ -106,7 +92,9 @@ async def handle_anthropic(body, route, model_name, routes, http_client,
                                         work_dir, session_id)
             if _reason == "prompt-bypass" and resp.status_code == 200:
                 attribution = _inject_attribution(used_model)
-                _prepend_to_first_text(raw.setdefault("content", []), attribution)
+                raw.setdefault("content", []).append(
+                    {"type": "text", "text": attribution}
+                )
             data = json.dumps(raw).encode("utf-8")
             if resp.status_code == 400:
                 err_text = data.decode("utf-8", errors="replace") if isinstance(data, bytes) else str(data)
@@ -122,8 +110,9 @@ async def handle_anthropic(body, route, model_name, routes, http_client,
                                     usage.get("completion_tokens", 0),
                                     work_dir=work_dir, session_id=session_id)
         if _reason == "prompt-bypass":
-            _prepend_to_first_text(result.setdefault("content", []),
-                                   _inject_attribution(used_model))
+            result.setdefault("content", []).append(
+                {"type": "text", "text": _inject_attribution(used_model)}
+            )
         return JSONResponse(result)
     except httpx.HTTPStatusError as e:
         log(f"<- ERR {e.response.status_code} {model_name}: {e.response.reason_phrase}", "ERROR", "UPSTREAM")
@@ -149,8 +138,6 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                 if r["provider"] in ("deepseek", "anthropic"):
                     kwargs = _native_stream_kwargs(body, r, m)
                     kwargs["timeout"] = 300
-                    attr_injected = False
-                    attr_prefix = _inject_attribution(model_name) if _reason == "prompt-bypass" else ""
                     async with http_client.stream(**kwargs) as resp:
                         await fallback.telemetry.record_success(m)
                         model_name = m
@@ -171,26 +158,16 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                                     line = json.dumps(obj, ensure_ascii=False)
                                 except json.JSONDecodeError:
                                     pass
-                            # Inject attribution as a prefix into the first text_delta,
-                            # so it renders at the reply head inside the same block stream
-                            # (not as a trailing standalone block that shows as a separate
-                            # last message and obscures the body).
-                            if not attr_injected and attr_prefix and s.startswith("data: "):
-                                try:
-                                    ev = json.loads(s[6:])
-                                    if ev.get("type") == "content_block_delta":
-                                        delta = ev.get("delta", {})
-                                        if delta.get("type") == "text_delta" and delta.get("text"):
-                                            delta["text"] = attr_prefix + delta["text"]
-                                            line = "data: " + json.dumps(ev, ensure_ascii=False)
-                                            attr_injected = True
-                                except json.JSONDecodeError:
-                                    pass
                             lb = line.encode("utf-8") if isinstance(line, str) else line
                             yield lb + b"\n"
                         if inp or out:
                             await telemetry.record_tokens(model_name, inp, out, cache,
                                                     work_dir, session_id)
+                        if _reason == "prompt-bypass":
+                            attr = _inject_attribution(model_name)
+                            yield sse_encode("content_block_start", {"type": "content_block_start", "index": 999, "content_block": {"type": "text", "text": ""}})
+                            yield sse_encode("content_block_delta", {"type": "content_block_delta", "index": 999, "delta": {"type": "text_delta", "text": attr}})
+                            yield sse_encode("content_block_stop", {"type": "content_block_stop", "index": 999})
                         return
                 else:
                     kwargs = _openai_stream_kwargs(body, r, m)
@@ -237,11 +214,6 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                                         "type": "content_block_start", "index": ti,
                                         "content_block": {"type": "text", "text": ""},
                                     })
-                                    if _reason == "prompt-bypass":
-                                        yield sse_encode("content_block_delta", {
-                                            "type": "content_block_delta", "index": ti,
-                                            "delta": {"type": "text_delta", "text": _inject_attribution(model_name)},
-                                        })
                                 yield sse_encode("content_block_delta", {
                                     "type": "content_block_delta", "index": ti,
                                     "delta": {"type": "text_delta", "text": content},
@@ -285,6 +257,12 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                                 for tci in sorted(tbs):
                                     yield sse_encode("content_block_stop",
                                                      {"type": "content_block_stop", "index": tbs[tci]["idx"]})
+                                if _reason == "prompt-bypass":
+                                    nbi += 1
+                                    attr = _inject_attribution(model_name)
+                                    yield sse_encode("content_block_start", {"type": "content_block_start", "index": nbi, "content_block": {"type": "text", "text": ""}})
+                                    yield sse_encode("content_block_delta", {"type": "content_block_delta", "index": nbi, "delta": {"type": "text_delta", "text": attr}})
+                                    yield sse_encode("content_block_stop", {"type": "content_block_stop", "index": nbi})
                                 sr = "end_turn"
                                 if finish == "length": sr = "max_tokens"
                                 elif finish == "tool_calls": sr = "tool_use"
@@ -447,7 +425,7 @@ async def handle_openai(body, route, model_name, routes, http_client,
             attr = _inject_attribution(model_name)
             for c in body_json["choices"]:
                 existing = c.get("message", {}).get("content", "") or ""
-                c["message"]["content"] = attr + existing
+                c["message"]["content"] = existing + attr
         return JSONResponse(content=body_json, status_code=resp.status_code)
     except httpx.HTTPStatusError as e:
         log(f"<- ERR {e.response.status_code} {model_name} openai: {e.response.reason_phrase}", "ERROR", "UPSTREAM")
@@ -586,8 +564,6 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
                     log(f"<- 200 streaming {m} (openai passthrough, has_rf={has_response_format})", phase="UPSTREAM")
                     content_count = 0
                     inp = out = 0
-                    attr_injected = False
-                    attr_prefix = _inject_attribution(model_name) if _reason == "prompt-bypass" else ""
                     async for chunk in resp.aiter_bytes():
                         # Extract usage from raw chunk before processing
                         for raw_line in chunk.split(b"\n"):
@@ -602,20 +578,9 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
                                     pass
                         processed = await _process_chunk(chunk)
                         if processed:
-                            has_content = False
                             for ln in processed.split(b"\n"):
                                 if ln.startswith(b"data: ") and b'"content":' in ln:
                                     content_count += 1
-                                    has_content = True
-                            # Yield attribution as the first content chunk so it
-                            # renders at the reply head (OpenAI stream deltas with
-                            # the same index concatenate in order).
-                            if not attr_injected and attr_prefix and has_content:
-                                attr_chunk = {
-                                    "choices": [{"delta": {"content": attr_prefix}, "index": 0, "finish_reason": None}]
-                                }
-                                yield b"data: " + json.dumps(attr_chunk).encode("utf-8") + b"\n\n"
-                                attr_injected = True
                             yield processed
                     log(f"...stream output content chunks: {content_count}", phase="UPSTREAM")
                     # flush line buffer
@@ -626,6 +591,12 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
                     if inp or out:
                         await telemetry.record_tokens(m, inp, out,
                                                 work_dir=work_dir, session_id=session_id)
+                    if _reason == "prompt-bypass":
+                        attr = _inject_attribution(model_name)
+                        attr_chunk = {
+                            "choices": [{"delta": {"content": attr}, "index": 0, "finish_reason": None}]
+                        }
+                        yield b"data: " + json.dumps(attr_chunk).encode("utf-8") + b"\n\n"
                     return
             except httpx.HTTPStatusError as e:
                 code = e.response.status_code
