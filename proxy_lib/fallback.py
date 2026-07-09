@@ -1,5 +1,4 @@
 """Fallback chain construction and request-with-fallback execution."""
-import json
 import httpx
 from proxy_lib import telemetry
 

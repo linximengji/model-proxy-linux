@@ -1,5 +1,6 @@
 """Show raw byte chunks from proxy stream."""
-import httpx, json, sys
+import httpx
+import sys
 sys.stdout.reconfigure(encoding="utf-8")
 
 body = {

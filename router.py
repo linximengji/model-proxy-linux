@@ -98,9 +98,9 @@ def detect_stuck(messages):
         if not tr_blocks:
             break  # no tool_result = fresh instruction
 
-        for tr in tr_blocks:
-            if tr.get("is_error"):
-                error_count += 1
+        # Count errors: one tool_result block with is_error=true = one error round
+        if any(tr.get("is_error") for tr in tr_blocks):
+            error_count += 1
 
         # Walk backward to find preceding assistant message with tool_use
         j = i - 1
@@ -121,10 +121,19 @@ def detect_stuck(messages):
 
     if rounds < 8:
         return None
+
     error_pct = error_count / max(rounds, 1)
-    if error_pct <= 0.5:
-        return None
-    return {"rounds": rounds, "error_count": error_count, "error_pct": error_pct}
+
+    # Trigger on either: high error rate, OR pure round count (stuck-without-error)
+    if error_pct > 0.3:
+        return {"rounds": rounds, "error_count": error_count, "error_pct": error_pct}
+    if error_pct == 0:
+        # Zero errors but 8+ consecutive tool rounds — model is cycling
+        # without making headway. Upgrade to let stronger model break the loop.
+        return {"rounds": rounds, "error_count": 0, "error_pct": 0.0,
+                "detected_by": "tool_loop"}
+
+    return None
 
 
 def _last_user_text(messages):
@@ -162,7 +171,8 @@ def _is_greeting_or_ack(text):
     t = text.strip().rstrip("!！。.… ")
     if not t:
         return True
-    if len(t) <= 3 and not any(c not in "!！。.… ,，、；;？?" for c in t if c not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"):
+    _alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    if len(t) <= 3 and not any(c not in "!！。.… ,，、；;？?" for c in t if c not in _alpha):
         return True
     if _GREETING_PATTERNS.match(t):
         return True

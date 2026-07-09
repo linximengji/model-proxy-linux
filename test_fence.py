@@ -1,11 +1,16 @@
 """Comprehensive test for DeepSeek streaming with json_schema via proxy."""
-import httpx, json, sys
+import httpx
+import json
+import sys
 
 body = {
     "model": "deepseek-v4-pro",
     "messages": [
         {"role": "system", "content": "Generate presentation outline with slides array."},
-        {"role": "user", "content": "对比ChatGPT、Claude、DeepSeek、通义千问四款AI助手的特点、优势、定价和适用场景。做成决策参考型幻灯片。6页。"}
+        {"role": "user", "content": (
+            "对比ChatGPT、Claude、DeepSeek、通义千问四款AI助手的特点、"
+            "优势、定价和适用场景。做成决策参考型幻灯片。6页。"
+        )}
     ],
     "stream": True,
     "response_format": {

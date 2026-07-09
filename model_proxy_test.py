@@ -1,5 +1,4 @@
 """Model proxy v3 — FastAPI app backed by proxy_lib modules."""
-import json
 import os
 import sys
 import re
@@ -9,7 +8,7 @@ import signal
 from urllib.parse import urlparse
 
 import httpx
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 sys.stdout.reconfigure(encoding="utf-8")
@@ -17,9 +16,9 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 # OpenTelemetry — initialized in main()
 
-from proxy_lib import config, sanitize, convert, telemetry, fallback
-from proxy_lib.allocator import MultiModelAllocator
-from proxy_lib.handlers import (
+from proxy_lib import config, sanitize, telemetry  # noqa: E402
+from proxy_lib.allocator import MultiModelAllocator  # noqa: E402
+from proxy_lib.handlers import (  # noqa: E402
     handle_anthropic, handle_anthropic_stream,
     handle_openai, handle_openai_stream,
 )
@@ -89,7 +88,8 @@ ALLOCATOR = MultiModelAllocator()  # Token Plan 多模型分配器
 def reload_cfg():
     global ROUTES
     try:
-        import importlib, router
+        import importlib
+        import router
         importlib.reload(router)
         router.TIERS = _TIERS
         ROUTES = config.load_routes()
@@ -363,7 +363,8 @@ async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False):
         adjusted = _allocator_select(complexity, task_type, telemetry.get_req_id(), ratio)
         if adjusted:
             telemetry.log(
-                f"{tag}: {complexity}:{task_type} + {budget_est or '?'} -> {model_name}, allocator -> {adjusted} (ratio={ratio:.2f})",
+                f"{tag}: {complexity}:{task_type} + {budget_est or '?'}"
+                f" -> {model_name}, allocator -> {adjusted} (ratio={ratio:.2f})",
                 phase="L2"
             )
             model_name = adjusted
@@ -391,7 +392,8 @@ User query: "{query}"
 
 OCR text from image: "{ocr_text}"
 
-Does the OCR text adequately answer the user, or is the image's visual content (layout, colors, charts, formatting, non-text elements) essential?
+Does the OCR text adequately answer the user, or is the image's visual content
+(layout, colors, charts, formatting, non-text elements) essential?
 
 Reply with exactly one word: use_ocr or use_vision
 - use_ocr: OCR text is sufficient — strip the image and use only text

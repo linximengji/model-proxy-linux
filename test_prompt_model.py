@@ -1,4 +1,4 @@
-"""Test @tag prompt-level model routing.
+r"""Test @tag prompt-level model routing.
 
 Pure function tests for _resolve_prompt_model and helpers.
 Tests need a populated ROUTES dict — created via a session-scoped fixture
@@ -7,17 +7,14 @@ that loads from the real litellm_config.yaml.
 Usage:
     cd D:\ClaudeProjects && python -m pytest proxy/test_prompt_model.py -v -x
 """
-import json
 import os
 import sys
-import re
 
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
 sys.stdout.reconfigure(encoding="utf-8")
 
-from proxy_lib import config
 
 
 # ── Test data ────────────────────────────────────────────────────────────

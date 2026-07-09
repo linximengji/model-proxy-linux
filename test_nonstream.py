@@ -1,5 +1,5 @@
 """Test non-streaming json_schema response fencing."""
-import httpx, json
+import httpx
 
 body = {
     "model": "deepseek-v4-pro",

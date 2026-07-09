@@ -1,5 +1,7 @@
 """Show ONLY chunks where content is not null (actual answer, not reasoning)."""
-import httpx, json, sys
+import httpx
+import json
+import sys
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -39,7 +41,7 @@ with httpx.Client(timeout=60) as client:
                             content_chunks.append(c)
                             if count <= 10:
                                 print(f"  content chunk #{count}: {repr(c[:100])}")
-                    except:
+                    except Exception:
                         pass
 
         print(f"\nTotal content chunks: {count}")

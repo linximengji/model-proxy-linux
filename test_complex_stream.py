@@ -1,5 +1,7 @@
 """Streaming complex request - test fence stripping."""
-import httpx, json, sys
+import httpx
+import json
+import sys
 sys.stdout.reconfigure(encoding="utf-8")
 
 body = {
@@ -50,7 +52,7 @@ with httpx.Client(timeout=120) as client:
                             content_chunks.append(c)
                             if count <= 8:
                                 print(f"  chunk #{count}: {repr(c[:100])}")
-                    except:
+                    except Exception:
                         pass
 
         print(f"\nTotal content chunks: {count}")

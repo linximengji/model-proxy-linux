@@ -1,5 +1,6 @@
 """Debug streaming fence stripping - show raw SSE lines."""
-import httpx, json
+import httpx
+import json
 
 body = {
     "model": "deepseek-v4-pro",

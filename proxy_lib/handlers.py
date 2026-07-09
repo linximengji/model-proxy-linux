@@ -1,13 +1,11 @@
 """HTTP handlers for Anthropic and OpenAI message endpoints. Async, depends on full proxy_lib."""
 import json
-import time
-import re
 import copy
 
 import httpx
 from fastapi.responses import Response, JSONResponse, StreamingResponse
 
-from proxy_lib import config, sanitize, convert, telemetry, fallback
+from proxy_lib import sanitize, convert, telemetry, fallback
 
 log = telemetry.log
 
@@ -69,9 +67,20 @@ async def handle_anthropic(body, route, model_name, routes, http_client,
             if r["provider"] == "deepseek":
                 sanitize.sanitize_for_deepseek(upstream)
             msgs = upstream.get("messages", [])
-            asst_thinking = sum(1 for m in msgs if m.get("role") == "assistant" and isinstance(m.get("content"), list) and any(b.get("type") == "thinking" for b in m["content"] if isinstance(b, dict)))
+            asst_thinking = sum(
+                1 for m in msgs
+                if m.get("role") == "assistant"
+                and isinstance(m.get("content"), list)
+                and any(b.get("type") == "thinking" for b in m["content"] if isinstance(b, dict))
+            )
             asst_total = sum(1 for m in msgs if m.get("role") == "assistant")
-            log(f"Anthropic non-stream body: model={upstream.get('model')}, thinking={upstream.get('thinking')}, no_reasoning={upstream.get('no_reasoning')}, asst_msgs={asst_total}, asst_with_thinking={asst_thinking}", phase="HANDLER")
+            log(
+                f"Anthropic non-stream body: model={upstream.get('model')},"
+                f" thinking={upstream.get('thinking')},"
+                f" no_reasoning={upstream.get('no_reasoning')},"
+                f" asst_msgs={asst_total}, asst_with_thinking={asst_thinking}",
+                phase="HANDLER"
+            )
             return {
                 "method": "POST", "url": r["api_base"],
                 "content": json.dumps(upstream).encode("utf-8"),
@@ -230,9 +239,19 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                                     if not ms:
                                         ms = True
                                         yield sse_encode("message_start", {
-                                            "type": "message_start", "message": {"id": "", "model": m, "role": "assistant", "content": [], "usage": {"input_tokens": 0, "cache_creation_input_tokens": 0, "cache_read_input_tokens": 0}},
+                                            "type": "message_start",
+                                            "message": {
+                                                "id": "", "model": m, "role": "assistant",
+                                                "content": [],
+                                                "usage": {
+                                                    "input_tokens": 0,
+                                                    "cache_creation_input_tokens": 0,
+                                                    "cache_read_input_tokens": 0,
+                                                },
+                                            },
                                         })
-                                    ti = nbi; nbi += 1
+                                    ti = nbi
+                                    nbi += 1
                                     yield sse_encode("content_block_start", {
                                         "type": "content_block_start", "index": ti,
                                         "content_block": {"type": "text", "text": ""},
@@ -255,23 +274,36 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                                         if not ms:
                                             ms = True
                                             yield sse_encode("message_start", {
-                                                "type": "message_start", "message": {"id": "", "model": m, "role": "assistant", "content": [], "usage": {"input_tokens": 0}},
+                                                "type": "message_start",
+                                                "message": {
+                                                    "id": "", "model": m, "role": "assistant",
+                                                    "content": [],
+                                                    "usage": {"input_tokens": 0},
+                                                },
                                             })
                                         tb = {"idx": nbi, "id": tc.get("id", ""), "name": func_delta.get("name", "")}
                                         tbs[tci] = tb
                                         nbi += 1
                                         yield sse_encode("content_block_start", {
                                             "type": "content_block_start", "index": tb["idx"],
-                                            "content_block": {"type": "tool_use", "id": tb["id"], "name": tb["name"], "input": {}},
+                                            "content_block": {
+                                                "type": "tool_use", "id": tb["id"],
+                                                "name": tb["name"], "input": {},
+                                            },
                                         })
                                     else:
                                         tb = tbs[tci]
-                                        if tc.get("id"): tb["id"] = tc["id"]
-                                        if func_delta.get("name"): tb["name"] = func_delta["name"]
+                                        if tc.get("id"):
+                                            tb["id"] = tc["id"]
+                                        if func_delta.get("name"):
+                                            tb["name"] = func_delta["name"]
                                     if func_delta.get("arguments"):
                                         yield sse_encode("content_block_delta", {
                                             "type": "content_block_delta", "index": tb["idx"],
-                                            "delta": {"type": "input_json_delta", "partial_json": func_delta["arguments"]},
+                                            "delta": {
+                                                "type": "input_json_delta",
+                                                "partial_json": func_delta["arguments"],
+                                            },
                                         })
                             usage = chunk.get("usage")
                             if usage:
@@ -286,12 +318,19 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                                     yield sse_encode("content_block_stop",
                                                      {"type": "content_block_stop", "index": tbs[tci]["idx"]})
                                 sr = "end_turn"
-                                if finish == "length": sr = "max_tokens"
-                                elif finish == "tool_calls": sr = "tool_use"
+                                if finish == "length":
+                                    sr = "max_tokens"
+                                elif finish == "tool_calls":
+                                    sr = "tool_use"
                                 yield sse_encode("message_delta", {
                                     "type": "message_delta",
                                     "delta": {"stop_reason": sr},
-                                    "usage": {"input_tokens": inp, "output_tokens": out, "cache_creation_input_tokens": 0, "cache_read_input_tokens": 0},
+                                    "usage": {
+                                        "input_tokens": inp,
+                                        "output_tokens": out,
+                                        "cache_creation_input_tokens": 0,
+                                        "cache_read_input_tokens": 0,
+                                    },
                                 })
                                 yield sse_encode("message_stop", {"type": "message_stop"})
                         if inp or out:
@@ -307,12 +346,14 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                     if qb_name and qb_name in routes and qb_name not in {mm for _, mm in models_to_try}:
                         models_to_try.insert(1, (routes[qb_name], qb_name))
                         log(f"<- {m} quota exhausted, switching to {qb_name}", phase="FALLBACK")
-                        i += 1; continue
+                        i += 1
+                        continue
                 if i < len(models_to_try) - 1:
                     log(f"<- {m} ({code}), fallback to {models_to_try[i+1][1]}", phase="FALLBACK")
                 else:
                     log(f"<- {m} ({code}), no more fallback", "WARN", "FALLBACK")
-                i += 1; continue
+                i += 1
+                continue
             except (httpx.RequestError, httpx.TimeoutException) as e:
                 await telemetry.record_failure(m, error_type="connection")
                 last_err = e
@@ -321,7 +362,8 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                     log(f"<- {m} ({code}), fallback to {models_to_try[i+1][1]}", phase="FALLBACK")
                 else:
                     log(f"<- {m} ({code}), no more fallback", "WARN", "FALLBACK")
-                i += 1; continue
+                i += 1
+                continue
         if last_err and isinstance(last_err, httpx.HTTPStatusError):
             err_body = last_err.response.content
             log(f"UPSTREAM ERR {last_err.response.status_code}: {err_body[:500]}", "ERROR", "UPSTREAM")
@@ -359,7 +401,9 @@ async def handle_openai(body, route, model_name, routes, http_client,
             "messages": oai_messages,
             "max_tokens": _body.get("max_tokens", r.get("max_tokens", 4096)),
         }
-        for key in ("temperature", "tools", "tool_choice", "top_p", "frequency_penalty", "presence_penalty", "response_format"):
+        optional_keys = ("temperature", "tools", "tool_choice", "top_p",
+                         "frequency_penalty", "presence_penalty", "response_format")
+        for key in optional_keys:
             if key == "response_format" and r["provider"] == "deepseek":
                 rf = _body.get("response_format")
                 if rf and isinstance(rf, dict) and rf.get("type") in ("json_schema", "json_object"):
@@ -373,7 +417,9 @@ async def handle_openai(body, route, model_name, routes, http_client,
             bt = _body.get("thinking", {})
             if isinstance(bt, dict) and bt.get("type") != "enabled":
                 upstream["no_reasoning"] = True
-        if "response_format" in upstream and upstream["response_format"].get("type") == "json_object" and r["provider"] == "deepseek":
+        if ("response_format" in upstream
+                and upstream["response_format"].get("type") == "json_object"
+                and r["provider"] == "deepseek"):
             upstream["messages"].append({
                 "role": "system",
                 "content": "Output ONLY valid JSON. No other text or explanation."
@@ -485,7 +531,9 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
             "stream": True,
             "stream_options": {"include_usage": True},
         }
-        for key in ("temperature", "tools", "tool_choice", "top_p", "frequency_penalty", "presence_penalty", "response_format"):
+        optional_keys = ("temperature", "tools", "tool_choice", "top_p",
+                         "frequency_penalty", "presence_penalty", "response_format")
+        for key in optional_keys:
             if key == "response_format" and r["provider"] == "deepseek":
                 rf = _body.get("response_format")
                 if rf and isinstance(rf, dict) and rf.get("type") in ("json_schema", "json_object"):
@@ -499,7 +547,9 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
             bt = _body.get("thinking", {})
             if isinstance(bt, dict) and bt.get("type") != "enabled":
                 upstream["no_reasoning"] = True
-        if "response_format" in upstream and upstream["response_format"].get("type") == "json_object" and r["provider"] == "deepseek":
+        if ("response_format" in upstream
+                and upstream["response_format"].get("type") == "json_object"
+                and r["provider"] == "deepseek"):
             upstream["messages"].append({
                 "role": "system",
                 "content": "Output ONLY valid JSON. No other text or explanation."
@@ -579,7 +629,7 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
                 kwargs["timeout"] = 300
                 async with http_client.stream(**kwargs) as resp:
                     if resp.status_code != 200:
-                        err_body = await resp.aread()
+                        await resp.aread()
                         raise httpx.HTTPStatusError(
                             f"HTTP {resp.status_code}", request=resp.request, response=resp)
                     await fallback.telemetry.record_success(m)
@@ -646,7 +696,7 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
                     log(f"<- {m} ({code}), no more fallback", "WARN", "FALLBACK")
                 continue
         if last_err:
-            log(f"openai_stream: all upstreams exhausted", "ERROR", "UPSTREAM")
+            log("openai_stream: all upstreams exhausted", "ERROR", "UPSTREAM")
             await telemetry.record_error()
 
     return StreamingResponse(event_generator(), media_type="text/event-stream",

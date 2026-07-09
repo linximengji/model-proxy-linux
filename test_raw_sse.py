@@ -1,5 +1,7 @@
 """Raw SSE test — show exactly what the proxy sends."""
-import httpx, json
+import httpx
+import json
+import sys
 
 body = {
     "model": "deepseek-v4-pro",
@@ -21,7 +23,6 @@ body = {
     }
 }
 
-import sys
 sys.stdout.reconfigure(encoding="utf-8")
 
 with httpx.Client(timeout=60) as client:
@@ -44,6 +45,6 @@ with httpx.Client(timeout=60) as client:
                             print(f"  chunk #{count}: content={repr(c[:80])}")
                         elif c is not None and count == 20:
                             print(f"  chunk #{count}: content={repr(c[:80])}")
-                    except:
+                    except Exception:
                         pass
         print(f"Total content chunks: {count}")
