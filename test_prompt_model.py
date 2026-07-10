@@ -340,6 +340,27 @@ def test_resolve_prompt_model_multiple_messages(mp_fresh):
     assert "@flash" in body["messages"][0]["content"]
 
 
+def test_resolve_prompt_model_history_tag_not_leaked(mp_fresh):
+    mp = mp_fresh
+    """A @tag in an earlier user message must NOT leak into a later turn
+    that has no @tag. Regression: reversed scan kept walking history and
+    re-bypassed on the stale @tag, so every subsequent reply carried the
+    [model: X] attribution."""
+    body = {
+        "messages": [
+            {"role": "user", "content": "用 glm 写个函数 @glm"},
+            {"role": "assistant", "content": "[model: glm-5.2]\n\n好的，这是函数..."},
+            {"role": "user", "content": "继续"},
+        ]
+    }
+    route, model_name, reason = mp._resolve_prompt_model(body)
+    assert route is None
+    assert model_name is None
+    assert reason is None
+    # History @glm must be preserved (not stripped) since it wasn't the active turn
+    assert "@glm" in body["messages"][0]["content"]
+
+
 def test_resolve_prompt_model_unknown_tag(mp_fresh):
     mp = mp_fresh
     body = build_body("你好 @unknown_model_xyz")

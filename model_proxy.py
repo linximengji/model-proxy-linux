@@ -242,35 +242,37 @@ def _fuzzy_resolve_model(tag):
 
 
 def _resolve_prompt_model(body):
-    """Scan last user message for trailing @tag, strip it and bypass if recognized."""
-    model_name = None
+    """Scan the LAST user message for a @tag — never walk history (a stale @tag would leak across turns)."""
+    last_user_msg = None
     for msg in reversed(body.get("messages", []) or []):
-        if msg.get("role") != "user":
-            continue
-        content = msg.get("content", "")
-        if isinstance(content, str):
-            matches = list(_PROMPT_MODEL_RE.finditer(content))
-            if matches:
-                tag = matches[-1].group(1)
-                resolved = _fuzzy_resolve_model(tag)
-                if resolved:
-                    model_name = resolved
-                    msg["content"] = _STRIP_TAG_RE.sub("", content).strip()
-                    break
-        elif isinstance(content, list):
-            for block in reversed(content):
-                if isinstance(block, dict) and block.get("type") == "text":
-                    text = block.get("text", "")
-                    matches = list(_PROMPT_MODEL_RE.finditer(text))
-                    if matches:
-                        tag = matches[-1].group(1)
-                        resolved = _fuzzy_resolve_model(tag)
-                        if resolved:
-                            model_name = resolved
-                            block["text"] = _STRIP_TAG_RE.sub("", text).strip()
-                            break
-            if model_name:
-                break
+        if msg.get("role") == "user":
+            last_user_msg = msg
+            break
+    if last_user_msg is None:
+        return None, None, None
+
+    model_name = None
+    content = last_user_msg.get("content", "")
+    if isinstance(content, str):
+        matches = list(_PROMPT_MODEL_RE.finditer(content))
+        if matches:
+            tag = matches[-1].group(1)
+            resolved = _fuzzy_resolve_model(tag)
+            if resolved:
+                model_name = resolved
+                last_user_msg["content"] = _STRIP_TAG_RE.sub("", content).strip()
+    elif isinstance(content, list):
+        for block in reversed(content):
+            if isinstance(block, dict) and block.get("type") == "text":
+                text = block.get("text", "")
+                matches = list(_PROMPT_MODEL_RE.finditer(text))
+                if matches:
+                    tag = matches[-1].group(1)
+                    resolved = _fuzzy_resolve_model(tag)
+                    if resolved:
+                        model_name = resolved
+                        block["text"] = _STRIP_TAG_RE.sub("", text).strip()
+                        break
 
     if model_name:
         body["model"] = model_name
@@ -1044,12 +1046,14 @@ def main():
     from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
     from opentelemetry.sdk.resources import Resource
     from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
+    from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
     _provider = TracerProvider(resource=Resource.create({"service.name": "model-proxy"}))
     _provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(
         endpoint="http://localhost:4317", insecure=True)))
     trace.set_tracer_provider(_provider)
     HTTPXClientInstrumentor().instrument()
+    FastAPIInstrumentor.instrument_app(app)
 
     config.load_dotenv()
     _init_tiers()
@@ -1064,11 +1068,15 @@ def main():
     verbose = "-v" in flags or "--verbose" in flags
 
     log_dir = os.path.dirname(os.path.abspath(__file__))
-    token_log = "/home/ubuntu/projects/.claudetalk/token_usage.jsonl"
+    token_log = os.path.join(log_dir, "token_usage.jsonl")
     log_file = os.path.join(log_dir, "proxy.log")
     access_log = os.path.join(log_dir, "proxy_access.log")
 
     telemetry.init(token_log_path=token_log, log_file=log_file, access_log=access_log, verbose=verbose)
+
+    # Seed routing_policy.json at startup so dashboard has balance data immediately
+    _seed_remaining, _seed_total, _seed_days = telemetry.get_real_credits()
+    telemetry.write_routing_policy(_seed_remaining, _seed_total, _seed_days)
 
     import uvicorn
     port = int(args[0]) if args else 4000

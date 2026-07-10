@@ -263,7 +263,7 @@ async def reset_stats():
 # ── Budget policy (Token Plan aware routing) ─────────────────────────────────
 
 BUDGET_POLICY_PATH = "/home/ubuntu/projects/.claudetalk/routing_policy.json"
-TOKEN_USAGE_PATH = "/home/ubuntu/projects/.claudetalk/token_usage.jsonl"
+TOKEN_USAGE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "token_usage.jsonl")
 
 
 def load_budget_policy():
@@ -446,10 +446,13 @@ def write_routing_policy(remaining, total, days):
             final_remaining = round(remaining, 2)
             final_updated_at = now_str
 
+        # Preserve existing credits_total (may differ from hardcoded default)
+        effective_total = existing_tp.get("credits_total", total)
+
         data = {
             "token_plan": {
                 "credits_remaining": final_remaining,
-                "credits_total": total,
+                "credits_total": effective_total,
                 "plan_duration_days": duration_days,
                 "days_to_expiry": days,
                 "plan_start_ts": plan_start_ts,

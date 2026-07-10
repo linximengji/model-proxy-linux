@@ -254,35 +254,37 @@ def _has_thinking_history(body):
 
 
 def _resolve_prompt_model(body):
-    """Scan last user message for trailing @tag, strip it and bypass if recognized."""
-    model_name = None
+    """Scan the LAST user message for a @tag — never walk history (a stale @tag would leak across turns)."""
+    last_user_msg = None
     for msg in reversed(body.get("messages", []) or []):
-        if msg.get("role") != "user":
-            continue
-        content = msg.get("content", "")
-        if isinstance(content, str):
-            matches = list(_PROMPT_MODEL_RE.finditer(content))
-            if matches:
-                tag = matches[-1].group(1)
-                resolved = _fuzzy_resolve_model(tag)
-                if resolved:
-                    model_name = resolved
-                    msg["content"] = _STRIP_TAG_RE.sub("", content).strip()
-                    break
-        elif isinstance(content, list):
-            for block in reversed(content):
-                if isinstance(block, dict) and block.get("type") == "text":
-                    text = block.get("text", "")
-                    matches = list(_PROMPT_MODEL_RE.finditer(text))
-                    if matches:
-                        tag = matches[-1].group(1)
-                        resolved = _fuzzy_resolve_model(tag)
-                        if resolved:
-                            model_name = resolved
-                            block["text"] = _STRIP_TAG_RE.sub("", text).strip()
-                            break
-            if model_name:
-                break
+        if msg.get("role") == "user":
+            last_user_msg = msg
+            break
+    if last_user_msg is None:
+        return None, None, None
+
+    model_name = None
+    content = last_user_msg.get("content", "")
+    if isinstance(content, str):
+        matches = list(_PROMPT_MODEL_RE.finditer(content))
+        if matches:
+            tag = matches[-1].group(1)
+            resolved = _fuzzy_resolve_model(tag)
+            if resolved:
+                model_name = resolved
+                last_user_msg["content"] = _STRIP_TAG_RE.sub("", content).strip()
+    elif isinstance(content, list):
+        for block in reversed(content):
+            if isinstance(block, dict) and block.get("type") == "text":
+                text = block.get("text", "")
+                matches = list(_PROMPT_MODEL_RE.finditer(text))
+                if matches:
+                    tag = matches[-1].group(1)
+                    resolved = _fuzzy_resolve_model(tag)
+                    if resolved:
+                        model_name = resolved
+                        block["text"] = _STRIP_TAG_RE.sub("", text).strip()
+                        break
 
     if model_name:
         body["model"] = model_name
