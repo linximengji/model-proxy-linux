@@ -447,7 +447,9 @@ async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False, sub_model=""):
         sanitize.strip_thinking_blocks(body)
     else:
         sanitize.strip_thinking_blocks(body)
-    return route, model_name
+    # Build a descriptive reason for telemetry: L2:{complexity}:{task_type} -> {model_name}
+    l2_reason = f"L2:{complexity}:{task_type}->{model_name}"
+    return route, model_name, l2_reason
 
 
 _OCR_JUDGE_PROMPT = """\
@@ -926,7 +928,7 @@ async def rules_debug(request: Request):
             "has_image": _has_image(messages),
             "has_recent_tools": _has_recent_tools(messages),
             "is_trivial": last_tok < 400 and _is_greeting_or_ack(last_text),
-            "is_very_long": total_tok > 15000,
+            "is_very_long": total_tok > 8000,
             "last_user_text_preview": last_text[:120],
         },
     })
@@ -951,7 +953,7 @@ async def proxy_anthropic(request: Request):
         route, model_name, _reason, l2_future, ratio, is_sub, sub_model = _route_and_sanitize(body)
 
         if l2_future is not None:
-            route, model_name = await _resolve_l2(body, l2_future, ratio, is_sub, sub_model)
+            route, model_name, _reason = await _resolve_l2(body, l2_future, ratio, is_sub, sub_model)
 
         route, model_name = _maybe_escalate(body, route, model_name)
 
@@ -997,7 +999,7 @@ async def proxy_openai(request: Request):
         route, model_name, _reason, l2_future, ratio, is_sub, sub_model = _route_and_sanitize(body)
 
         if l2_future is not None:
-            route, model_name = await _resolve_l2(body, l2_future, ratio, is_sub, sub_model)
+            route, model_name, _reason = await _resolve_l2(body, l2_future, ratio, is_sub, sub_model)
 
         route, model_name = _maybe_escalate(body, route, model_name)
 
