@@ -246,13 +246,6 @@ def classify(body):
     last_text = _last_user_text(messages)
     last_tok = estimate_tokens(last_text)
 
-    # Rule 3: total history very long (>8000 tok) → pro
-    # Must check before trivial, or a short follow-up in long history
-    # (e.g. "继续分析") would be misrouted as flash.
-    total_tok = estimate_tokens(_all_text(messages))
-    if total_tok > 8000:
-        return TIERS["pro"], "L1:very-long"
-
     # Sub-agent: any model name ending with -sub uses sub-agent routing.
     # Must be before trivial — a sub-agent request like "hi" should still
     # go through L2 classifier for allocation, not get shortcut to flash.
@@ -260,7 +253,7 @@ def classify(body):
     if model_val.endswith("-sub"):
         return None, "l2-sub-agent"
 
-    # Rule 4: trivial → flash
+    # Rule 3: trivial → flash
     if last_tok < 400 and _is_greeting_or_ack(last_text):
         return TIERS["flash"], "L1:trivial"
 
