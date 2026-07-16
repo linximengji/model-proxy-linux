@@ -1028,9 +1028,45 @@ async def proxy_openai(request: Request):
         await telemetry.record_latency(model_name_display, (time.time() - _t0) * 1000)
 
 
+@app.post("/v1/embeddings")
+async def proxy_embeddings(request: Request):
+    """Forward OpenAI-compatible embedding request to DashScope text-embedding-v3."""
+    body = await request.json()
+    model = body.get("model", "text-embedding-v3")
+    inp = body.get("input", "")
+
+    dashscope_key = os.environ.get("DASHSCOPE_API_KEY", "")
+    if not dashscope_key:
+        return JSONResponse({"error": "DASHSCOPE_API_KEY not configured"}, status_code=500)
+
+    payload = {
+        "model": model,
+        "input": inp,
+        "encoding_format": "float",
+    }
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.post(
+                "https://dashscope.aliyuncs.com/compatible-mode/v1/embeddings",
+                json=payload,
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {dashscope_key}",
+                },
+            )
+        if resp.status_code != 200:
+            detail = resp.text[:500]
+            telemetry.log(f"Embedding API error {resp.status_code}: {detail}", "ERROR", "EMBED")
+            return JSONResponse({"error": f"DashScope {resp.status_code}: {detail}"}, status_code=resp.status_code)
+        return JSONResponse(resp.json())
+    except httpx.TimeoutException:
+        telemetry.log("Embedding API timeout", "ERROR", "EMBED")
+        return JSONResponse({"error": "DashScope embedding request timed out"}, status_code=504)
+
+
 @app.post("/{path:path}")
 async def not_found_post(path: str):
-    if path not in ("v1/messages", "v1/chat/completions", "v1/rules/debug"):
+    if path not in ("v1/messages", "v1/chat/completions", "v1/rules/debug", "v1/embeddings"):
         await telemetry.record_error()
         return JSONResponse({"error": f"unsupported path: /{path}"}, status_code=404)
     return JSONResponse({}, status_code=404)
