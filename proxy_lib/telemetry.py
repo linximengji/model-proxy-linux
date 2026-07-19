@@ -503,25 +503,24 @@ def compute_proxy_burn(hours=24):
 
 
 # ── Token Plan credit calculation ───────────────────────────────────────────
-# Flat rate per 1K total tokens (不分 input/output), per-model calibration
-# Calibrated 2026-07-07 against portal billing for New Token Plan (6/26~):
-#   kimi-k2.7-code: 7,629,786 tokens → 8,523.46 credits → 1.1171/1K  (2026-07-07)
-#   qwen3.7-max:      214,084 tokens → 11,602.10 credits → 54.19/1K (local data incomplete)
-#   glm-5.2:          No local records → 1,567.35 credits (cannot calibrate)
-# Models without portal data use nearest-match pricing.
+# Flat rate per 1K total tokens (不分 input/output), per-model calibration.
+# Updated 2026-07-19 — hour-bucket alignment between proxy token_usage.jsonl
+# and portal billing (UTC+8 → UTC adjusted).
 TP_PRICING_FLAT: dict[str, float] = {
-    # Calibrated from portal (2026-07-07)
-    "kimi-k2.7-code": 1.1171,
-    # Uncalibrated — estimated similar-to-kimi rates
-    "kimi-k2.6":      1.16,
-    "glm-5.2":        1.16,
-    "glm-5.1":        1.16,
-    "MiniMax-M2.5":   1.16,
-    # Calibrated from portal (portal: 11602.10 credits / 214084 tokens → 54.19/1K;
-    # local has 240983 tokens in same period → effective rate = 11602.10 / (240983/1000) = 48.14)
+    # Calibrated from portal (2026-07-19): 263.35 cr / 7,749,786 tok → 0.0340/1K
+    "kimi-k2.7-code": 0.0340,
+    # Uncalibrated — same family as kimi-k2.7-code
+    "kimi-k2.6":      0.0340,
+    # Calibrated from portal (2026-07-19): 2,109.84 cr / 8,560,620 tok → 0.2465/1K
+    "glm-5.2":        0.2465,
+    # Uncalibrated — same family as glm-5.2
+    "glm-5.1":        0.2465,
+    "MiniMax-M2.5":   0.0340,
+    # Calibrated from portal (portal: 11602.10 cr / 214084 tok → 54.19/1K;
+    # local: 240983 tok → effective 48.14)
     "qwen3.7-max":       48.14,
     "qwen3.7-max-vision": 48.14,
-    # Estimated — placeholder rates (not yet seen in portal)
+    # Uncalibrated — placeholder rates
     "qwen3.7-plus":      34.0,
     "qwen3-coder-plus":  34.0,
     "qwen3.6-plus":      34.0,
