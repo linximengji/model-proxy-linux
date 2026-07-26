@@ -163737,3 +163737,16 @@
 {"ts": "2026-07-26T03:30:54", "model": "qwen3.8-max-preview", "inputTokens": 230, "outputTokens": 216, "cacheReadTokens": 0}
 {"ts": "2026-07-26T03:31:04", "model": "qwen3.8-max-preview", "inputTokens": 2359, "outputTokens": 332, "cacheReadTokens": 0}
 {"ts": "2026-07-26T03:31:26", "model": "qwen3.8-max-preview", "inputTokens": 513, "outputTokens": 1012, "cacheReadTokens": 0}
+{"ts": "2026-07-26T03:39:21", "model": "deepseek-v4-pro", "inputTokens": 13919, "outputTokens": 35, "cacheReadTokens": 0}
+{"ts": "2026-07-26T03:39:21", "model": "deepseek-v4-flash", "inputTokens": 29, "outputTokens": 25, "cacheReadTokens": 128}
+{"ts": "2026-07-26T03:39:23", "model": "deepseek-v4-flash", "inputTokens": 80, "outputTokens": 37, "cacheReadTokens": 2176}
+{"ts": "2026-07-26T03:39:27", "model": "deepseek-v4-flash", "inputTokens": 50, "outputTokens": 218, "cacheReadTokens": 384}
+{"ts": "2026-07-26T03:39:32", "model": "kimi-k2.7-code", "inputTokens": 168, "outputTokens": 435, "cacheReadTokens": 0}
+{"ts": "2026-07-26T03:39:34", "model": "deepseek-v4-pro", "inputTokens": 89, "outputTokens": 29, "cacheReadTokens": 2176}
+{"ts": "2026-07-26T03:39:37", "model": "deepseek-v4-pro", "inputTokens": 59, "outputTokens": 148, "cacheReadTokens": 384}
+{"ts": "2026-07-26T03:39:38", "model": "deepseek-v4-flash", "inputTokens": 31, "outputTokens": 29, "cacheReadTokens": 128}
+{"ts": "2026-07-26T03:39:41", "model": "deepseek-v4-flash", "inputTokens": 82, "outputTokens": 47, "cacheReadTokens": 2176}
+{"ts": "2026-07-26T03:39:44", "model": "deepseek-v4-flash", "inputTokens": 52, "outputTokens": 203, "cacheReadTokens": 384}
+{"ts": "2026-07-26T03:39:45", "model": "deepseek-v4-flash", "inputTokens": 34, "outputTokens": 23, "cacheReadTokens": 128}
+{"ts": "2026-07-26T03:39:47", "model": "deepseek-v4-flash", "inputTokens": 21, "outputTokens": 23, "cacheReadTokens": 128}
+{"ts": "2026-07-26T03:40:00", "model": "deepseek-v4-pro", "inputTokens": 12610, "outputTokens": 2426, "cacheReadTokens": 0}
