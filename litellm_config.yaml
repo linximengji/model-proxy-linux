@@ -1,12 +1,5 @@
 model_list:
   # ── DeepSeek Anthropic ──
-  - model_name: deepseek-v4-pro
-    litellm_params:
-      model: deepseek/deepseek-v4-pro
-      api_key: os.environ/DEEPSEEK_API_KEY
-      max_tokens: 8192
-    fallback: qwen3.7-max
-
   - model_name: deepseek-v4-flash
     litellm_params:
       model: deepseek/deepseek-v4-flash
@@ -14,14 +7,22 @@ model_list:
       max_tokens: 4096
     fallback: deepseek-v4-pro
 
-  # ── Token-Plan MAAS Anthropic ──
-  - model_name: qwen3.7-max
+  - model_name: deepseek-v4-pro
     litellm_params:
-      model: anthropic/qwen3.7-max
+      model: deepseek/deepseek-v4-pro
+      api_key: os.environ/DEEPSEEK_API_KEY
+      max_tokens: 8192
+    fallback: deepseek-v4-pro
+
+  # ── Token-Plan MAAS Anthropic ──
+  - model_name: qwen3.8-max-preview
+    litellm_params:
+      model: anthropic/qwen3.8-max-preview
       api_base: https://token-plan.cn-beijing.maas.aliyuncs.com/apps/anthropic/v1/messages
       api_key: os.environ/QWEN_MAAS_API_KEY
       max_tokens: 8192
       quota_backup: qwen3.7-max-ds
+    fallback: deepseek-v4-pro
 
   - model_name: qwen3.7-plus
     litellm_params:

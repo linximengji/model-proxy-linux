@@ -12,7 +12,7 @@ _VERSION = "v5-tiers"
 TIERS: dict[str, str] = {
     "flash": "deepseek-v4-flash",
     "pro": "deepseek-v4-pro",
-    "max": "qwen3.7-max",
+    "max": "qwen3.8-max-preview",
     "vision": "doubao-1.5-vision-pro",
 }
 
@@ -98,9 +98,9 @@ def detect_stuck(messages):
         if not tr_blocks:
             break  # no tool_result = fresh instruction
 
-        # Count errors: one tool_result block with is_error=true = one error round
-        if any(tr.get("is_error") for tr in tr_blocks):
-            error_count += 1
+        for tr in tr_blocks:
+            if tr.get("is_error"):
+                error_count += 1
 
         # Walk backward to find preceding assistant message with tool_use
         j = i - 1
@@ -121,19 +121,10 @@ def detect_stuck(messages):
 
     if rounds < 8:
         return None
-
     error_pct = error_count / max(rounds, 1)
-
-    # Trigger on either: high error rate, OR pure round count (stuck-without-error)
-    if error_pct > 0.3:
-        return {"rounds": rounds, "error_count": error_count, "error_pct": error_pct}
-    if error_pct == 0:
-        # Zero errors but 8+ consecutive tool rounds — model is cycling
-        # without making headway. Upgrade to let stronger model break the loop.
-        return {"rounds": rounds, "error_count": 0, "error_pct": 0.0,
-                "detected_by": "tool_loop"}
-
-    return None
+    if error_pct <= 0.5:
+        return None
+    return {"rounds": rounds, "error_count": error_count, "error_pct": error_pct}
 
 
 def _last_user_text(messages):
@@ -171,8 +162,7 @@ def _is_greeting_or_ack(text):
     t = text.strip().rstrip("!！。.… ")
     if not t:
         return True
-    _alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    if len(t) <= 3 and not any(c not in "!！。.… ,，、；;？?" for c in t if c not in _alpha):
+    if len(t) <= 3 and not any(c not in "!！。.… ,，、；;？?" for c in t if c not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"):
         return True
     if _GREETING_PATTERNS.match(t):
         return True
@@ -246,16 +236,17 @@ def classify(body):
     last_text = _last_user_text(messages)
     last_tok = estimate_tokens(last_text)
 
-    # Sub-agent: any model name ending with -sub uses sub-agent routing.
-    # Must be before trivial — a sub-agent request like "hi" should still
-    # go through L2 classifier for allocation, not get shortcut to flash.
-    model_val = (body.get("model") or "")
-    if model_val.endswith("-sub"):
-        return None, "l2-sub-agent"
-
     # Rule 3: trivial → flash
     if last_tok < 400 and _is_greeting_or_ack(last_text):
         return TIERS["flash"], "L1:trivial"
+
+    # Rule 4: single long input (>8000 tok) → pro
+    if last_tok > 8000:
+        return TIERS["pro"], "L1:very-long"
+
+    # Sub-agent: use adjusted L2 mapping instead of standard
+    if body.get("model") == TIERS["flash"] + "-sub":
+        return None, "l2-sub-agent"
 
     # L2 classifier needed (no L1 rule matched)
     return None, "l2-classifier"

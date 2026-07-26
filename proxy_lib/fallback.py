@@ -49,6 +49,8 @@ async def request_with_fallback(route, model_name, routes, http_client, build_re
             kwargs["timeout"] = timeout
             resp = await http_client.request(**kwargs)
             await telemetry.record_success(m)
+            if resp.status_code < 400:
+                telemetry.reset_bypass_health()
             return resp, m
         except httpx.HTTPStatusError as e:
             code = e.response.status_code

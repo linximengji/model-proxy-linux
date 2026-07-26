@@ -58,7 +58,7 @@ def _prepend_to_first_text(content: list, attribution: str) -> None:
 # Anthropic non-stream
 
 async def handle_anthropic(body, route, model_name, routes, http_client,
-                           work_dir=None, session_id=None, _reason=None):
+                           work_dir=None, session_id=None, _reason=None, is_bypass=False):
     def build_kwargs(r, _m):
         if r["provider"] in ("deepseek", "anthropic"):
             upstream = body.copy()
@@ -101,6 +101,8 @@ async def handle_anthropic(body, route, model_name, routes, http_client,
     try:
         resp, used_model = await fallback.request_with_fallback(
             route, model_name, routes, http_client, build_kwargs, timeout=180)
+        if is_bypass and resp.status_code >= 400:
+            await telemetry.bypass_failure()
         used_route = routes.get(used_model, route)
         if used_route["provider"] in ("deepseek", "anthropic"):
             raw = json.loads(resp.content)
@@ -136,16 +138,22 @@ async def handle_anthropic(body, route, model_name, routes, http_client,
         return JSONResponse(result)
     except httpx.HTTPStatusError as e:
         log(f"<- ERR {e.response.status_code} {model_name}: {e.response.reason_phrase}", "ERROR", "UPSTREAM")
+        await telemetry.record_failure(model_name, status_code=e.response.status_code)
+        if is_bypass:
+            await telemetry.bypass_failure()
         return await _error_response(e)
     except (httpx.RequestError, httpx.TimeoutException) as e:
         log(f"<- ERR {type(e).__name__} {model_name}", "ERROR", "UPSTREAM")
+        await telemetry.record_failure(model_name, error_type="connection")
+        if is_bypass:
+            await telemetry.bypass_failure()
         return await _error_response(e)
 
 
 # Anthropic stream
 
 async def handle_anthropic_stream(body, route, model_name, routes, http_client,
-                                  work_dir=None, session_id=None, _reason=None):
+                                  work_dir=None, session_id=None, _reason=None, is_bypass=False):
     models_to_try = fallback.build_fallback_chain(route, model_name, routes)
 
     async def event_generator():
@@ -161,7 +169,12 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                     attr_injected = False
                     attr_prefix = _inject_attribution(model_name) if _reason == "prompt-bypass" else ""
                     async with http_client.stream(**kwargs) as resp:
+                        if resp.status_code != 200:
+                            err_body = await resp.aread()
+                            raise httpx.HTTPStatusError(
+                                f"HTTP {resp.status_code}", request=resp.request, response=resp)
                         await fallback.telemetry.record_success(m)
+                        fallback.telemetry.reset_bypass_health()
                         model_name = m
                         inp = out = cache = 0
                         async for line in resp.aiter_lines():
@@ -210,6 +223,7 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                             raise httpx.HTTPStatusError(
                                 f"HTTP {resp.status_code}", request=resp.request, response=resp)
                         await fallback.telemetry.record_success(m)
+                        fallback.telemetry.reset_bypass_health()
                         model_name = m
                         inp = out = 0
                         ti = None
@@ -340,6 +354,8 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
             except httpx.HTTPStatusError as e:
                 code = e.response.status_code
                 await telemetry.record_failure(m, status_code=code)
+                if is_bypass and m == model_name:
+                    await telemetry.bypass_failure()
                 last_err = e
                 if i == 0 and fallback.is_quota_exhausted(e):
                     qb_name = r.get("quota_backup")
@@ -356,6 +372,8 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                 continue
             except (httpx.RequestError, httpx.TimeoutException) as e:
                 await telemetry.record_failure(m, error_type="connection")
+                if is_bypass and m == model_name:
+                    await telemetry.bypass_failure()
                 last_err = e
                 code = type(e).__name__
                 if i < len(models_to_try) - 1:
@@ -377,7 +395,7 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
 # OpenAI non-stream
 
 async def handle_openai(body, route, model_name, routes, http_client,
-                        work_dir=None, session_id=None, _reason=None):
+                        work_dir=None, session_id=None, _reason=None, is_bypass=False):
     def build_kwargs(r, _m):
         if r["provider"] == "deepseek":
             api_base = "https://api.deepseek.com/v1"
@@ -433,6 +451,8 @@ async def handle_openai(body, route, model_name, routes, http_client,
     try:
         resp, _used = await fallback.request_with_fallback(
             route, model_name, routes, http_client, build_kwargs, timeout=120)
+        if is_bypass and resp.status_code >= 400:
+            await telemetry.bypass_failure()
         body_json = resp.json()
         usage = body_json.get("usage", {})
         if usage:
@@ -497,16 +517,22 @@ async def handle_openai(body, route, model_name, routes, http_client,
         return JSONResponse(content=body_json, status_code=resp.status_code)
     except httpx.HTTPStatusError as e:
         log(f"<- ERR {e.response.status_code} {model_name} openai: {e.response.reason_phrase}", "ERROR", "UPSTREAM")
+        await telemetry.record_failure(model_name, status_code=e.response.status_code)
+        if is_bypass:
+            await telemetry.bypass_failure()
         return await _error_response(e)
     except (httpx.RequestError, httpx.TimeoutException) as e:
         log(f"<- ERR {type(e).__name__} {model_name} openai", "ERROR", "UPSTREAM")
+        await telemetry.record_failure(model_name, error_type="connection")
+        if is_bypass:
+            await telemetry.bypass_failure()
         return await _error_response(e)
 
 
 # OpenAI stream
 
 async def handle_openai_stream(body, route, model_name, routes, http_client,
-                                work_dir=None, session_id=None, _reason=None):
+                                work_dir=None, session_id=None, _reason=None, is_bypass=False):
     def build_kwargs(r, _m):
         if r["provider"] == "deepseek":
             api_base = "https://api.deepseek.com/v1"
@@ -633,6 +659,7 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
                         raise httpx.HTTPStatusError(
                             f"HTTP {resp.status_code}", request=resp.request, response=resp)
                     await fallback.telemetry.record_success(m)
+                    fallback.telemetry.reset_bypass_health()
                     log(f"<- 200 streaming {m} (openai passthrough, has_rf={has_response_format})", phase="UPSTREAM")
                     content_count = 0
                     inp = out = 0
@@ -680,6 +707,8 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
             except httpx.HTTPStatusError as e:
                 code = e.response.status_code
                 await fallback.telemetry.record_failure(m, status_code=code)
+                if is_bypass and m == model_name:
+                    await fallback.telemetry.bypass_failure()
                 last_err = e
                 if i < len(models_to_try) - 1:
                     log(f"<- {m} ({code}), fallback to {models_to_try[i+1][1]}", phase="FALLBACK")
@@ -688,6 +717,8 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
                 continue
             except (httpx.RequestError, httpx.TimeoutException) as e:
                 await fallback.telemetry.record_failure(m, error_type="connection")
+                if is_bypass and m == model_name:
+                    await fallback.telemetry.bypass_failure()
                 last_err = e
                 code = type(e).__name__
                 if i < len(models_to_try) - 1:

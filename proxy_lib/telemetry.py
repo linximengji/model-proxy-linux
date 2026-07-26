@@ -21,6 +21,21 @@ stats = {
 
 route_health: dict = {}
 
+# ── Global bypass auto-disable ───────────────────────────────────────────────
+# bypass 目标模型连续失败计数；任一请求成功即清零。
+BYPASS_AUTO_DISABLE_THRESHOLD = 2
+_bypass_health: dict = {"failures": 0}
+_on_bypass_disable = None
+
+
+def set_bypass_disable_hook(cb):
+    global _on_bypass_disable
+    _on_bypass_disable = cb
+
+
+def reset_bypass_health():
+    _bypass_health["failures"] = 0
+
 # 错误类型 → (阈值, cooldown秒数)
 HEALTH_CONFIG: dict[str, dict] = {
     "rate_limit":       {"threshold": 3, "cooldown": 60},      # 429 — 瞬时，快速恢复
@@ -164,6 +179,7 @@ def build_stats():
         "uptime_seconds": round(uptime, 1),
         "requests_total": stats["requests"],
         "errors_total": stats["errors"],
+        "bypass_failures": _bypass_health["failures"],
         "by_model": dict(stats["by_model"]),
         "by_reason": dict(stats["by_reason"]),
         "errors_by_model": dict(stats["errors_by_model"]),
@@ -232,6 +248,14 @@ async def record_success(model_name):
         if h:
             h["failures"] = 0
             h["by_type"] = {}
+
+
+async def bypass_failure():
+    """bypass 目标请求失败计数；连续达到阈值触发自动关闭。"""
+    _bypass_health["failures"] += 1
+    if _bypass_health["failures"] >= BYPASS_AUTO_DISABLE_THRESHOLD and _on_bypass_disable:
+        reset_bypass_health()
+        await _on_bypass_disable()
 
 
 def is_degraded(model_name):
@@ -507,25 +531,28 @@ def compute_proxy_burn(hours=24):
 # Updated 2026-07-19 — hour-bucket alignment between proxy token_usage.jsonl
 # and portal billing (UTC+8 → UTC adjusted).
 TP_PRICING_FLAT: dict[str, float] = {
-    # Calibrated from portal (2026-07-19): 263.35 cr / 7,749,786 tok → 0.0340/1K
-    "kimi-k2.7-code": 0.0340,
-    # Uncalibrated — same family as kimi-k2.7-code
-    "kimi-k2.6":      0.0340,
-    # Calibrated from portal (2026-07-19): 2,109.84 cr / 8,560,620 tok → 0.2465/1K
-    "glm-5.2":        0.2465,
-    # Uncalibrated — same family as glm-5.2
-    "glm-5.1":        0.2465,
-    "MiniMax-M2.5":   0.0340,
-    # Calibrated from portal (portal: 11602.10 cr / 214084 tok → 54.19/1K;
-    # local: 240983 tok → effective 48.14)
-    "qwen3.7-max":       48.14,
-    "qwen3.7-max-vision": 48.14,
-    # Uncalibrated — placeholder rates
-    "qwen3.7-plus":      34.0,
-    "qwen3-coder-plus":  34.0,
-    "qwen3.6-plus":      34.0,
-    "qwen3.6-maas":      34.0,
-    "qwen3.6-flash":     34.0,
+    # Benchmark 2026-07-25: 0.07cr / 39tok → 1.79/1K
+    # Bill (07-25 day): 2.12/1K → 取 2.0
+    "kimi-k2.7-code": 2.0,
+    "kimi-k2.6":      2.0,
+    # Benchmark 2026-07-25: 0.04cr / 24tok → 1.67/1K
+    "glm-5.2":        1.67,
+    "glm-5.1":        1.67,
+    # Benchmark 2026-07-25: 0.04cr / 76tok → 0.53/1K
+    "MiniMax-M2.5":   0.53,
+    # Benchmark 2026-07-25: 0.04cr / 105tok → 0.38/1K
+    # WARNING: 限时加量10倍活动期间，价格会大幅波动
+    "qwen3.8-max-preview":       0.38,
+    "qwen3.8-max-preview-vision": 0.38,
+    # Benchmark 2026-07-25: 0.32cr / 415tok → 0.77/1K
+    "qwen3.7-plus":      0.77,
+    # Benchmark 2026-07-25: 0.17cr / 249tok → 0.68/1K
+    "qwen3.6-flash":     0.68,
+    # No benchmark — conservative estimates
+    "qwen3.7-max":       5.0,
+    "qwen3-coder-plus":  0.77,
+    "qwen3.6-plus":      0.68,
+    "qwen3.6-maas":      0.68,
 }
 
 def _tp_model_key(model: str) -> str | None:

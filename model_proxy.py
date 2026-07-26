@@ -1,13 +1,15 @@
 """Model proxy v3 — FastAPI app backed by proxy_lib modules."""
+import json
 import os
 import sys
 import re
 import time
 import uuid
+import signal
 from urllib.parse import urlparse
 
 import httpx
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
 
 sys.stdout.reconfigure(encoding="utf-8")
@@ -15,9 +17,13 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 # OpenTelemetry — initialized in main()
 
-from proxy_lib import config, sanitize, telemetry  # noqa: E402
-from proxy_lib.allocator import MultiModelAllocator  # noqa: E402
-from proxy_lib.handlers import (  # noqa: E402
+from proxy_lib import config, sanitize, convert, telemetry, fallback
+from proxy_lib.allocator import MultiModelAllocator
+
+
+def _bypass_fail():
+    return _active_bypass() is not None
+from proxy_lib.handlers import (
     handle_anthropic, handle_anthropic_stream,
     handle_openai, handle_openai_stream,
 )
@@ -32,7 +38,7 @@ _restart_args: list = []
 _TIERS: dict[str, str] = {
     "flash": "deepseek-v4-flash",
     "pro": "deepseek-v4-pro",
-    "max": "qwen3.7-max",
+    "max": "qwen3.8-max-preview",
     "vision": "doubao-1.5-vision-pro",
 }
 
@@ -53,8 +59,8 @@ _CLASSIFIER_ROUTE = {
 _SUB_AGENT_CLASSIFIER_ROUTE = {
     "trivial": "flash",
     "simple": "flash",
-    "moderate": "pro",     # sub-agent moderate → pro
-    "complex": "pro",      # sub-agent complex → pro (不碰 qwen 额度)
+    "moderate": "pro",
+    "complex": "pro",
 }
 
 CLASSIFIER_SYSTEM_PROMPT = """Classify the user message along three dimensions.
@@ -85,12 +91,42 @@ http_client: httpx.AsyncClient | None = None
 ROUTES: dict = {}
 ALLOCATOR = MultiModelAllocator()  # Token Plan 多模型分配器
 
+# Global bypass — when set, ALL requests skip routing and go to this model.
+# Set via env PROXY_BYPASS=1 (uses TIERS["max"]), or PROXY_BYPASS=<model_name>.
+_BYPASS_MODEL: str | None = None
+_BYPASS_EXPIRY: float | None = None
+
+def _active_bypass():
+    global _BYPASS_MODEL, _BYPASS_EXPIRY
+    if _BYPASS_EXPIRY and time.monotonic() >= _BYPASS_EXPIRY:
+        if _BYPASS_MODEL:
+            telemetry.log(f"BYPASS TTL expired: {_BYPASS_MODEL}, routing restored", "INFO", "ROUTE")
+        _BYPASS_MODEL = None
+        _BYPASS_EXPIRY = None
+    return _BYPASS_MODEL
+
+
+def _resolve_bypass_global():
+    global _BYPASS_MODEL, _BYPASS_EXPIRY
+    val = os.environ.get("PROXY_BYPASS", "").strip()
+    if not val:
+        _BYPASS_MODEL = None
+        _BYPASS_EXPIRY = None
+        return
+    if val == "1":
+        _BYPASS_MODEL = _TIERS.get("max", "qwen3.8-max-preview")
+    elif val in ROUTES:
+        _BYPASS_MODEL = val
+    else:
+        _BYPASS_MODEL = _TIERS.get("max", "qwen3.8-max-preview")
+    _BYPASS_EXPIRY = None
+    telemetry.log(f"GLOBAL BYPASS enabled: {_BYPASS_MODEL}", "INFO", "ROUTE")
+
 
 def reload_cfg():
     global ROUTES
     try:
-        import importlib
-        import router
+        import importlib, router
         importlib.reload(router)
         router.TIERS = _TIERS
         ROUTES = config.load_routes()
@@ -205,7 +241,7 @@ def _allocator_select(complexity, task_type, req_id, ratio):
 
 # ── Prompt-level @model routing ──────────────────────────────────────────
 
-_PROMPT_MODEL_RE = re.compile(r'(?<![a-zA-Z0-9_])@([a-zA-Z0-9_.-]+)')
+_PROMPT_MODEL_RE = re.compile(r'(?:^|\s)@([a-zA-Z0-9_.-]+)')
 _STRIP_TAG_RE = re.compile(r'\s*@[a-zA-Z0-9_.-]+')
 
 
@@ -220,8 +256,9 @@ def _get_alias(tag):
         "glm": "glm-5.2",
         "minimax": "MiniMax-M2.5",
         "cheap": "qwen3.6-flash",
-        "ds": "qwen3.7-max-ds",
+        # "ds" removed — no longer supported
         "qwen": _TIERS["max"],
+        "qwen3.7-max": _TIERS["max"],
         "deepseek": _TIERS["pro"],
         "doubao": _TIERS["vision"],
     }
@@ -242,45 +279,47 @@ def _fuzzy_resolve_model(tag):
 
 
 def _resolve_prompt_model(body):
-    """Scan the LAST user message for a @tag — never walk history (a stale @tag would leak across turns)."""
-    last_user_msg = None
-    for msg in reversed(body.get("messages", []) or []):
-        if msg.get("role") == "user":
-            last_user_msg = msg
-            break
-    if last_user_msg is None:
-        return None, None, None
-
+    """Scan last user message for trailing @tag, strip it and bypass if recognized."""
     model_name = None
-    content = last_user_msg.get("content", "")
-    if isinstance(content, str):
-        matches = list(_PROMPT_MODEL_RE.finditer(content))
-        if matches:
-            tag = matches[-1].group(1)
-            resolved = _fuzzy_resolve_model(tag)
-            if resolved:
-                model_name = resolved
-                last_user_msg["content"] = _STRIP_TAG_RE.sub("", content).strip()
-    elif isinstance(content, list):
-        for block in reversed(content):
-            if isinstance(block, dict) and block.get("type") == "text":
-                text = block.get("text", "")
-                matches = list(_PROMPT_MODEL_RE.finditer(text))
-                if matches:
-                    tag = matches[-1].group(1)
-                    resolved = _fuzzy_resolve_model(tag)
-                    if resolved:
-                        model_name = resolved
-                        block["text"] = _STRIP_TAG_RE.sub("", text).strip()
-                        break
+    for msg in reversed(body.get("messages", []) or []):
+        if msg.get("role") != "user":
+            continue
+        content = msg.get("content", "")
+        if isinstance(content, str):
+            matches = list(_PROMPT_MODEL_RE.finditer(content))
+            if matches:
+                tag = matches[-1].group(1)
+                resolved = _fuzzy_resolve_model(tag)
+                if resolved:
+                    model_name = resolved
+                    msg["content"] = _STRIP_TAG_RE.sub("", content).strip()
+                    break
+        elif isinstance(content, list):
+            for block in reversed(content):
+                if isinstance(block, dict) and block.get("type") == "text":
+                    text = block.get("text", "")
+                    matches = list(_PROMPT_MODEL_RE.finditer(text))
+                    if matches:
+                        tag = matches[-1].group(1)
+                        resolved = _fuzzy_resolve_model(tag)
+                        if resolved:
+                            model_name = resolved
+                            block["text"] = _STRIP_TAG_RE.sub("", text).strip()
+                            break
+            if model_name:
+                break
 
     if model_name:
         body["model"] = model_name
-        route = ROUTES[model_name]
+        route = ROUTES.get(model_name)
+        if not route:
+            telemetry.log(f"BYPASS @model: {model_name} not in ROUTES", "INFO", "ROUTE")
+            del body["model"]
+            return None, None, None
         if route.get("provider") == "deepseek":
             _sanitize_deepseek(body, model_name)
         elif route.get("provider") == "anthropic":
-            sanitize.strip_thinking_blocks(body)
+            sanitize.sanitize_for_maas(body)
         else:
             sanitize.strip_thinking_blocks(body)
         telemetry.log(f"BYPASS @model: {model_name}", phase="ROUTE")
@@ -368,7 +407,7 @@ def _resolve_bypass(body, headers):
         if route.get("provider") == "deepseek":
             _sanitize_deepseek(body, explicit)
         elif route.get("provider") == "anthropic":
-            sanitize.strip_thinking_blocks(body)
+            sanitize.sanitize_for_maas(body)
         else:
             sanitize.strip_thinking_blocks(body)
         telemetry.log(f"BYPASS X-Proxy-Model: {explicit}", phase="ROUTE")
@@ -400,29 +439,16 @@ def _append_text_to_last_user(body, text):
         break
 
 
-async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False, sub_model=""):
+async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False):
     """Resolve L2 classifier output → route + sanitization."""
     complexity, task_type, budget_est = await _resolve_classifier(l2_future)
     if complexity is None:
         complexity = "moderate"
     if task_type is None:
         task_type = "general"
-    # Sub-agent: use model name prefix to pick base tier, then apply sub-agent map
-    if is_sub_agent and sub_model:
-        base_model = sub_model.removesuffix("-sub")
-        rev = {v: k for k, v in _TIERS.items()}
-        base_tier = rev.get(base_model, "pro")
-        route_map = _SUB_AGENT_CLASSIFIER_ROUTE
-        tier_key = route_map.get(complexity, "pro")
-        # Use the higher of base_tier and route_map tier
-        tier_order = {"flash": 0, "pro": 1, "max": 2, "vision": 2}
-        if tier_order.get(base_tier, 1) < tier_order.get(tier_key, 1):
-            base_tier = tier_key
-        model_name = _TIERS.get(base_tier, _TIERS["pro"])
-    else:
-        route_map = _SUB_AGENT_CLASSIFIER_ROUTE if is_sub_agent else _CLASSIFIER_ROUTE
-        tier_key = route_map.get(complexity, "pro")
-        model_name = _TIERS.get(tier_key, _TIERS["pro"])
+    route_map = _SUB_AGENT_CLASSIFIER_ROUTE if is_sub_agent else _CLASSIFIER_ROUTE
+    tier_key = route_map.get(complexity, "pro")
+    model_name = _TIERS.get(tier_key, _TIERS["pro"])
     tag = "L2-sub" if is_sub_agent else "L2"
     # sub-agent: no allocator — always use mapped model
     if is_sub_agent:
@@ -431,8 +457,7 @@ async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False, sub_model=""):
         adjusted = _allocator_select(complexity, task_type, telemetry.get_req_id(), ratio)
         if adjusted:
             telemetry.log(
-                f"{tag}: {complexity}:{task_type} + {budget_est or '?'}"
-                f" -> {model_name}, allocator -> {adjusted} (ratio={ratio:.2f})",
+                f"{tag}: {complexity}:{task_type} + {budget_est or '?'} -> {model_name}, allocator -> {adjusted} (ratio={ratio:.2f})",
                 phase="L2"
             )
             model_name = adjusted
@@ -444,12 +469,10 @@ async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False, sub_model=""):
     if route and route.get("provider") == "deepseek":
         _sanitize_deepseek(body, model_name)
     elif route and route.get("provider") == "anthropic":
-        sanitize.strip_thinking_blocks(body)
+        sanitize.sanitize_for_maas(body)
     else:
         sanitize.strip_thinking_blocks(body)
-    # Build a descriptive reason for telemetry: L2:{complexity}:{task_type} -> {model_name}
-    l2_reason = f"L2:{complexity}:{task_type}->{model_name}"
-    return route, model_name, l2_reason
+    return route, model_name
 
 
 _OCR_JUDGE_PROMPT = """\
@@ -459,8 +482,7 @@ User query: "{query}"
 
 OCR text from image: "{ocr_text}"
 
-Does the OCR text adequately answer the user, or is the image's visual content
-(layout, colors, charts, formatting, non-text elements) essential?
+Does the OCR text adequately answer the user, or is the image's visual content (layout, colors, charts, formatting, non-text elements) essential?
 
 Reply with exactly one word: use_ocr or use_vision
 - use_ocr: OCR text is sufficient — strip the image and use only text
@@ -515,11 +537,14 @@ def _route_and_sanitize(body):
         if route.get("provider") == "deepseek":
             _sanitize_deepseek(body, model_name)
         elif route.get("provider") == "anthropic":
-            sanitize.strip_thinking_blocks(body)
+            sanitize.sanitize_for_maas(body)
         else:
             sanitize.strip_thinking_blocks(body)
-        telemetry.log(f"BYPASS agent-model: {model_name}", phase="ROUTE")
-        return route, model_name, "agent-model", None, None, False, ""
+        # tier 模型（pro/flash）不走直达，坠入 L1/L2 让路由+allocator 决定
+        if model_name not in (_TIERS.get("pro",""), _TIERS.get("flash",""), _TIERS.get("max","")):
+            return route, model_name, "agent-model", None, None, False
+        body["model"] = "auto"
+        # 抹掉 model 后继续坠落 L1/L2
 
     try:
         routed_model, reason = classify(body)
@@ -601,9 +626,8 @@ def _route_and_sanitize(body):
         l2_future = _classify_via_flash(user_query, budget_ctx=budget_ctx) if user_query else None
         preview = user_query[:80] if user_query else ""
         is_sub = reason == "l2-sub-agent"
-        sub_model_name = model_name if is_sub else ""
         telemetry.log(f"L2 classify: \"{preview}{'...' if len(user_query)>80 else ''}\" ratio={ratio:.2f}", phase="L2")
-        return None, None, "l2-pending", l2_future, ratio, is_sub, sub_model_name
+        return None, None, "l2-pending", l2_future, ratio, is_sub
 
     telemetry.log(f"L1 {reason}: {model_name or 'auto'} -> {routed_model}", phase="ROUTE")
     body["model"] = routed_model
@@ -611,10 +635,10 @@ def _route_and_sanitize(body):
     if route and route.get("provider") == "deepseek":
         _sanitize_deepseek(body, routed_model)
     elif route and route.get("provider") == "anthropic":
-        sanitize.strip_thinking_blocks(body)
+        sanitize.sanitize_for_maas(body)
     else:
         sanitize.strip_thinking_blocks(body)
-    return route, routed_model, reason, None, None, False, ""
+    return route, routed_model, reason, None, None, False
 
 
 # ── Model tier ladder for stuck escalation ──────────────────────────────────
@@ -647,7 +671,7 @@ def _resanitize_for_upgrade(body, new_route, old_route, new_model_name=None):
     if new_prov == "deepseek":
         _sanitize_deepseek(body, new_model_name or "")
     elif new_prov == "anthropic":
-        sanitize.strip_thinking_blocks(body)
+        sanitize.sanitize_for_maas(body)
 
 
 def _inject_escalate(body, route, model_name):
@@ -713,8 +737,7 @@ def _maybe_escalate(body, route, model_name):
         telemetry.log(
             f"STUCK detected: {stuck_info['rounds']} rounds, "
             f"{stuck_info['error_count']} errors "
-            f"({stuck_info['error_pct']:.0%})"
-            + (f", mode: {stuck_info['detected_by']}" if stuck_info.get('detected_by') else ""),
+            f"({stuck_info['error_pct']:.0%})",
             phase="ESCALATE"
         )
         return _inject_escalate(body, route, model_name)
@@ -756,108 +779,6 @@ async def get_stats():
     return JSONResponse(telemetry.build_stats())
 
 
-@app.get("/v1/token-stats")
-async def get_token_stats():
-    """Aggregated token usage stats from token_usage.jsonl — today/month/all/trends/models/providers/balance."""
-    import os as _os
-    import json as _json
-    import time as _time
-    records: list[dict] = []
-    tup = telemetry.TOKEN_USAGE_PATH
-    if _os.path.isfile(tup):
-        with open(tup, "r", encoding="utf-8-sig") as _f:
-            for _line in _f:
-                _line = _line.strip()
-                if _line:
-                    try:
-                        records.append(_json.loads(_line))
-                    except _json.JSONDecodeError:
-                        pass
-
-    def _fmt_ratio(inp: int, out: int) -> str:
-        return "∞" if out == 0 else f"{inp / out:.1f}"
-
-    def _provider_of(model: str) -> str:
-        if model.startswith("deepseek"):
-            return "DeepSeek"
-        if model.startswith("qwen") or model.startswith("doubao"):
-            return "Qwen (Plan)"
-        return "Other"
-
-    now_str = _time.strftime("%Y-%m-%d")
-    month_str = now_str[:7]
-    today = [r for r in records if (r.get("ts") or "").startswith(now_str)]
-    month = [r for r in records if (r.get("ts") or "").startswith(month_str)]
-
-    def _sum_stats(recs):
-        return {
-            "calls": len(recs),
-            "input": sum(r.get("inputTokens", 0) for r in recs),
-            "output": sum(r.get("outputTokens", 0) for r in recs),
-        }
-
-    # by model (today)
-    by_model_map: dict[str, dict] = {}
-    for r in today:
-        m = r.get("model", "unknown")
-        s = by_model_map.setdefault(m, {"calls": 0, "input": 0, "output": 0})
-        s["calls"] += 1
-        s["input"] += r.get("inputTokens", 0)
-        s["output"] += r.get("outputTokens", 0)
-    models = sorted(
-        [{"model": k, **v, "ratio": _fmt_ratio(v["input"], v["output"])} for k, v in by_model_map.items()],
-        key=lambda x: -x["calls"]
-    )
-
-    # by provider (today)
-    by_prov_map: dict[str, dict] = {}
-    for r in today:
-        p = _provider_of(r.get("model", ""))
-        s = by_prov_map.setdefault(p, {"calls": 0, "input": 0, "output": 0})
-        s["calls"] += 1
-        s["input"] += r.get("inputTokens", 0)
-        s["output"] += r.get("outputTokens", 0)
-    providers = sorted([{"provider": k, **v} for k, v in by_prov_map.items()], key=lambda x: -x["calls"])
-
-    # 7-day trend
-    trends = []
-    model_trends = []
-    for i in range(6, -1, -1):
-        d = _time.strftime("%Y-%m-%d", _time.gmtime(_time.time() - i * 86400))
-        day_recs = [r for r in records if (r.get("ts") or "").startswith(d)]
-        trends.append({
-            "date": d, "calls": len(day_recs),
-            "input": sum(r.get("inputTokens", 0) for r in day_recs),
-            "output": sum(r.get("outputTokens", 0) for r in day_recs),
-        })
-        by_m = {}
-        for r in day_recs:
-            mm = r.get("model", "unknown")
-            by_m[mm] = by_m.get(mm, 0) + 1
-        model_trends.append({
-            "date": d,
-            "models": sorted(
-                [{"model": k, "calls": v} for k, v in by_m.items()],
-                key=lambda x: -x["calls"]
-            ),
-        })
-
-    # balance
-    balance = None
-    if _os.path.isfile(telemetry.BUDGET_POLICY_PATH):
-        try:
-            policy = _json.load(open(telemetry.BUDGET_POLICY_PATH, encoding="utf-8"))
-            balance = policy.get("token_plan") or {}
-        except Exception:
-            pass
-
-    return JSONResponse({
-        "today": _sum_stats(today), "month": _sum_stats(month),
-        "all": _sum_stats(records), "models": models, "providers": providers,
-        "trends": trends, "modelTrends": model_trends, "balance": balance,
-    })
-
-
 @app.get("/v1/rules")
 async def get_rules():
     try:
@@ -872,6 +793,49 @@ async def reload_endpoint():
     ok, msg = reload_cfg()
     return JSONResponse({"status": "ok" if ok else "error", "message": msg},
                         status_code=200 if ok else 500)
+
+
+@app.get("/v1/bypass")
+async def get_bypass():
+    _active_bypass()
+    remaining = int(max(0, _BYPASS_EXPIRY - time.monotonic())) if _BYPASS_EXPIRY else None
+    return JSONResponse({"bypass": _BYPASS_MODEL,
+                         "failures": telemetry._bypass_health["failures"],
+                         "ttl_remaining": remaining})
+
+
+@app.post("/v1/bypass")
+async def set_bypass(request: Request):
+    global _BYPASS_MODEL, _BYPASS_EXPIRY
+    try:
+        data = await request.json()
+    except Exception:
+        data = {}
+    model = (data.get("model") or "").strip()
+    if not model or model in ("off", "0", "none", "null"):
+        _BYPASS_MODEL = None
+        _BYPASS_EXPIRY = None
+        telemetry.log("GLOBAL BYPASS disabled via API", "INFO", "ROUTE")
+        return JSONResponse({"bypass": None})
+    if model == "1":
+        model = _TIERS.get("max", "qwen3.8-max-preview")
+    model = _get_alias(model) or model
+    if model not in ROUTES:
+        return JSONResponse({"error": f"unknown model: {model}"}, status_code=400)
+    _BYPASS_MODEL = model
+    telemetry.reset_bypass_health()
+    ttl = data.get("ttl")
+    if ttl is not None:
+        try:
+            ttl = int(ttl)
+            if ttl > 0:
+                _BYPASS_EXPIRY = time.monotonic() + ttl
+        except (ValueError, TypeError):
+            pass
+    else:
+        _BYPASS_EXPIRY = None
+    telemetry.log(f"GLOBAL BYPASS set via API: {model}", "INFO", "ROUTE")
+    return JSONResponse({"bypass": _BYPASS_MODEL})
 
 
 @app.post("/v1/restart")
@@ -928,7 +892,7 @@ async def rules_debug(request: Request):
             "has_image": _has_image(messages),
             "has_recent_tools": _has_recent_tools(messages),
             "is_trivial": last_tok < 400 and _is_greeting_or_ack(last_text),
-            "is_very_long": total_tok > 8000,
+            "is_very_long": total_tok > 15000,
             "last_user_text_preview": last_text[:120],
         },
     })
@@ -942,18 +906,36 @@ async def proxy_anthropic(request: Request):
     if path in ("/v1/messages", "/v1/chat/completions"):
         sanitize.embed_images(body)
 
-    route, model_name, _reason = _resolve_prompt_model(body)
-    route, model_name = _maybe_escalate(body, route, model_name)
+    route = model_name = _reason = None
+
+    # Global bypass check
+    effective = _active_bypass()
+    if effective:
+        body["model"] = effective
+        route = ROUTES.get(effective)
+        if route:
+            if route.get("provider") == "deepseek":
+                _sanitize_deepseek(body, effective)
+            elif route.get("provider") == "anthropic":
+                sanitize.sanitize_for_maas(body)
+            else:
+                sanitize.strip_thinking_blocks(body)
+            model_name = effective
+            _reason = "global-bypass"
+
+    if not route:
+        route, model_name, _reason = _resolve_prompt_model(body)
+        route, model_name = _maybe_escalate(body, route, model_name)
 
     if not route:
         route, model_name, _reason = _resolve_bypass(body, request.headers)
         route, model_name = _maybe_escalate(body, route, model_name)
 
     if not route:
-        route, model_name, _reason, l2_future, ratio, is_sub, sub_model = _route_and_sanitize(body)
+        route, model_name, _reason, l2_future, ratio, is_sub = _route_and_sanitize(body)
 
         if l2_future is not None:
-            route, model_name, _reason = await _resolve_l2(body, l2_future, ratio, is_sub, sub_model)
+            route, model_name = await _resolve_l2(body, l2_future, ratio, is_sub)
 
         route, model_name = _maybe_escalate(body, route, model_name)
 
@@ -971,13 +953,13 @@ async def proxy_anthropic(request: Request):
 
     _t0 = time.time()
     try:
-        if is_stream:
-            return await handle_anthropic_stream(body, route, model_name, ROUTES,
-                                                  http_client, work_dir, session_id,
-                                                  _reason=_reason)
+        if route["provider"] in ("openai",):
+            h = handle_openai_stream if is_stream else handle_openai
         else:
-            return await handle_anthropic(body, route, model_name, ROUTES, http_client,
-                                          work_dir, session_id, _reason=_reason)
+            h = handle_anthropic_stream if is_stream else handle_anthropic
+        return await h(body, route, model_name, ROUTES, http_client,
+                       work_dir, session_id, _reason=_reason,
+                       is_bypass=_bypass_fail())
     finally:
         await telemetry.record_latency(model_name, (time.time() - _t0) * 1000)
 
@@ -987,24 +969,48 @@ async def proxy_openai(request: Request):
     telemetry.set_req_id(uuid.uuid4().hex[:8])
     body = await request.json()
     sanitize.embed_images(body)
+    telemetry.log(f"[DBG] proxy_openai ENTER", phase="ROUTE")
 
-    route, model_name, _reason = _resolve_prompt_model(body)
-    route, model_name = _maybe_escalate(body, route, model_name)
+    route = model_name = _reason = None
+
+    # Global bypass check
+    effective = _active_bypass()
+    if effective:
+        body["model"] = effective
+        route = ROUTES.get(effective)
+        if route:
+            if route.get("provider") == "deepseek":
+                _sanitize_deepseek(body, effective)
+            elif route.get("provider") == "anthropic":
+                sanitize.sanitize_for_maas(body)
+            else:
+                sanitize.strip_thinking_blocks(body)
+            model_name = effective
+            _reason = "global-bypass"
+
+    if not route:
+        route, model_name, _reason = _resolve_prompt_model(body)
+        route, model_name = _maybe_escalate(body, route, model_name)
 
     if not route:
         route, model_name, _reason = _resolve_bypass(body, request.headers)
         route, model_name = _maybe_escalate(body, route, model_name)
 
     if not route:
-        route, model_name, _reason, l2_future, ratio, is_sub, sub_model = _route_and_sanitize(body)
+        route, model_name, _reason, l2_future, ratio, is_sub = _route_and_sanitize(body)
 
         if l2_future is not None:
-            route, model_name, _reason = await _resolve_l2(body, l2_future, ratio, is_sub, sub_model)
+            route, model_name = await _resolve_l2(body, l2_future, ratio, is_sub)
 
         route, model_name = _maybe_escalate(body, route, model_name)
 
     if not route:
         return JSONResponse({"error": f"unknown model: {model_name}"}, status_code=404)
+
+    # /v1/chat/completions → body 是 OpenAI 格式，路由到 anthropic/deepseek 需转换
+    if route["provider"] in ("anthropic", "deepseek"):
+        body = convert.openai_to_anthropic_request(body)
+    telemetry.log(f"[DBG] proxy_openai route provider={route['provider']!r}", phase="ROUTE")
 
     is_stream = body.get("stream", False)
     model_name_display = body.get("model", model_name)
@@ -1017,56 +1023,20 @@ async def proxy_openai(request: Request):
 
     _t0 = time.time()
     try:
-        if is_stream:
-            return await handle_openai_stream(body, route, model_name_display, ROUTES,
-                                               http_client, work_dir, session_id,
-                                               _reason=_reason)
+        if route["provider"] in ("anthropic", "deepseek"):
+            h = handle_anthropic_stream if is_stream else handle_anthropic
         else:
-            return await handle_openai(body, route, model_name_display, ROUTES, http_client,
-                                       work_dir, session_id, _reason=_reason)
+            h = handle_openai_stream if is_stream else handle_openai
+        return await h(body, route, model_name_display, ROUTES, http_client,
+                       work_dir, session_id, _reason=_reason,
+                       is_bypass=_bypass_fail())
     finally:
         await telemetry.record_latency(model_name_display, (time.time() - _t0) * 1000)
 
 
-@app.post("/v1/embeddings")
-async def proxy_embeddings(request: Request):
-    """Forward OpenAI-compatible embedding request to DashScope text-embedding-v3."""
-    body = await request.json()
-    model = body.get("model", "text-embedding-v3")
-    inp = body.get("input", "")
-
-    dashscope_key = os.environ.get("DASHSCOPE_API_KEY", "")
-    if not dashscope_key:
-        return JSONResponse({"error": "DASHSCOPE_API_KEY not configured"}, status_code=500)
-
-    payload = {
-        "model": model,
-        "input": inp,
-        "encoding_format": "float",
-    }
-    try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            resp = await client.post(
-                "https://dashscope.aliyuncs.com/compatible-mode/v1/embeddings",
-                json=payload,
-                headers={
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {dashscope_key}",
-                },
-            )
-        if resp.status_code != 200:
-            detail = resp.text[:500]
-            telemetry.log(f"Embedding API error {resp.status_code}: {detail}", "ERROR", "EMBED")
-            return JSONResponse({"error": f"DashScope {resp.status_code}: {detail}"}, status_code=resp.status_code)
-        return JSONResponse(resp.json())
-    except httpx.TimeoutException:
-        telemetry.log("Embedding API timeout", "ERROR", "EMBED")
-        return JSONResponse({"error": "DashScope embedding request timed out"}, status_code=504)
-
-
 @app.post("/{path:path}")
 async def not_found_post(path: str):
-    if path not in ("v1/messages", "v1/chat/completions", "v1/rules/debug", "v1/embeddings"):
+    if path not in ("v1/messages", "v1/chat/completions", "v1/rules/debug"):
         await telemetry.record_error()
         return JSONResponse({"error": f"unsupported path: /{path}"}, status_code=404)
     return JSONResponse({}, status_code=404)
@@ -1084,14 +1054,12 @@ def main():
     from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
     from opentelemetry.sdk.resources import Resource
     from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
-    from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
     _provider = TracerProvider(resource=Resource.create({"service.name": "model-proxy"}))
     _provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(
         endpoint="http://localhost:4317", insecure=True)))
     trace.set_tracer_provider(_provider)
     HTTPXClientInstrumentor().instrument()
-    FastAPIInstrumentor.instrument_app(app)
 
     config.load_dotenv()
     _init_tiers()
@@ -1100,6 +1068,19 @@ def main():
     # Inject TIERS into router module for L1 rules
     from router import TIERS as _rt
     _rt.update(_TIERS)
+
+    _resolve_bypass_global()
+
+    async def _bypass_disable():
+        global _BYPASS_MODEL, _BYPASS_EXPIRY
+        if _BYPASS_MODEL:
+            telemetry.log(
+                f"GLOBAL BYPASS auto-disabled: {_BYPASS_MODEL} failed consecutively, routing restored",
+                "INFO", "ROUTE"
+            )
+            _BYPASS_MODEL = None
+            _BYPASS_EXPIRY = None
+    telemetry.set_bypass_disable_hook(_bypass_disable)
 
     args = [a for a in sys.argv[1:] if not a.startswith("-")]
     flags = set(a for a in sys.argv[1:] if a in ("-v", "--verbose"))
@@ -1111,10 +1092,6 @@ def main():
     access_log = os.path.join(log_dir, "proxy_access.log")
 
     telemetry.init(token_log_path=token_log, log_file=log_file, access_log=access_log, verbose=verbose)
-
-    # Seed routing_policy.json at startup so dashboard has balance data immediately
-    _seed_remaining, _seed_total, _seed_days = telemetry.get_real_credits()
-    telemetry.write_routing_policy(_seed_remaining, _seed_total, _seed_days)
 
     import uvicorn
     port = int(args[0]) if args else 4000
@@ -1138,7 +1115,7 @@ def main():
                      f"{response.status_code} {dt:.0f}ms\n")
         return response
 
-    uvicorn.run(app, host="0.0.0.0", port=port, log_level="warning")
+    uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")
 
 
 if __name__ == "__main__":

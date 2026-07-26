@@ -23,7 +23,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 _FAKE_ROUTES = {
     "deepseek-v4-pro": {"provider": "deepseek", "model": "deepseek-chat"},
     "deepseek-v4-flash": {"provider": "deepseek", "model": "deepseek-reasoner"},
-    "qwen3.7-max": {"provider": "openai", "model": "qwen-max"},
+    "qwen3.8-max-preview": {"provider": "openai", "model": "qwen-max"},
     "qwen3.7-plus": {"provider": "openai", "model": "qwen-plus"},
     "qwen3.6-flash": {"provider": "openai", "model": "qwen-flash"},
     "doubao-1.5-vision-pro": {"provider": "openai", "model": "doubao-vision"},
@@ -37,7 +37,7 @@ _FAKE_ROUTES = {
 _FAKE_TIERS = {
     "flash": "deepseek-v4-flash",
     "pro": "deepseek-v4-pro",
-    "max": "qwen3.7-max",
+    "max": "qwen3.8-max-preview",
     "vision": "doubao-1.5-vision-pro",
 }
 
@@ -173,9 +173,6 @@ def test_get_alias_glm(mp):
 def test_get_alias_minimax(mp):
     assert mp._get_alias("minimax") == "MiniMax-M2.5"
 
-
-def test_get_alias_ds(mp):
-    assert mp._get_alias("ds") == "qwen3.7-max-ds"
 
 
 def test_get_alias_qwen(mp):

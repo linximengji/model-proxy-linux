@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Proxy Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" integrity="sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/" crossorigin="anonymous"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #020617; color: #e2e8f0; font-family: 'JetBrains Mono', monospace; min-height: 100vh; display: flex; justify-content: center; padding: 24px; }
+.container { max-width: 1250px; width: 100%; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 0 4px; }
+.header-left { display: flex; align-items: center; gap: 14px; }
+.header h1 { font-size: 18px; font-weight: 700; color: #f1f5f9; }
+.header-sub { font-size: 11px; color: #64748b; margin-top: 2px; }
+.pulse-dot { width: 10px; height: 10px; background: #34d399; border-radius: 50%; animation: pulse 2s infinite; flex-shrink: 0; }
+@keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 4px #34d399} 50%{opacity:0.4;box-shadow:0 0 12px #34d399} }
+.diagram-card { background: #0f172a; border-radius: 12px; border: 1px solid #1e293b; padding: 20px; overflow-x: auto; }
+.toolbar { display: flex; align-items: center; gap: 6px; position: relative; }
+.toolbar-toggle { background: none; border: 1px solid #334155; color: #94a3b8; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 14px; line-height: 1; }
+.toolbar-toggle:hover { border-color: #64748b; color: #e2e8f0; }
+.toolbar-actions { display: none; gap: 6px; }
+.toolbar-actions.show { display: flex; }
+.toolbar-btn { background: #1e293b; border: 1px solid #334155; color: #94a3b8; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+.toolbar-btn:hover { border-color: #64748b; color: #e2e8f0; background: #334155; }
+@media print { .toolbar { display: none !important; } }
+.summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+.card { background: #0f172a; border-radius: 8px; border: 1px solid #1e293b; padding: 14px 16px; }
+.card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.card-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.card h3 { font-size: 12px; font-weight: 600; color: #f1f5f9; }
+.card ul { list-style: none; }
+.card li { font-size: 10px; color: #94a3b8; line-height: 1.6; }
+.card li::before { content: '• '; color: #475569; }
+.footer { text-align: center; margin-top: 14px; font-size: 9px; color: #475569; }
+svg text { font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+<div id="report-container" class="container">
+  <div class="header">
+    <div class="header-left">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>Model Proxy — LLM 智能路由代理架构</h1>
+        <div class="header-sub">localhost:4000 · FastAPI · 3 层 Bypass · 卡死检测自动升级 · OpenTelemetry</div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="toolbar-actions" id="toolbar-actions">
+        <button class="toolbar-btn" onclick="copyAsImage()">📋 复制</button>
+        <button class="toolbar-btn" onclick="downloadPNG()">🖼️ PNG</button>
+        <button class="toolbar-btn" onclick="downloadPDF()">📄 PDF</button>
+      </div>
+      <button class="toolbar-toggle" onclick="document.getElementById('toolbar-actions').classList.toggle('show')">⋯</button>
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <svg viewBox="0 0 1200 1080" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+        </pattern>
+        <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+        </marker>
+        <marker id="arrow-cyan" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee"/>
+        </marker>
+        <marker id="arrow-emerald" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#34d399"/>
+        </marker>
+        <marker id="arrow-rose" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#fb7185"/>
+        </marker>
+        <marker id="arrow-amber" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24"/>
+        </marker>
+        <marker id="arrow-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#fb923c"/>
+        </marker>
+      </defs>
+      <rect width="1200" height="1080" fill="url(#grid)"/>
+
+      <!-- ===== External Clients ===== -->
+      <rect x="30" y="40" width="1140" height="65" rx="8" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="8,4" opacity="0.3"/>
+      <text x="50" y="58" fill="#22d3ee" font-size="9" font-weight="500">外部客户端 → HTTP localhost:4000</text>
+
+      <rect x="80" y="68" width="240" height="28" rx="4" fill="#0f172a"/>
+      <rect x="80" y="68" width="240" height="28" rx="4" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+      <text x="200" y="86" fill="#e2e8f0" font-size="9" text-anchor="middle">Claude Code (Anthropic API)</text>
+
+      <rect x="380" y="68" width="280" height="28" rx="4" fill="#0f172a"/>
+      <rect x="380" y="68" width="280" height="28" rx="4" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+      <text x="520" y="86" fill="#e2e8f0" font-size="9" text-anchor="middle">MCP / 飞书 Hook / Sub-agent</text>
+
+      <rect x="720" y="68" width="220" height="28" rx="4" fill="#0f172a"/>
+      <rect x="720" y="68" width="220" height="28" rx="4" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+      <text x="830" y="86" fill="#e2e8f0" font-size="9" text-anchor="middle">OpenAI Chat Completions API</text>
+
+      <rect x="1000" y="68" width="150" height="28" rx="4" fill="#0f172a"/>
+      <rect x="1000" y="68" width="150" height="28" rx="4" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+      <text x="1075" y="86" fill="#e2e8f0" font-size="9" text-anchor="middle">X-Proxy-Model</text>
+
+      <!-- ===== Auth & Sanitize ===== -->
+      <rect x="30" y="135" width="1140" height="55" rx="8" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="8,4" opacity="0.3"/>
+      <text x="50" y="153" fill="#fb7185" font-size="9" font-weight="500">认证 & 清洗</text>
+
+      <rect x="50" y="162" width="250" height="21" rx="3" fill="#0f172a"/>
+      <rect x="50" y="162" width="250" height="21" rx="3" fill="rgba(136, 19, 55, 0.3)" stroke="#fb7185" stroke-width="0.8"/>
+      <text x="175" y="177" fill="#e2e8f0" font-size="8" text-anchor="middle">AUTH_TOKEN Bearer 校验</text>
+
+      <rect x="340" y="162" width="200" height="21" rx="3" fill="#0f172a"/>
+      <rect x="340" y="162" width="200" height="21" rx="3" fill="rgba(136, 19, 55, 0.3)" stroke="#fb7185" stroke-width="0.8"/>
+      <text x="440" y="177" fill="#e2e8f0" font-size="8" text-anchor="middle">sanitize.py 输入清洗</text>
+
+      <rect x="580" y="162" width="280" height="21" rx="3" fill="#0f172a"/>
+      <rect x="580" y="162" width="280" height="21" rx="3" fill="rgba(136, 19, 55, 0.3)" stroke="#fb7185" stroke-width="0.8"/>
+      <text x="720" y="177" fill="#e2e8f0" font-size="8" text-anchor="middle">sanitize.for_deepseek / strip_thinking</text>
+
+      <rect x="900" y="162" width="250" height="21" rx="3" fill="#0f172a"/>
+      <rect x="900" y="162" width="250" height="21" rx="3" fill="rgba(136, 19, 55, 0.3)" stroke="#fb7185" stroke-width="0.8"/>
+      <text x="1025" y="177" fill="#e2e8f0" font-size="8" text-anchor="middle">_disable_thinking_if_mixed_history</text>
+
+      <!-- ===== 3-layer Bypass ===== -->
+      <rect x="30" y="220" width="1140" height="160" rx="8" fill="none" stroke="#fb923c" stroke-width="2" stroke-dasharray="8,4" opacity="0.45"/>
+      <text x="50" y="238" fill="#fb923c" font-size="10" font-weight="600">3 层 Bypass 路由 (请求到达 → 冲突解决模型 → 路由)</text>
+
+      <!-- Layer 1: @tag in prompt -->
+      <rect x="50" y="255" width="350" height="112" rx="6" fill="none" stroke="#fb923c" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+      <text x="70" y="272" fill="#fb923c" font-size="9" font-weight="500">Bypass 1: @tag 内联覆盖 (_resolve_prompt_model)</text>
+
+      <rect x="70" y="282" width="310" height="22" rx="3" fill="#0f172a"/>
+      <rect x="70" y="282" width="310" height="22" rx="3" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="0.8"/>
+      <text x="225" y="297" fill="#fb923c" font-size="8" text-anchor="middle">最后一轮 user 消息中扫 @tag</text>
+
+      <rect x="70" y="312" width="310" height="20" rx="3" fill="#0f172a"/>
+      <text x="225" y="325" fill="#94a3b8" font-size="7" text-anchor="middle">exact match → alias map → suffix match</text>
+
+      <rect x="70" y="338" width="310" height="22" rx="3" fill="#0f172a"/>
+      <rect x="70" y="338" width="310" height="22" rx="3" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1"/>
+      <text x="225" y="353" fill="#94a3b8" font-size="8" text-anchor="middle">@plus→qwen3.7 / @coder→kimi-k2.7 / @qwen→max</text>
+
+      <!-- Layer 2: model: "-sub" prefix -->
+      <rect x="440" y="255" width="330" height="112" rx="6" fill="none" stroke="#fb923c" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+      <text x="460" y="272" fill="#fb923c" font-size="9" font-weight="500">Bypass 2: model-endswith-sub</text>
+
+      <rect x="460" y="282" width="290" height="22" rx="3" fill="#0f172a"/>
+      <rect x="460" y="282" width="290" height="22" rx="3" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="0.8"/>
+      <text x="605" y="297" fill="#fb923c" font-size="8" text-anchor="middle">body.model.endswith("-sub")</text>
+
+      <rect x="460" y="312" width="290" height="22" rx="3" fill="#0f172a"/>
+      <rect x="460" y="312" width="290" height="22" rx="3" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="0.8"/>
+      <text x="605" y="327" fill="#e2e8f0" font-size="8" text-anchor="middle">→ L2 classifier (moderate→pro, complex→pro)</text>
+
+      <rect x="460" y="340" width="290" height="20" rx="3" fill="#0f172a"/>
+      <text x="605" y="353" fill="#64748b" font-size="7" text-anchor="middle">不碰 qwen 额度 · 暴力覆盖后走 L2</text>
+
+      <!-- Layer 3: X-Proxy-Model header -->
+      <rect x="810" y="255" width="340" height="112" rx="6" fill="none" stroke="#fb923c" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+      <text x="830" y="272" fill="#fb923c" font-size="9" font-weight="500">Bypass 3: X-Proxy-Model Header</text>
+
+      <rect x="830" y="282" width="300" height="22" rx="3" fill="#0f172a"/>
+      <rect x="830" y="282" width="300" height="22" rx="3" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="0.8"/>
+      <text x="980" y="297" fill="#fb923c" font-size="8" text-anchor="middle">header key → ROUTES lookup</text>
+
+      <rect x="830" y="312" width="300" height="22" rx="3" fill="#0f172a"/>
+      <rect x="830" y="312" width="300" height="22" rx="3" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="0.8"/>
+      <text x="980" y="327" fill="#e2e8f0" font-size="8" text-anchor="middle">强制路由到指定模型</text>
+
+      <rect x="830" y="340" width="300" height="20" rx="3" fill="#0f172a"/>
+      <text x="980" y="353" fill="#64748b" font-size="7" text-anchor="middle">优先级最高 · 直接跳过所有分类</text>
+
+      <!-- ===== L1 Fast Rules ===== -->
+      <rect x="30" y="415" width="1140" height="105" rx="8" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="8,4" opacity="0.35"/>
+      <text x="50" y="433" fill="#fbbf24" font-size="9" font-weight="600">L1 快速规则 (router.py — classify()) · 无 LLM 开销</text>
+
+      <rect x="50" y="448" width="170" height="24" rx="3" fill="#0f172a"/>
+      <rect x="50" y="448" width="170" height="24" rx="3" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="0.8"/>
+      <text x="135" y="464" fill="#fbbf24" font-size="8" text-anchor="middle">has_image → OCR → vision</text>
+
+      <rect x="240" y="448" width="170" height="24" rx="3" fill="#0f172a"/>
+      <rect x="240" y="448" width="170" height="24" rx="3" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="0.8"/>
+      <text x="325" y="464" fill="#fbbf24" font-size="8" text-anchor="middle">model -sub → l2-sub-agent</text>
+
+      <rect x="430" y="448" width="200" height="24" rx="3" fill="#0f172a"/>
+      <rect x="430" y="448" width="200" height="24" rx="3" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="0.8"/>
+      <text x="530" y="464" fill="#fbbf24" font-size="8" text-anchor="middle">trivial/greeting → flash</text>
+
+      <rect x="650" y="448" width="200" height="24" rx="3" fill="#0f172a"/>
+      <rect x="650" y="448" width="200" height="24" rx="3" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="0.8"/>
+      <text x="750" y="464" fill="#fbbf24" font-size="8" text-anchor="middle">otherwise → l2-classifier</text>
+
+      <rect x="880" y="448" width="240" height="24" rx="3" fill="#0f172a"/>
+      <rect x="880" y="448" width="240" height="24" rx="3" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="0.8"/>
+      <text x="1000" y="464" fill="#e2e8f0" font-size="8" text-anchor="middle">L2: 三轴分类 (deepseek-v4-flash)</text>
+
+      <rect x="50" y="485" width="1070" height="28" rx="4" fill="none"/>
+      <text x="585" y="504" fill="#64748b" font-size="8" text-anchor="middle">L2 三轴: complexity (trivial|simple|moderate|complex) + task_type (code|creative|reasoning|long_context|general) + token_budget (low|medium|high)</text>
+
+      <!-- ===== Stuck Detection & Escalate ===== -->
+      <rect x="30" y="550" width="1140" height="135" rx="8" fill="none" stroke="#fb7185" stroke-width="2" stroke-dasharray="8,4" opacity="0.45"/>
+      <text x="50" y="568" fill="#fb7185" font-size="10" font-weight="600">卡死检测 & 自动升级 (detect_stuck → _inject_escalate)</text>
+
+      <rect x="50" y="582" width="350" height="90" rx="6" fill="none" stroke="#fb7185" stroke-width="1" stroke-dasharray="3,3" opacity="0.35"/>
+      <text x="225" y="600" fill="#fb7185" font-size="9" font-weight="500" text-anchor="middle">detect_stuck() 检测逻辑</text>
+
+      <rect x="65" y="612" width="320" height="18" rx="3" fill="#0f172a"/>
+      <rect x="65" y="612" width="320" height="18" rx="3" fill="rgba(136, 19, 55, 0.3)" stroke="#fb7185" stroke-width="0.8"/>
+      <text x="225" y="625" fill="#e2e8f0" font-size="8" text-anchor="middle">倒序扫描 连续的 tool_use→tool_result 对</text>
+
+      <rect x="65" y="636" width="320" height="18" rx="3" fill="#0f172a"/>
+      <rect x="65" y="636" width="320" height="18" rx="3" fill="rgba(136, 19, 55, 0.3)" stroke="#fb7185" stroke-width="0.8"/>
+      <text x="225" y="649" fill="#e2e8f0" font-size="8" text-anchor="middle">触发: ≥8 rounds AND (error>30% OR tool_loop)</text>
+
+      <rect x="65" y="660" width="320" height="12" rx="3" fill="none"/>
+      <text x="225" y="669" fill="#64748b" font-size="7" text-anchor="middle">图片请求不触发（vision不能降级为text）</text>
+
+      <rect x="440" y="582" width="350" height="90" rx="6" fill="none" stroke="#fb7185" stroke-width="1" stroke-dasharray="3,3" opacity="0.35"/>
+      <text x="615" y="600" fill="#fb7185" font-size="9" font-weight="500" text-anchor="middle">_inject_escalate() 升级流程</text>
+
+      <rect x="455" y="612" width="320" height="18" rx="3" fill="#0f172a"/>
+      <rect x="455" y="612" width="320" height="18" rx="3" fill="rgba(136, 19, 55, 0.3)" stroke="#fb7185" stroke-width="0.8"/>
+      <text x="615" y="625" fill="#e2e8f0" font-size="8" text-anchor="middle">check 已注入标记 → 已升级过不再动</text>
+
+      <rect x="455" y="636" width="320" height="18" rx="3" fill="#0f172a"/>
+      <rect x="455" y="636" width="320" height="18" rx="3" fill="rgba(136, 19, 55, 0.3)" stroke="#fb7185" stroke-width="0.8"/>
+      <text x="615" y="649" fill="#e2e8f0" font-size="8" text-anchor="middle">upgrade tier: flash→pro→max (max 不动)</text>
+
+      <rect x="455" y="660" width="320" height="12" rx="3" fill="none"/>
+      <text x="615" y="669" fill="#64748b" font-size="7" text-anchor="middle">resanitize body if provider changed + inject ESCAPE_PROMPT</text>
+
+      <rect x="830" y="582" width="320" height="90" rx="6" fill="#0f172a"/>
+      <rect x="830" y="582" width="320" height="90" rx="6" fill="rgba(136, 19, 55, 0.2)" stroke="#fb7185" stroke-width="1"/>
+      <text x="990" y="604" fill="#fb7185" font-size="9" text-anchor="middle">Escape Prompt 注入内容</text>
+      <text x="990" y="622" fill="#94a3b8" font-size="8" text-anchor="middle">1. 彻底换方案，不调参数</text>
+      <text x="990" y="638" fill="#94a3b8" font-size="8" text-anchor="middle">2. 缩小问题域，先解最小子问题</text>
+      <text x="990" y="654" fill="#94a3b8" font-size="8" text-anchor="middle">3. 向用户说明困境请求指导</text>
+      <text x="990" y="668" fill="#64748b" font-size="7" text-anchor="middle">标记: ESCALATE-INJECT (防止重复)</text>
+
+      <!-- ===== Handler ===== -->
+      <rect x="30" y="715" width="1140" height="70" rx="8" fill="none" stroke="#34d399" stroke-width="1.5" stroke-dasharray="8,4" opacity="0.3"/>
+      <text x="50" y="733" fill="#34d399" font-size="9" font-weight="500">请求处理 (proxy_lib/handlers.py)</text>
+
+      <rect x="50" y="745" width="260" height="30" rx="4" fill="#0f172a"/>
+      <rect x="50" y="745" width="260" height="30" rx="4" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+      <text x="180" y="764" fill="#e2e8f0" font-size="9" text-anchor="middle">handle_anthropic / _stream</text>
+
+      <rect x="340" y="745" width="260" height="30" rx="4" fill="#0f172a"/>
+      <rect x="340" y="745" width="260" height="30" rx="4" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+      <text x="470" y="764" fill="#e2e8f0" font-size="9" text-anchor="middle">handle_openai / _stream</text>
+
+      <rect x="630" y="745" width="230" height="30" rx="4" fill="#0f172a"/>
+      <rect x="630" y="745" width="230" height="30" rx="4" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+      <text x="745" y="764" fill="#e2e8f0" font-size="9" text-anchor="middle">convert.py: Anthropic↔OpenAI</text>
+
+      <rect x="890" y="745" width="180" height="30" rx="4" fill="#0f172a"/>
+      <rect x="890" y="745" width="180" height="30" rx="4" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+      <text x="980" y="764" fill="#e2e8f0" font-size="9" text-anchor="middle">ocr.py Vision 预处理</text>
+
+      <!-- ===== Allocator + Fallback ===== -->
+      <rect x="30" y="815" width="1140" height="65" rx="8" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="8,4" opacity="0.3"/>
+      <text x="50" y="833" fill="#fbbf24" font-size="9" font-weight="500">分配 & 降级 (allocator.py + fallback.py)</text>
+
+      <rect x="50" y="845" width="420" height="28" rx="4" fill="#0f172a"/>
+      <rect x="50" y="845" width="420" height="28" rx="4" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1"/>
+      <text x="260" y="863" fill="#e2e8f0" font-size="9" text-anchor="middle">MultiModelAllocator — 连接池 · 健康检测 · 轮询/加权/最少连接</text>
+
+      <rect x="520" y="845" width="320" height="28" rx="4" fill="#0f172a"/>
+      <rect x="520" y="845" width="320" height="28" rx="4" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1"/>
+      <text x="680" y="863" fill="#e2e8f0" font-size="9" text-anchor="middle">fallback.py — 失败降级 · respill · 自动恢复</text>
+
+      <rect x="880" y="845" width="270" height="28" rx="4" fill="#0f172a"/>
+      <rect x="880" y="845" width="270" height="28" rx="4" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1"/>
+      <text x="1015" y="863" fill="#e2e8f0" font-size="9" text-anchor="middle">telemetry.py · Jaeger :4317</text>
+
+      <!-- ===== LLM Providers ===== -->
+      <rect x="30" y="910" width="1140" height="75" rx="8" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="8,4" opacity="0.35"/>
+      <text x="50" y="928" fill="#a78bfa" font-size="9" font-weight="500">LLM Provider (TIERS 路由映射)</text>
+
+      <rect x="50" y="940" width="230" height="38" rx="5" fill="#0f172a"/>
+      <rect x="50" y="940" width="230" height="38" rx="5" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.2"/>
+      <text x="165" y="958" fill="#f1f5f9" font-size="10" font-weight="600" text-anchor="middle">DeepSeek V4 Flash (tier:flash)</text>
+      <text x="165" y="972" fill="#64748b" font-size="7" text-anchor="middle">trivial/simple · 分类器宿主</text>
+
+      <rect x="310" y="940" width="230" height="38" rx="5" fill="#0f172a"/>
+      <rect x="310" y="940" width="230" height="38" rx="5" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.2"/>
+      <text x="425" y="958" fill="#f1f5f9" font-size="10" font-weight="600" text-anchor="middle">DeepSeek V4 Pro (tier:pro)</text>
+      <text x="425" y="972" fill="#64748b" font-size="7" text-anchor="middle">moderate · tools · 主力</text>
+
+      <rect x="570" y="940" width="230" height="38" rx="5" fill="#0f172a"/>
+      <rect x="570" y="940" width="230" height="38" rx="5" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.2"/>
+      <text x="685" y="958" fill="#f1f5f9" font-size="10" font-weight="600" text-anchor="middle">Qwen 3.8 Max (tier:max)</text>
+      <text x="685" y="972" fill="#64748b" font-size="7" text-anchor="middle">complex · 不用sub-agent</text>
+
+      <rect x="830" y="940" width="310" height="38" rx="5" fill="#0f172a"/>
+      <rect x="830" y="940" width="310" height="38" rx="5" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.2"/>
+      <text x="985" y="958" fill="#f1f5f9" font-size="10" font-weight="600" text-anchor="middle">豆包 1.5 Vision Pro (tier:vision)</text>
+      <text x="985" y="972" fill="#64748b" font-size="7" text-anchor="middle">图片 · OCR预处理</text>
+
+      <!-- ===== Legend ===== -->
+      <rect x="150" y="1015" width="900" height="36" rx="4" fill="#0f172a" opacity="0.85"/>
+      <rect x="170" y="1026" width="14" height="10" rx="2" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+      <text x="190" y="1035" fill="#94a3b8" font-size="8">Client</text>
+      <rect x="260" y="1026" width="14" height="10" rx="2" fill="rgba(251, 146, 60, 0.4)" stroke="#fb923c" stroke-width="1"/>
+      <text x="280" y="1035" fill="#94a3b8" font-size="8">Bypass</text>
+      <rect x="360" y="1026" width="14" height="10" rx="2" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1"/>
+      <text x="380" y="1035" fill="#94a3b8" font-size="8">Escalate</text>
+      <rect x="480" y="1026" width="14" height="10" rx="2" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1"/>
+      <text x="500" y="1035" fill="#94a3b8" font-size="8">Router/Allocator</text>
+      <rect x="630" y="1026" width="14" height="10" rx="2" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+      <text x="650" y="1035" fill="#94a3b8" font-size="8">Handler</text>
+      <rect x="740" y="1026" width="14" height="10" rx="2" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1"/>
+      <text x="760" y="1035" fill="#94a3b8" font-size="8">LLM Provider</text>
+      <text x="870" y="1035" fill="#64748b" font-size="7">Bypass(@tag/X-Proxy-Model/-sub) → L1 → L2 → Escalate(detect_stuck) → Handler → Allocator → Provider</text>
+    </svg>
+  </div>
+
+  <div class="summary-grid">
+    <div class="card">
+      <div class="card-header"><div class="card-dot" style="background:#fb923c"></div><h3>3 层 Bypass</h3></div>
+      <ul>
+        <li>B1: @tag 内联 — 消息中 @pro/@qwen/@coder 等指定模型</li>
+        <li>B2: model -sub — Sub-agent 自动走 L2 sub-agent 路由表</li>
+        <li>B3: X-Proxy-Model Header — 外部显式指定模型</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-dot" style="background:#fb7185"></div><h3>卡死检测 & 升级</h3></div>
+      <ul>
+        <li>detect_stuck: ≥8 轮连续 tool → 检测卡死</li>
+        <li>error>30% 或 tool_loop (0error但空转)</li>
+        <li>tier ladder: flash→pro→max (最多到max)</li>
+        <li>ESCAPE_PROMPT 注入: 换方案/缩域/求助</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-dot" style="background:#fbbf24"></div><h3>路由引擎</h3></div>
+      <ul>
+        <li>L1: image→vision / -sub→L2 / trivial→flash</li>
+        <li>L2: 三轴分类 (complexity+task+buget)</li>
+        <li>allocator: 连接池+健康检测</li>
+        <li>fallback: 失败降级+自动恢复</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">proxy · FastAPI · Python3 · /home/ubuntu/projects/proxy</div>
+</div>
+
+<script>
+function getCaptureRect() {
+  const c = document.getElementById('report-container');
+  const r = c.getBoundingClientRect();
+  return { x: r.left - 32, y: r.top - 32, width: r.width + 64, height: r.height + 64 };
+}
+function ignoreEl(el) { return el.classList && el.classList.contains('toolbar'); }
+async function copyAsImage() {
+  const r = getCaptureRect();
+  const c = await html2canvas(document.body, { x: r.x, y: r.y, width: r.width, height: r.height, scale: 2, ignoreElements: ignoreEl, backgroundColor: '#020617' });
+  c.toBlob(async function(b) {
+    try { await navigator.clipboard.write([new ClipboardItem({'image/png': b})]); } catch(e) { prompt('复制失败，手动复制:', ''); }
+  });
+}
+async function downloadPNG() {
+  const r = getCaptureRect();
+  const c = await html2canvas(document.body, { x: r.x, y: r.y, width: r.width, height: r.height, scale: 2, ignoreElements: ignoreEl, backgroundColor: '#020617' });
+  const a = document.createElement('a'); a.download = 'proxy-architecture.png'; a.href = c.toDataURL(); a.click();
+}
+async function downloadPDF() {
+  const r = getCaptureRect();
+  const c = await html2canvas(document.body, { x: r.x, y: r.y, width: r.width, height: r.height, scale: 2, ignoreElements: ignoreEl, backgroundColor: '#020617' });
+  const imgData = c.toDataURL('image/png');
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation: r.width > r.height ? 'l' : 'p', unit: 'px', format: [r.width, r.height] });
+  pdf.addImage(imgData, 'PNG', 0, 0, r.width, r.height);
+  pdf.save('proxy-architecture.pdf');
+}
+</script>
+</body>
+</html>

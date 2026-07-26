@@ -21,10 +21,10 @@ class MultiModelAllocator:
         ("moderate", "long_context"):  "qwen3.6-flash",
         ("complex",  "code"):          "kimi-k2.7-code",
         ("complex",  "creative"):      "glm-5.2",
-        ("complex",  "reasoning"):     "qwen3.7-max",
+        ("complex",  "reasoning"):     "qwen3.8-max-preview",
         ("complex",  "long_context"):  "qwen3.7-plus",
-        # 不映射 general — 留 DeepSeek，避免 general 任务烧 TP 额度
-        # ("complex",  "general"):       "qwen3.7-max",
+        ("moderate",  "general"):       "qwen3.8-max-preview",
+        ("complex",  "general"):       "qwen3.8-max-preview",
 
     }
 
