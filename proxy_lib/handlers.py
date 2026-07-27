@@ -427,8 +427,14 @@ async def handle_openai(body, route, model_name, routes, http_client,
                 if rf and isinstance(rf, dict) and rf.get("type") in ("json_schema", "json_object"):
                     upstream["response_format"] = {"type": "json_object"}
                 continue
-            if _body.get(key) is not None:
-                upstream[key] = _body[key]
+            val = _body.get(key)
+            if key in ("tools",) and val is not None:
+                if not convert.is_openai_format(_body):
+                    oai = convert.anthropic_to_openai(_body)
+                    val = oai.get("tools", val)
+                upstream["tools"] = val
+            elif val is not None:
+                upstream[key] = val
             elif r.get(key) is not None and key not in upstream:
                 upstream[key] = r[key]
         if r["provider"] == "deepseek":
@@ -565,8 +571,14 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
                 if rf and isinstance(rf, dict) and rf.get("type") in ("json_schema", "json_object"):
                     upstream["response_format"] = {"type": "json_object"}
                 continue
-            if _body.get(key) is not None:
-                upstream[key] = _body[key]
+            val = _body.get(key)
+            if key in ("tools",) and val is not None:
+                if not convert.is_openai_format(_body):
+                    oai = convert.anthropic_to_openai(_body)
+                    val = oai.get("tools", val)
+                upstream["tools"] = val
+            elif val is not None:
+                upstream[key] = val
             elif r.get(key) is not None and key not in upstream:
                 upstream[key] = r[key]
         if r["provider"] == "deepseek":

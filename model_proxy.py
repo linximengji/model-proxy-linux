@@ -779,6 +779,108 @@ async def get_stats():
     return JSONResponse(telemetry.build_stats())
 
 
+@app.get("/v1/token-stats")
+async def get_token_stats():
+    """Aggregated token usage stats from token_usage.jsonl — today/month/all/trends/models/providers/balance."""
+    import os as _os
+    import json as _json
+    import time as _time
+    records: list[dict] = []
+    tup = telemetry.TOKEN_USAGE_PATH
+    if _os.path.isfile(tup):
+        with open(tup, "r", encoding="utf-8-sig") as _f:
+            for _line in _f:
+                _line = _line.strip()
+                if _line:
+                    try:
+                        records.append(_json.loads(_line))
+                    except _json.JSONDecodeError:
+                        pass
+
+    def _fmt_ratio(inp: int, out: int) -> str:
+        return "∞" if out == 0 else f"{inp / out:.1f}"
+
+    def _provider_of(model: str) -> str:
+        if model.startswith("deepseek"):
+            return "DeepSeek"
+        if model.startswith("qwen") or model.startswith("doubao"):
+            return "Qwen (Plan)"
+        return "Other"
+
+    now_str = _time.strftime("%Y-%m-%d")
+    month_str = now_str[:7]
+    today = [r for r in records if (r.get("ts") or "").startswith(now_str)]
+    month = [r for r in records if (r.get("ts") or "").startswith(month_str)]
+
+    def _sum_stats(recs):
+        return {
+            "calls": len(recs),
+            "input": sum(r.get("inputTokens", 0) for r in recs),
+            "output": sum(r.get("outputTokens", 0) for r in recs),
+        }
+
+    # by model (today)
+    by_model_map: dict[str, dict] = {}
+    for r in today:
+        m = r.get("model", "unknown")
+        s = by_model_map.setdefault(m, {"calls": 0, "input": 0, "output": 0})
+        s["calls"] += 1
+        s["input"] += r.get("inputTokens", 0)
+        s["output"] += r.get("outputTokens", 0)
+    models = sorted(
+        [{"model": k, **v, "ratio": _fmt_ratio(v["input"], v["output"])} for k, v in by_model_map.items()],
+        key=lambda x: -x["calls"]
+    )
+
+    # by provider (today)
+    by_prov_map: dict[str, dict] = {}
+    for r in today:
+        p = _provider_of(r.get("model", ""))
+        s = by_prov_map.setdefault(p, {"calls": 0, "input": 0, "output": 0})
+        s["calls"] += 1
+        s["input"] += r.get("inputTokens", 0)
+        s["output"] += r.get("outputTokens", 0)
+    providers = sorted([{"provider": k, **v} for k, v in by_prov_map.items()], key=lambda x: -x["calls"])
+
+    # 7-day trend
+    trends = []
+    model_trends = []
+    for i in range(6, -1, -1):
+        d = _time.strftime("%Y-%m-%d", _time.gmtime(_time.time() - i * 86400))
+        day_recs = [r for r in records if (r.get("ts") or "").startswith(d)]
+        trends.append({
+            "date": d, "calls": len(day_recs),
+            "input": sum(r.get("inputTokens", 0) for r in day_recs),
+            "output": sum(r.get("outputTokens", 0) for r in day_recs),
+        })
+        by_m = {}
+        for r in day_recs:
+            mm = r.get("model", "unknown")
+            by_m[mm] = by_m.get(mm, 0) + 1
+        model_trends.append({
+            "date": d,
+            "models": sorted(
+                [{"model": k, "calls": v} for k, v in by_m.items()],
+                key=lambda x: -x["calls"]
+            ),
+        })
+
+    # balance
+    balance = None
+    if _os.path.isfile(telemetry.BUDGET_POLICY_PATH):
+        try:
+            policy = _json.load(open(telemetry.BUDGET_POLICY_PATH, encoding="utf-8"))
+            balance = policy.get("token_plan") or {}
+        except Exception:
+            pass
+
+    return JSONResponse({
+        "today": _sum_stats(today), "month": _sum_stats(month),
+        "all": _sum_stats(records), "models": models, "providers": providers,
+        "trends": trends, "modelTrends": model_trends, "balance": balance,
+    })
+
+
 @app.get("/v1/rules")
 async def get_rules():
     try:
