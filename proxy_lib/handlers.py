@@ -208,6 +208,10 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                                             attr_injected = True
                                 except json.JSONDecodeError:
                                     pass
+                            # Skip SSE event lines (event: message_start etc.) — downstream consumers
+                            # (notably claude CLI's stream-json mode) expect plain data: lines only.
+                            if s.startswith("event:"):
+                                continue
                             lb = line.encode("utf-8") if isinstance(line, str) else line
                             yield lb + b"\n"
                         if inp or out:
