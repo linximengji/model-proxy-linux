@@ -1,3 +1,25 @@
+aliases:
+  - tag: coder
+    model: kimi-k2.7-code
+  - tag: kimi
+    model: kimi-k2.6
+  - tag: glm
+    model: glm-5.2
+  - tag: minimax
+    model: MiniMax-M2.5
+  - tag: cheap
+    model: qwen3.6-flash
+  - tag: plus
+    model: qwen3.7-plus
+  - tag: qwen
+    model: qwen3.8-max-preview
+  - tag: qwen3.7-max
+    model: qwen3.8-max-preview
+  - tag: deepseek
+    model: deepseek-v4-pro
+  - tag: doubao
+    model: doubao-1.5-vision-pro
+
 model_list:
   # ── DeepSeek Anthropic ──
   - model_name: deepseek-v4-flash
@@ -12,7 +34,7 @@ model_list:
       model: deepseek/deepseek-v4-pro
       api_key: os.environ/DEEPSEEK_API_KEY
       max_tokens: 8192
-    fallback: deepseek-v4-pro
+    fallback: deepseek-v4-flash
 
   # ── Token-Plan MAAS Anthropic ──
   - model_name: qwen3.8-max-preview

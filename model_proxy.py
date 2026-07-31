@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 # OpenTelemetry — initialized in main()
 
-from proxy_lib import config, sanitize, convert, telemetry, fallback
+from proxy_lib import config, sanitize, telemetry
 from proxy_lib.allocator import MultiModelAllocator
 
 
@@ -28,7 +28,6 @@ from proxy_lib.handlers import (
     handle_openai, handle_openai_stream,
 )
 
-START_TIME = time.time()
 _restart_port = 4000
 _restart_args: list = []
 
@@ -96,6 +95,10 @@ ALLOCATOR = MultiModelAllocator()  # Token Plan 多模型分配器
 _BYPASS_MODEL: str | None = None
 _BYPASS_EXPIRY: float | None = None
 
+# Force max mode — moderate/complex 请求都走 max (qwen3.8)，不开则走正常 L2 路由。
+# 通过 API POST /v1/force-max 开/关，常驻不自动过期。
+_FORCE_MAX: bool = False
+
 def _active_bypass():
     global _BYPASS_MODEL, _BYPASS_EXPIRY
     if _BYPASS_EXPIRY and time.monotonic() >= _BYPASS_EXPIRY:
@@ -114,11 +117,11 @@ def _resolve_bypass_global():
         _BYPASS_EXPIRY = None
         return
     if val == "1":
-        _BYPASS_MODEL = _TIERS.get("max", "qwen3.8-max-preview")
+        _BYPASS_MODEL = _TIERS["max"]
     elif val in ROUTES:
         _BYPASS_MODEL = val
     else:
-        _BYPASS_MODEL = _TIERS.get("max", "qwen3.8-max-preview")
+        _BYPASS_MODEL = _TIERS["max"]
     _BYPASS_EXPIRY = None
     telemetry.log(f"GLOBAL BYPASS enabled: {_BYPASS_MODEL}", "INFO", "ROUTE")
 
@@ -130,6 +133,7 @@ def reload_cfg():
         importlib.reload(router)
         router.TIERS = _TIERS
         ROUTES = config.load_routes()
+        load_aliases()
         telemetry.route_health.clear()
         telemetry.log("Config reloaded", phase="SYSTEM")
         return True, f"{len(ROUTES)} routes loaded"
@@ -142,7 +146,34 @@ def reload_cfg():
 
 # ── L2 Classifier ──────────────────────────────────────────────────────────
 
-def _classify_via_flash(user_query, budget_ctx=None, timeout=2.0):
+def _local_fallback_classify(user_query: str):
+    """本地启发式 L2 fallback — flash 超时或不可用时使用。
+
+    根据 query 特征判断复杂度，不做远程调用。
+    """
+    from router import _has_code_indicators, estimate_tokens
+    tok = estimate_tokens(user_query)
+
+    # trivial: 极短的无代码内容
+    if tok < 10 and not _has_code_indicators(user_query):
+        return "trivial", "general", "low"
+
+    # simple: 短文本，无代码指示符
+    if tok < 50 and not _has_code_indicators(user_query):
+        return "simple", "general", "low"
+
+    # complex: 超长或明显架构/设计类 query
+    if tok > 400 or _has_code_indicators(user_query):
+        if any(kw in user_query for kw in ("设计", "架构", "architecture", "refactor", "重构", "方案", "plan", "对比", "compare")):
+            return "complex", "reasoning", "high"
+        if any(kw in user_query for kw in ("写", "create", "implement", "实现", "代码", "debug", "修")):
+            return "moderate", "code", "medium"
+
+    # moderate: 默认
+    return "moderate", "general", "medium"
+
+
+def _classify_via_flash(user_query, budget_ctx=None, timeout=8.0):
     route = ROUTES.get(_TIERS["flash"])
     if not route:
         return None
@@ -245,24 +276,37 @@ _PROMPT_MODEL_RE = re.compile(r'(?:^|\s)@([a-zA-Z0-9_.-]+)')
 _STRIP_TAG_RE = re.compile(r'\s*@[a-zA-Z0-9_.-]+')
 
 
+_ALIASES: dict[str, str] = {}
+
+def load_aliases():
+    """从 litellm_config.yaml 的 aliases 段加载 @tag 别名映射。"""
+    global _ALIASES
+    _ALIASES.clear()
+    # 内置 tier 别名（始终有效）
+    for k, v in _TIERS.items():
+        _ALIASES[k] = v
+    # 从 yaml 加载自定义别名
+    import yaml
+    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "litellm_config.yaml")
+    try:
+        with open(config_path, encoding="utf-8") as f:
+            cfg = yaml.safe_load(f)
+        for entry in (cfg.get("aliases") or []):
+            if isinstance(entry, dict):
+                tag = entry.get("tag", "").strip()
+                model = entry.get("model", "").strip()
+                if tag and model:
+                    _ALIASES[tag] = model
+    except Exception as e:
+        telemetry.log(f"load_aliases failed: {e}", "WARN", "ROUTE")
+
 def _get_alias(tag):
-    """Resolve @tag alias -> model name."""
-    if tag in _TIERS:
-        return _TIERS[tag]
-    static = {
-        "plus": "qwen3.7-plus",
-        "coder": "kimi-k2.7-code",
-        "kimi": "kimi-k2.6",
-        "glm": "glm-5.2",
-        "minimax": "MiniMax-M2.5",
-        "cheap": "qwen3.6-flash",
-        # "ds" removed — no longer supported
-        "qwen": _TIERS["max"],
-        "qwen3.7-max": _TIERS["max"],
-        "deepseek": _TIERS["pro"],
-        "doubao": _TIERS["vision"],
-    }
-    return static.get(tag)
+    """Resolve @tag alias -> model name. 查 _ALIASES，再回退 ROUTES exact match。"""
+    if tag in _ALIASES:
+        return _ALIASES[tag]
+    if tag in ROUTES:
+        return tag
+    return None
 
 
 def _fuzzy_resolve_model(tag):
@@ -439,13 +483,32 @@ def _append_text_to_last_user(body, text):
         break
 
 
-async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False):
-    """Resolve L2 classifier output → route + sanitization."""
+async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False, user_query=""):
+    """Resolve L2 classifier output → route + sanitization.
+    flash 超时或不可用时用本地规则 fallback。
+    """
     complexity, task_type, budget_est = await _resolve_classifier(l2_future)
     if complexity is None:
-        complexity = "moderate"
-    if task_type is None:
-        task_type = "general"
+        telemetry.log("L2: flash classify failed, using local fallback", phase="L2")
+        complexity, task_type, budget_est = _local_fallback_classify(user_query)
+
+    # Force max mode — moderate/complex 直走 qwen3.8
+    if _FORCE_MAX and complexity in ("moderate", "complex"):
+        model_name = _TIERS["max"]
+        telemetry.log(f"L2: force-max {complexity}:{task_type} -> {model_name}", phase="L2")
+        body["model"] = model_name
+        route = ROUTES.get(model_name)
+        if not route:
+            telemetry.log(f"L2: force-max {model_name} not in ROUTES, falling back", "WARN", "L2")
+        else:
+            if route.get("provider") == "deepseek":
+                _sanitize_deepseek(body, model_name)
+            elif route.get("provider") == "anthropic":
+                sanitize.sanitize_for_maas(body)
+            else:
+                sanitize.strip_thinking_blocks(body)
+            return route, model_name
+
     route_map = _SUB_AGENT_CLASSIFIER_ROUTE if is_sub_agent else _CLASSIFIER_ROUTE
     tier_key = route_map.get(complexity, "pro")
     model_name = _TIERS.get(tier_key, _TIERS["pro"])
@@ -542,7 +605,7 @@ def _route_and_sanitize(body):
             sanitize.strip_thinking_blocks(body)
         # tier 模型（pro/flash）不走直达，坠入 L1/L2 让路由+allocator 决定
         if model_name not in (_TIERS.get("pro",""), _TIERS.get("flash",""), _TIERS.get("max","")):
-            return route, model_name, "agent-model", None, None, False
+            return route, model_name, "agent-model", None, None, False, ""
         body["model"] = "auto"
         # 抹掉 model 后继续坠落 L1/L2
 
@@ -627,18 +690,26 @@ def _route_and_sanitize(body):
         preview = user_query[:80] if user_query else ""
         is_sub = reason == "l2-sub-agent"
         telemetry.log(f"L2 classify: \"{preview}{'...' if len(user_query)>80 else ''}\" ratio={ratio:.2f}", phase="L2")
-        return None, None, "l2-pending", l2_future, ratio, is_sub
+        return None, None, "l2-pending", l2_future, ratio, is_sub, user_query
 
     telemetry.log(f"L1 {reason}: {model_name or 'auto'} -> {routed_model}", phase="ROUTE")
     body["model"] = routed_model
     route = ROUTES.get(routed_model) or ROUTES.get(re.sub(r'\[.*\]', '', routed_model))
+    # L1 分类结果找不到路由时 fallback 到 flash（兜底，不返回 404）
+    if not route:
+        fallback = _TIERS["flash"]
+        telemetry.log(f"L1 routed_model={routed_model!r} not in ROUTES, fallback to {fallback}", "WARN", "ROUTE")
+        body["model"] = fallback
+        route = ROUTES.get(fallback)
+        routed_model = fallback
+        reason += f"/fallback-to-{fallback}"
     if route and route.get("provider") == "deepseek":
         _sanitize_deepseek(body, routed_model)
     elif route and route.get("provider") == "anthropic":
         sanitize.sanitize_for_maas(body)
     else:
         sanitize.strip_thinking_blocks(body)
-    return route, routed_model, reason, None, None, False
+    return route, routed_model, reason, None, None, False, ""
 
 
 # ── Model tier ladder for stuck escalation ──────────────────────────────────
@@ -920,7 +991,7 @@ async def set_bypass(request: Request):
         telemetry.log("GLOBAL BYPASS disabled via API", "INFO", "ROUTE")
         return JSONResponse({"bypass": None})
     if model == "1":
-        model = _TIERS.get("max", "qwen3.8-max-preview")
+        model = _TIERS["max"]
     model = _get_alias(model) or model
     if model not in ROUTES:
         return JSONResponse({"error": f"unknown model: {model}"}, status_code=400)
@@ -938,6 +1009,21 @@ async def set_bypass(request: Request):
         _BYPASS_EXPIRY = None
     telemetry.log(f"GLOBAL BYPASS set via API: {model}", "INFO", "ROUTE")
     return JSONResponse({"bypass": _BYPASS_MODEL})
+
+
+@app.post("/v1/force-max")
+async def set_force_max(request: Request):
+    global _FORCE_MAX
+    try:
+        data = await request.json()
+    except Exception:
+        data = {}
+    enabled = data.get("enabled", True)
+    if isinstance(enabled, str):
+        enabled = enabled.lower() in ("1", "true", "yes", "on")
+    _FORCE_MAX = bool(enabled)
+    telemetry.log(f"FORCE-MAX {'enabled' if _FORCE_MAX else 'disabled'}", phase="ROUTE")
+    return JSONResponse({"force_max": _FORCE_MAX})
 
 
 @app.post("/v1/restart")
@@ -1034,10 +1120,10 @@ async def proxy_anthropic(request: Request):
         route, model_name = _maybe_escalate(body, route, model_name)
 
     if not route:
-        route, model_name, _reason, l2_future, ratio, is_sub = _route_and_sanitize(body)
+        route, model_name, _reason, l2_future, ratio, is_sub, l2_user_query = _route_and_sanitize(body)
 
         if l2_future is not None:
-            route, model_name = await _resolve_l2(body, l2_future, ratio, is_sub)
+            route, model_name = await _resolve_l2(body, l2_future, ratio, is_sub, l2_user_query)
 
         route, model_name = _maybe_escalate(body, route, model_name)
 
@@ -1071,7 +1157,6 @@ async def proxy_openai(request: Request):
     telemetry.set_req_id(uuid.uuid4().hex[:8])
     body = await request.json()
     sanitize.embed_images(body)
-    telemetry.log(f"[DBG] proxy_openai ENTER", phase="ROUTE")
 
     route = model_name = _reason = None
 
@@ -1099,21 +1184,15 @@ async def proxy_openai(request: Request):
         route, model_name = _maybe_escalate(body, route, model_name)
 
     if not route:
-        route, model_name, _reason, l2_future, ratio, is_sub = _route_and_sanitize(body)
+        route, model_name, _reason, l2_future, ratio, is_sub, l2_user_query = _route_and_sanitize(body)
 
         if l2_future is not None:
-            route, model_name = await _resolve_l2(body, l2_future, ratio, is_sub)
+            route, model_name = await _resolve_l2(body, l2_future, ratio, is_sub, l2_user_query)
 
         route, model_name = _maybe_escalate(body, route, model_name)
 
     if not route:
         return JSONResponse({"error": f"unknown model: {model_name}"}, status_code=404)
-
-    # /v1/chat/completions → body 是 OpenAI 格式，路由到 anthropic/deepseek 需转换
-    if route["provider"] in ("anthropic", "deepseek"):
-        body = convert.openai_to_anthropic_request(body)
-    telemetry.log(f"[DBG] proxy_openai route provider={route['provider']!r}", phase="ROUTE")
-
     is_stream = body.get("stream", False)
     model_name_display = body.get("model", model_name)
     telemetry.log(f"{model_name_display} /v1/chat/completions{' (stream)' if is_stream else ''}", phase="UPSTREAM")
@@ -1125,10 +1204,14 @@ async def proxy_openai(request: Request):
 
     _t0 = time.time()
     try:
-        if route["provider"] in ("anthropic", "deepseek"):
-            h = handle_anthropic_stream if is_stream else handle_anthropic
-        else:
+        # /v1/chat/completions 收到的是 OpenAI 格式 body。
+        # deepseek provider 的 API base 是 OpenAI 兼容端点，直接透传 OpenAI 格式（handle_openai 自动处理）。
+        # anthropic provider 走 handle_anthropic，但其 body 需是真 Anthropic 格式——
+        # 原生 OpenAI 格式到这里无法直接转（convert 模块无 Anthropic 请求转换），保持原逻辑由 handle_anthropic 处理。
+        if route["provider"] in ("openai", "deepseek"):
             h = handle_openai_stream if is_stream else handle_openai
+        else:
+            h = handle_anthropic_stream if is_stream else handle_anthropic
         return await h(body, route, model_name_display, ROUTES, http_client,
                        work_dir, session_id, _reason=_reason,
                        is_bypass=_bypass_fail())
@@ -1170,6 +1253,7 @@ def main():
     # Inject TIERS into router module for L1 rules
     from router import TIERS as _rt
     _rt.update(_TIERS)
+    load_aliases()
 
     _resolve_bypass_global()
 
@@ -1217,7 +1301,16 @@ def main():
                      f"{response.status_code} {dt:.0f}ms\n")
         return response
 
-    uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")
+    for attempt in range(3):
+        try:
+            uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")
+            break
+        except OSError as e:
+            if "address already in use" in str(e).lower() and attempt < 2:
+                telemetry.log(f"Port {port} in use, retrying in 2s (attempt {attempt+1})", "WARN", "SYSTEM")
+                time.sleep(2)
+            else:
+                raise
 
 
 if __name__ == "__main__":

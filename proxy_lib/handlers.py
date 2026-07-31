@@ -22,6 +22,68 @@ def _strip_strict_from_rf(body: dict) -> dict:
     return body
 
 
+def _build_openai_kwargs(body, r, stream=False):
+    """构造发给 OpenAI 兼容 upstream 的请求 kwargs（非流式/流式共用）。"""
+    if r["provider"] == "deepseek":
+        api_base = "https://api.deepseek.com/v1"
+    else:
+        api_base = r.get("api_base") or "https://api.openai.com/v1"
+    url = f"{api_base}/chat/completions"
+    _body = body
+    # Non-deepseek providers often don't support strict in json_schema
+    if r["provider"] != "deepseek":
+        _body = _strip_strict_from_rf(body)
+    if convert.is_openai_format(_body):
+        messages = list(_body.get("messages", []))
+        sys_text = _body.get("system")
+        if sys_text and (not messages or messages[0].get("role") != "system"):
+            messages.insert(0, {"role": "system", "content": sys_text})
+        oai_messages = messages
+    else:
+        oai_messages = convert.anthropic_to_openai(_body)["messages"]
+    upstream = {
+        "model": r["model"],
+        "messages": oai_messages,
+        "max_tokens": _body.get("max_tokens", r.get("max_tokens", 4096)),
+    }
+    if stream:
+        upstream["stream"] = True
+        upstream["stream_options"] = {"include_usage": True}
+    optional_keys = ("temperature", "tools", "tool_choice", "top_p",
+                     "frequency_penalty", "presence_penalty", "response_format")
+    for key in optional_keys:
+        if key == "response_format" and r["provider"] == "deepseek":
+            rf = _body.get("response_format")
+            if rf and isinstance(rf, dict) and rf.get("type") in ("json_schema", "json_object"):
+                upstream["response_format"] = {"type": "json_object"}
+            continue
+        val = _body.get(key)
+        if key in ("tools",) and val is not None:
+            if not convert.is_openai_format(_body):
+                oai = convert.anthropic_to_openai(_body)
+                val = oai.get("tools", val)
+            upstream["tools"] = val
+        elif val is not None:
+            upstream[key] = val
+        elif r.get(key) is not None and key not in upstream:
+            upstream[key] = r[key]
+    if r["provider"] == "deepseek":
+        bt = _body.get("thinking", {})
+        if isinstance(bt, dict) and bt.get("type") != "enabled":
+            upstream["no_reasoning"] = True
+    if ("response_format" in upstream
+            and upstream["response_format"].get("type") == "json_object"
+            and r["provider"] == "deepseek"):
+        upstream["messages"].append({
+            "role": "system",
+            "content": "Output ONLY valid JSON. No other text or explanation."
+        })
+    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {r['api_key']}"}
+    if stream:
+        headers["Accept"] = "text/event-stream"
+    return {"method": "POST", "url": url, "json": upstream, "headers": headers}
+
+
 def sse_encode(event, data):
     return f"event: {event}\ndata: {json.dumps(data)}\n\n".encode("utf-8")
 
@@ -66,19 +128,10 @@ async def handle_anthropic(body, route, model_name, routes, http_client,
             upstream["stream"] = False
             if r["provider"] == "deepseek":
                 sanitize.sanitize_for_deepseek(upstream)
-            msgs = upstream.get("messages", [])
-            asst_thinking = sum(
-                1 for m in msgs
-                if m.get("role") == "assistant"
-                and isinstance(m.get("content"), list)
-                and any(b.get("type") == "thinking" for b in m["content"] if isinstance(b, dict))
-            )
-            asst_total = sum(1 for m in msgs if m.get("role") == "assistant")
             log(
                 f"Anthropic non-stream body: model={upstream.get('model')},"
                 f" thinking={upstream.get('thinking')},"
-                f" no_reasoning={upstream.get('no_reasoning')},"
-                f" asst_msgs={asst_total}, asst_with_thinking={asst_thinking}",
+                f" no_reasoning={upstream.get('no_reasoning')}",
                 phase="HANDLER"
             )
             return {
@@ -170,7 +223,6 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                     attr_prefix = _inject_attribution(model_name) if _reason == "prompt-bypass" else ""
                     async with http_client.stream(**kwargs) as resp:
                         if resp.status_code != 200:
-                            err_body = await resp.aread()
                             raise httpx.HTTPStatusError(
                                 f"HTTP {resp.status_code}", request=resp.request, response=resp)
                         await fallback.telemetry.record_success(m)
@@ -223,7 +275,6 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                     kwargs["timeout"] = 300
                     async with http_client.stream(**kwargs) as resp:
                         if resp.status_code != 200:
-                            err_body = await resp.aread()
                             raise httpx.HTTPStatusError(
                                 f"HTTP {resp.status_code}", request=resp.request, response=resp)
                         await fallback.telemetry.record_success(m)
@@ -263,6 +314,7 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                                                 "content": [],
                                                 "usage": {
                                                     "input_tokens": 0,
+                                                    "output_tokens": 0,
                                                     "cache_creation_input_tokens": 0,
                                                     "cache_read_input_tokens": 0,
                                                 },
@@ -296,7 +348,12 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
                                                 "message": {
                                                     "id": "", "model": m, "role": "assistant",
                                                     "content": [],
-                                                    "usage": {"input_tokens": 0},
+                                                    "usage": {
+                                                        "input_tokens": 0,
+                                                        "output_tokens": 0,
+                                                        "cache_creation_input_tokens": 0,
+                                                        "cache_read_input_tokens": 0,
+                                                    },
                                                 },
                                             })
                                         tb = {"idx": nbi, "id": tc.get("id", ""), "name": func_delta.get("name", "")}
@@ -401,63 +458,7 @@ async def handle_anthropic_stream(body, route, model_name, routes, http_client,
 async def handle_openai(body, route, model_name, routes, http_client,
                         work_dir=None, session_id=None, _reason=None, is_bypass=False):
     def build_kwargs(r, _m):
-        if r["provider"] == "deepseek":
-            api_base = "https://api.deepseek.com/v1"
-        else:
-            api_base = r.get("api_base") or "https://api.openai.com/v1"
-        url = f"{api_base}/chat/completions"
-        _body = body
-        # Non-deepseek providers often don't support strict in json_schema
-        if r["provider"] != "deepseek":
-            _body = _strip_strict_from_rf(body)
-        if convert.is_openai_format(_body):
-            messages = list(_body.get("messages", []))
-            sys_text = _body.get("system")
-            if sys_text and (not messages or messages[0].get("role") != "system"):
-                messages.insert(0, {"role": "system", "content": sys_text})
-            oai_messages = messages
-        else:
-            oai_messages = convert.anthropic_to_openai(_body)["messages"]
-        upstream = {
-            "model": r["model"],
-            "messages": oai_messages,
-            "max_tokens": _body.get("max_tokens", r.get("max_tokens", 4096)),
-        }
-        optional_keys = ("temperature", "tools", "tool_choice", "top_p",
-                         "frequency_penalty", "presence_penalty", "response_format")
-        for key in optional_keys:
-            if key == "response_format" and r["provider"] == "deepseek":
-                rf = _body.get("response_format")
-                if rf and isinstance(rf, dict) and rf.get("type") in ("json_schema", "json_object"):
-                    upstream["response_format"] = {"type": "json_object"}
-                continue
-            val = _body.get(key)
-            if key in ("tools",) and val is not None:
-                if not convert.is_openai_format(_body):
-                    oai = convert.anthropic_to_openai(_body)
-                    val = oai.get("tools", val)
-                upstream["tools"] = val
-            elif val is not None:
-                upstream[key] = val
-            elif r.get(key) is not None and key not in upstream:
-                upstream[key] = r[key]
-        if r["provider"] == "deepseek":
-            bt = _body.get("thinking", {})
-            if isinstance(bt, dict) and bt.get("type") != "enabled":
-                upstream["no_reasoning"] = True
-        if ("response_format" in upstream
-                and upstream["response_format"].get("type") == "json_object"
-                and r["provider"] == "deepseek"):
-            upstream["messages"].append({
-                "role": "system",
-                "content": "Output ONLY valid JSON. No other text or explanation."
-            })
-        return {
-            "method": "POST", "url": url,
-            "json": upstream,
-            "headers": {"Content-Type": "application/json",
-                        "Authorization": f"Bearer {r['api_key']}"},
-        }
+        return _build_openai_kwargs(body, r, stream=False)
     try:
         resp, _used = await fallback.request_with_fallback(
             route, model_name, routes, http_client, build_kwargs, timeout=120)
@@ -544,65 +545,7 @@ async def handle_openai(body, route, model_name, routes, http_client,
 async def handle_openai_stream(body, route, model_name, routes, http_client,
                                 work_dir=None, session_id=None, _reason=None, is_bypass=False):
     def build_kwargs(r, _m):
-        if r["provider"] == "deepseek":
-            api_base = "https://api.deepseek.com/v1"
-        else:
-            api_base = r.get("api_base") or "https://api.openai.com/v1"
-        url = f"{api_base}/chat/completions"
-        _body = body
-        if r["provider"] != "deepseek":
-            _body = _strip_strict_from_rf(body)
-        if convert.is_openai_format(_body):
-            messages = list(_body.get("messages", []))
-            sys_text = _body.get("system")
-            if sys_text and (not messages or messages[0].get("role") != "system"):
-                messages.insert(0, {"role": "system", "content": sys_text})
-            oai_messages = messages
-        else:
-            oai_messages = convert.anthropic_to_openai(_body)["messages"]
-        upstream = {
-            "model": r["model"],
-            "messages": oai_messages,
-            "max_tokens": _body.get("max_tokens", r.get("max_tokens", 4096)),
-            "stream": True,
-            "stream_options": {"include_usage": True},
-        }
-        optional_keys = ("temperature", "tools", "tool_choice", "top_p",
-                         "frequency_penalty", "presence_penalty", "response_format")
-        for key in optional_keys:
-            if key == "response_format" and r["provider"] == "deepseek":
-                rf = _body.get("response_format")
-                if rf and isinstance(rf, dict) and rf.get("type") in ("json_schema", "json_object"):
-                    upstream["response_format"] = {"type": "json_object"}
-                continue
-            val = _body.get(key)
-            if key in ("tools",) and val is not None:
-                if not convert.is_openai_format(_body):
-                    oai = convert.anthropic_to_openai(_body)
-                    val = oai.get("tools", val)
-                upstream["tools"] = val
-            elif val is not None:
-                upstream[key] = val
-            elif r.get(key) is not None and key not in upstream:
-                upstream[key] = r[key]
-        if r["provider"] == "deepseek":
-            bt = _body.get("thinking", {})
-            if isinstance(bt, dict) and bt.get("type") != "enabled":
-                upstream["no_reasoning"] = True
-        if ("response_format" in upstream
-                and upstream["response_format"].get("type") == "json_object"
-                and r["provider"] == "deepseek"):
-            upstream["messages"].append({
-                "role": "system",
-                "content": "Output ONLY valid JSON. No other text or explanation."
-            })
-        return {
-            "method": "POST", "url": url,
-            "json": upstream,
-            "headers": {"Content-Type": "application/json",
-                        "Authorization": f"Bearer {r['api_key']}",
-                        "Accept": "text/event-stream"},
-        }
+        return _build_openai_kwargs(body, r, stream=True)
 
     models_to_try = fallback.build_fallback_chain(route, model_name, routes)
 
@@ -677,7 +620,6 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
                     await fallback.telemetry.record_success(m)
                     fallback.telemetry.reset_bypass_health()
                     log(f"<- 200 streaming {m} (openai passthrough, has_rf={has_response_format})", phase="UPSTREAM")
-                    content_count = 0
                     inp = out = 0
                     attr_injected = False
                     attr_prefix = _inject_attribution(model_name) if _reason == "prompt-bypass" else ""
@@ -698,7 +640,6 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
                             has_content = False
                             for ln in processed.split(b"\n"):
                                 if ln.startswith(b"data: ") and b'"content":' in ln:
-                                    content_count += 1
                                     has_content = True
                             # Yield attribution as the first content chunk so it
                             # renders at the reply head (OpenAI stream deltas with
@@ -710,7 +651,6 @@ async def handle_openai_stream(body, route, model_name, routes, http_client,
                                 yield b"data: " + json.dumps(attr_chunk).encode("utf-8") + b"\n\n"
                                 attr_injected = True
                             yield processed
-                    log(f"...stream output content chunks: {content_count}", phase="UPSTREAM")
                     # flush line buffer
                     if line_buffer:
                         processed = await _process_chunk(line_buffer + b"\n")

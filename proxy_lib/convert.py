@@ -63,13 +63,15 @@ def anthropic_to_openai(body, strip_images=False):
 
         tool_results = [b for b in content if isinstance(b, dict) and b.get("type") == "tool_result"]
         if tool_results:
+            # 每条 tool_result 独立成 tool 消息（OpenAI 一条 tool 消息对应一个 tool_call_id）。
+            # text 与第一个多余文本并入其后 user 消息，避免乱序。
             for tr in tool_results:
                 c = tr.get("content", "")
                 if isinstance(c, list):
                     c = " ".join(b.get("text", "") for b in c if isinstance(b, dict))
                 messages.append({
                     "role": "tool",
-                    "tool_call_id": tr["tool_use_id"],
+                    "tool_call_id": tr.get("tool_use_id", ""),
                     "content": c,
                 })
             texts = [b["text"] for b in content if isinstance(b, dict) and b.get("type") == "text"]
@@ -140,7 +142,7 @@ def anthropic_to_openai(body, strip_images=False):
 
 
 def openai_to_anthropic(data, model_name):
-    choice = data.get("choices", [{}])[0]
+    choice = (data.get("choices") or [{}])[0]
     msg = choice.get("message", {})
     content = msg.get("content") or ""
     fr = choice.get("finish_reason", "")
@@ -174,6 +176,15 @@ def openai_to_anthropic(data, model_name):
     if not content_blocks:
         content_blocks.append({"type": "text", "text": ""})
 
+    # OpenAI 兼容上游的缓存命中对应 Anthropic 的 cache_read_input_tokens。
+    # DeepSeek 用 prompt_cache_hit_tokens；部分实现走 prompt_tokens_details.cached_tokens。
+    # OpenAI 响应不含"写缓存"信息，cache_creation_input_tokens 保持 0。
+    cache_read = (
+        usage.get("prompt_cache_hit_tokens")
+        if usage.get("prompt_cache_hit_tokens") is not None
+        else (usage.get("prompt_tokens_details") or {}).get("cached_tokens")
+    ) or 0
+
     return {
         "id": data.get("id", str(uuid.uuid4())),
         "model": model_name,
@@ -185,6 +196,6 @@ def openai_to_anthropic(data, model_name):
             "input_tokens": usage.get("prompt_tokens", 0),
             "output_tokens": usage.get("completion_tokens", 0),
             "cache_creation_input_tokens": 0,
-            "cache_read_input_tokens": 0,
+            "cache_read_input_tokens": cache_read,
         },
     }

@@ -5,13 +5,6 @@ _PROXY_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG_PATH = os.path.join(_PROXY_DIR, "litellm_config.yaml")
 DOTENV_PATH = os.path.join(_PROXY_DIR, ".env")
 
-ENV_KEY_MAP = {
-    "deepseek": "DEEPSEEK_API_KEY",
-    "anthropic": "QWEN_MAAS_API_KEY",
-    "openai": "DASHSCOPE_API_KEY",
-    "doubao": "DOUBAO_API_KEY",
-}
-
 
 def load_dotenv(path=DOTENV_PATH):
     if not os.path.isfile(path):
@@ -59,9 +52,6 @@ def load_routes(config_path=CONFIG_PATH):
         if p["provider"] == "deepseek" and "api_base" not in p:
             p["api_base"] = "https://api.deepseek.com/anthropic/v1/messages"
         p["api_key"] = resolve_env(p.get("api_key", ""))
-        env_var = ENV_KEY_MAP.get(p["provider"])
-        if env_var and os.environ.get(env_var) and p["api_key"].startswith("os.environ/"):
-            p["api_key"] = os.environ[env_var]
         routes[name] = p
         fb = m.get("fallback")
         if fb:

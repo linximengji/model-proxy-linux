@@ -35,6 +35,7 @@ class MultiModelAllocator:
         if remaining < 50:
             return 0.0
 
+        remaining = max(remaining, 0)  # 透支时钳到 0，避免 pct**0.5 对负数抛 ValueError
         pct = remaining / total if total > 0 else 0.0
         ratio = 0.5 * (pct ** 0.5)
 
