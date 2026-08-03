@@ -13,8 +13,6 @@ aliases:
     model: qwen3.7-plus
   - tag: qwen
     model: qwen3.8-max-preview
-  - tag: qwen3.7-max
-    model: qwen3.8-max-preview
   - tag: deepseek
     model: deepseek-v4-pro
   - tag: doubao
@@ -112,9 +110,9 @@ model_list:
       max_tokens: 8192
 
   # ── Token-Plan MAAS OpenAI 兼容（供 Presenton / OpenAI-only 客户端） ──
-  - model_name: qwen3.7-max-oai
+  - model_name: qwen3.8-max-oai
     litellm_params:
-      model: openai/qwen3.7-max
+      model: openai/qwen3.8-max-preview
       api_base: https://token-plan.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
       api_key: os.environ/QWEN_MAAS_API_KEY
       max_tokens: 8192

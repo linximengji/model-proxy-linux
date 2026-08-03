@@ -95,9 +95,54 @@ ALLOCATOR = MultiModelAllocator()  # Token Plan 多模型分配器
 _BYPASS_MODEL: str | None = None
 _BYPASS_EXPIRY: float | None = None
 
-# Force max mode — moderate/complex 请求都走 max (qwen3.8)，不开则走正常 L2 路由。
-# 通过 API POST /v1/force-max 开/关，常驻不自动过期。
-_FORCE_MAX: bool = False
+# Force switch (L2) — 进入 L2 的请求无论复杂度统一走指定模型，取代 force-max。
+# 通过 API POST /v1/force-switch 开/关 + 指定模型，持久化到 force_switch.json。
+_FORCE_SWITCH: dict = {"enabled": False, "model": None}
+_FORCE_SWITCH_TS: float | None = None  # 可选 TTL 到期时间戳（epoch seconds），None=不过期
+_FORCE_SWITCH_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "force_switch.json")
+
+
+def _expire_force_switch():
+    """TTL 到期后自动关闭 force-switch。"""
+    global _FORCE_SWITCH, _FORCE_SWITCH_TS
+    if _FORCE_SWITCH["enabled"] and _FORCE_SWITCH_TS and time.time() >= _FORCE_SWITCH_TS:
+        _FORCE_SWITCH = {"enabled": False, "model": None}
+        _FORCE_SWITCH_TS = None
+        _save_force_switch()
+        telemetry.log("FORCE-SWITCH auto-disabled: TTL expired", "INFO", "ROUTE")
+
+
+def _load_force_switch():
+    """启动时从 force_switch.json 恢复 force-switch 状态（持久化）。"""
+    global _FORCE_SWITCH, _FORCE_SWITCH_TS
+    try:
+        if os.path.isfile(_FORCE_SWITCH_PATH):
+            with open(_FORCE_SWITCH_PATH, "r", encoding="utf-8") as f:
+                d = json.load(f)
+            model = d.get("model")
+            ts = d.get("ts")
+            if model is not None and model not in ROUTES:
+                model = None
+            _FORCE_SWITCH = {"enabled": bool(d.get("enabled")), "model": model}
+            _FORCE_SWITCH_TS = float(ts) if ts else None
+            _expire_force_switch()
+            if _FORCE_SWITCH["enabled"]:
+                telemetry.log(f"FORCE-SWITCH restored: {model or _TIERS['max']}", phase="ROUTE")
+    except Exception as e:
+        telemetry.log(f"_load_force_switch: {type(e).__name__}: {e}", "WARN", "ROUTE")
+
+
+def _save_force_switch():
+    """把当前 force-switch 状态写回 force_switch.json。"""
+    try:
+        payload = dict(_FORCE_SWITCH)
+        payload["ts"] = _FORCE_SWITCH_TS
+        tmp = _FORCE_SWITCH_PATH + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False)
+        os.replace(tmp, _FORCE_SWITCH_PATH)  # 原子替换，避免写盘中断留下损坏 JSON
+    except Exception as e:
+        telemetry.log(f"_save_force_switch: {type(e).__name__}: {e}", "WARN", "ROUTE")
 
 def _active_bypass():
     global _BYPASS_MODEL, _BYPASS_EXPIRY
@@ -233,7 +278,7 @@ async def _resolve_classifier(resp_future):
 # ── Budget-aware routing adjustment ─────────────────────────────────────────
 
 def _build_budget_context(policy):
-    """计算 moderate→qwen3.7-max 的连续分配比例。
+    """计算 moderate→qwen3.8-max-preview 的连续分配比例。
 
     自算真实余额（不从 policy 中读 stale credits_remaining），60s 缓存。
     并在每次计算后回写 routing_policy.json 使 dashboard 同步。
@@ -492,15 +537,17 @@ async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False, user_query="")
         telemetry.log("L2: flash classify failed, using local fallback", phase="L2")
         complexity, task_type, budget_est = _local_fallback_classify(user_query)
 
-    # Force max mode — moderate/complex 直走 qwen3.8
-    if _FORCE_MAX and complexity in ("moderate", "complex"):
-        model_name = _TIERS["max"]
-        telemetry.log(f"L2: force-max {complexity}:{task_type} -> {model_name}", phase="L2")
-        body["model"] = model_name
+    # Force switch — 进入 L2 的请求无论复杂度统一走指定模型（取代 force-max）
+    _expire_force_switch()
+    if _FORCE_SWITCH["enabled"]:
+        model_name = _FORCE_SWITCH["model"] or _TIERS["max"]
         route = ROUTES.get(model_name)
-        if not route:
-            telemetry.log(f"L2: force-max {model_name} not in ROUTES, falling back", "WARN", "L2")
-        else:
+        if route:
+            telemetry.log(
+                f"L2: force-switch {complexity}:{task_type}{' (sub-agent)' if is_sub_agent else ''} -> {model_name}",
+                phase="L2"
+            )
+            body["model"] = model_name
             if route.get("provider") == "deepseek":
                 _sanitize_deepseek(body, model_name)
             elif route.get("provider") == "anthropic":
@@ -508,6 +555,8 @@ async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False, user_query="")
             else:
                 sanitize.strip_thinking_blocks(body)
             return route, model_name
+        # force 的模型不在 ROUTES（配置变更/文件被改）→ 降级走正常 L2 路由
+        telemetry.log(f"L2: force-switch {model_name} not in ROUTES, degrading to L2 routing", "WARN", "L2")
 
     route_map = _SUB_AGENT_CLASSIFIER_ROUTE if is_sub_agent else _CLASSIFIER_ROUTE
     tier_key = route_map.get(complexity, "pro")
@@ -1011,9 +1060,21 @@ async def set_bypass(request: Request):
     return JSONResponse({"bypass": _BYPASS_MODEL})
 
 
-@app.post("/v1/force-max")
-async def set_force_max(request: Request):
-    global _FORCE_MAX
+@app.get("/v1/force-switch")
+async def get_force_switch():
+    _expire_force_switch()
+    ts = _FORCE_SWITCH_TS
+    ttl_remaining = int(max(0, ts - time.time())) if ts else None
+    return JSONResponse({
+        "enabled": _FORCE_SWITCH["enabled"],
+        "model": _FORCE_SWITCH["model"],
+        "ttl_remaining": ttl_remaining,
+    })
+
+
+@app.post("/v1/force-switch")
+async def set_force_switch(request: Request):
+    global _FORCE_SWITCH, _FORCE_SWITCH_TS
     try:
         data = await request.json()
     except Exception:
@@ -1021,9 +1082,36 @@ async def set_force_max(request: Request):
     enabled = data.get("enabled", True)
     if isinstance(enabled, str):
         enabled = enabled.lower() in ("1", "true", "yes", "on")
-    _FORCE_MAX = bool(enabled)
-    telemetry.log(f"FORCE-MAX {'enabled' if _FORCE_MAX else 'disabled'}", phase="ROUTE")
-    return JSONResponse({"force_max": _FORCE_MAX})
+    enabled = bool(enabled)
+    if not enabled:
+        _FORCE_SWITCH = {"enabled": False, "model": None}
+        _FORCE_SWITCH_TS = None
+        _save_force_switch()
+        telemetry.log("FORCE-SWITCH disabled", phase="ROUTE")
+        return JSONResponse({"enabled": False, "model": None, "ttl_remaining": None})
+
+    model = (data.get("model") or "").strip() or _TIERS["max"]
+    model = model.lstrip("@")
+    model = _get_alias(model) or model
+    if model not in ROUTES:
+        return JSONResponse({"error": f"unknown model: {model}"}, status_code=400)
+
+    _FORCE_SWITCH = {"enabled": True, "model": model}
+    ttl = data.get("ttl")
+    if enabled and ttl is not None:
+        try:
+            _FORCE_SWITCH_TS = time.time() + int(ttl) if int(ttl) > 0 else None
+        except (ValueError, TypeError):
+            _FORCE_SWITCH_TS = None
+    else:
+        _FORCE_SWITCH_TS = None
+    _save_force_switch()
+    telemetry.log(f"FORCE-SWITCH {'enabled' if enabled else 'disabled'} -> {model}", phase="ROUTE")
+    return JSONResponse({
+        "enabled": _FORCE_SWITCH["enabled"],
+        "model": _FORCE_SWITCH["model"],
+        "ttl_remaining": int(max(0, _FORCE_SWITCH_TS - time.time())) if _FORCE_SWITCH_TS else None,
+    })
 
 
 @app.post("/v1/restart")
@@ -1278,6 +1366,7 @@ def main():
     access_log = os.path.join(log_dir, "proxy_access.log")
 
     telemetry.init(token_log_path=token_log, log_file=log_file, access_log=access_log, verbose=verbose)
+    _load_force_switch()
 
     import uvicorn
     port = int(args[0]) if args else 4000

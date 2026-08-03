@@ -544,12 +544,13 @@ TP_PRICING_FLAT: dict[str, float] = {
     # WARNING: 限时加量10倍活动期间，价格会大幅波动
     "qwen3.8-max-preview":       0.38,
     "qwen3.8-max-preview-vision": 0.38,
+    "qwen3.8-max-oai":           0.38,
     # Benchmark 2026-07-25: 0.32cr / 415tok → 0.77/1K
     "qwen3.7-plus":      0.77,
     # Benchmark 2026-07-25: 0.17cr / 249tok → 0.68/1K
     "qwen3.6-flash":     0.68,
     # No benchmark — conservative estimates
-    "qwen3.7-max":       5.0,
+    "qwen3.7-max-ds":    5.0,
     "qwen3-coder-plus":  0.77,
     "qwen3.6-plus":      0.68,
     "qwen3.6-maas":      0.68,

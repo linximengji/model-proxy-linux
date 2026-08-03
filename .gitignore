@@ -4,4 +4,5 @@ __pycache__/
 proxy.log
 proxy_access.log
 proxy.pid
+force_switch.json
 *.backup.py
