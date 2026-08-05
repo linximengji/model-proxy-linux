@@ -4,3 +4,10 @@ line-length = 120
 
 [tool.ruff.lint]
 select = ["E", "F", "W"]
+# E402：model_proxy.py 顶部按 OpenTelemetry 初始化分组放置 proxy_lib 导入，属刻意结构
+# E501：超长行多为中文关键词列表/文案注释，非缺陷，忽略
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# E402 仅发生在 model_proxy.py 的中后置 proxy_lib 导入，保留该文件的刻意结构
+"model_proxy.py" = ["E402"]

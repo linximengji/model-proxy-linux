@@ -5,11 +5,10 @@ import sys
 import re
 import time
 import uuid
-import signal
 from urllib.parse import urlparse
 
 import httpx
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 sys.stdout.reconfigure(encoding="utf-8")
@@ -174,7 +173,8 @@ def _resolve_bypass_global():
 def reload_cfg():
     global ROUTES
     try:
-        import importlib, router
+        import importlib
+        import router
         importlib.reload(router)
         router.TIERS = _TIERS
         ROUTES = config.load_routes()
@@ -199,8 +199,23 @@ def _local_fallback_classify(user_query: str):
     from router import _has_code_indicators, estimate_tokens
     tok = estimate_tokens(user_query)
 
+    # code intent（中文代码意图）：bug/修复/报错/代码/实现 等，即使短文本也归 code，
+    # 避免被 trivial/simple 的 general 早退吞掉，导致 kimi 通道不触发
+    _code_intent = any(kw in user_query for kw in ("bug", "报错", "报错信息", "错误", "exception", "error", "编译", "运行失败", "报 bug", "这个bug", "那段代码", "函数", "接口对接", "前端代码", "后端代码", "实现一个"))
+    if _code_intent:
+        return "moderate", "code", "medium"
+
+    # creative（写作/文案/翻译/总结）：需在 trivial/simple 之前判定，
+    # 否则短文案会被 general 兜底吞掉，导致 GLM 通道不触发
+    if any(kw in user_query for kw in ("文案", "润色", "改写", "翻译", "总结", "摘要", "散文", "创作", "续写", "扩写", "压缩", "提炼要点", "写一首", "写一段", "写一篇")):
+        return "moderate", "creative", "medium"
+
+    # reasoning intent（中文推理/方案/权衡）：短方案对比问题也归 reasoning，指向 qwen-max
+    if any(kw in user_query for kw in ("设计方案", "架构设计", "方案对比", "架构", "权衡", "技术选型", "方案利弊", "怎么设计", "规划一下", "架构方案", "系统设计")):
+        return "complex", "reasoning", "high"
+
     # trivial: 极短的无代码内容
-    if tok < 10 and not _has_code_indicators(user_query):
+    if tok < 10 and not _has_code_indicators(user_query) and not _code_intent:
         return "trivial", "general", "low"
 
     # simple: 短文本，无代码指示符
@@ -213,6 +228,12 @@ def _local_fallback_classify(user_query: str):
             return "complex", "reasoning", "high"
         if any(kw in user_query for kw in ("写", "create", "implement", "实现", "代码", "debug", "修")):
             return "moderate", "code", "medium"
+        if any(kw in user_query for kw in ("文案", "翻译", "总结", "改写")):
+            return "moderate", "creative", "medium"
+
+    # long_context: 超长输入 → 长文档分析，而非直接压到 general
+    if tok > 4000:
+        return "complex", "long_context", "high"
 
     # moderate: 默认
     return "moderate", "general", "medium"

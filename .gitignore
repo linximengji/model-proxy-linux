@@ -6,3 +6,4 @@ proxy_access.log
 proxy.pid
 force_switch.json
 *.backup.py
+token_usage.jsonl

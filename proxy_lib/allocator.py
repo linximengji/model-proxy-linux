@@ -23,9 +23,7 @@ class MultiModelAllocator:
         ("complex",  "creative"):      "glm-5.2",
         ("complex",  "reasoning"):     "qwen3.8-max-preview",
         ("complex",  "long_context"):  "qwen3.7-plus",
-        ("moderate",  "general"):       "qwen3.8-max-preview",
-        ("complex",  "general"):       "qwen3.8-max-preview",
-
+        # general 为兜底分类，不抢 TP 配额，留在 deepseek-pro
     }
 
     def compute_ratio(self, remaining: float, total: float, days: float) -> float:
