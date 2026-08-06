@@ -30,11 +30,11 @@ CLASSIFICATIONS = [
 ]
 
 CLASSIFIER_ROUTE = {"trivial": "flash", "simple": "flash", "moderate": "pro", "complex": "max"}
-TIER_NAMES = {"flash": "deepseek-v4-flash", "pro": "deepseek-v4-pro", "max": "qwen3.8-max-preview"}
+TIER_NAMES = {"flash": "deepseek-v4-flash", "pro": "deepseek-v4-pro", "max": "qwen3.8-max"}
 
 BASE_MAPPING: dict[tuple[str, str], str] = {
     ("moderate", "code"): "kimi-k2.7-code",
-    ("complex", "reasoning"): "qwen3.8-max-preview",
+    ("complex", "reasoning"): "qwen3.8-max",
     ("complex", "code"): "kimi-k2.7-code",
 }
 # lower-priority mappings not tested often:
@@ -83,7 +83,7 @@ def simulate(sc):
                 tp_dest += 1
                 totals["tp_calls"] += 1
             elif cx == "complex" and base_tier == "max":
-                # complex base is qwen3.8-max-preview — already TP
+                # complex base is qwen3.8-max — already TP
                 tp_dest += 1
                 totals["tp_calls"] += 1
             else:
@@ -104,11 +104,11 @@ if __name__ == "__main__":
 
     # Also test: what if we control complex:reasoning base tier?
     print("\n" + "="*70)
-    print("BONUS: if complex:reasoning base tier was pro (not max → qwen3.8-max-preview)")
+    print("BONUS: if complex:reasoning base tier was pro (not max → qwen3.8-max)")
     print("="*70)
     # Hack: set CLASSIFIER_ROUTE["complex"] = "pro" temporarily
     old = CLASSIFIER_ROUTE["complex"]
     CLASSIFIER_ROUTE["complex"] = "pro"
-    simulate({"name": "complex→pro base, alloc→ qwen3.8-max-preview (gate=0.3)",
+    simulate({"name": "complex→pro base, alloc→ qwen3.8-max (gate=0.3)",
               "remaining": 23272, "total": 72500, "days": 3, "force_ratio": None, "extra_map": None})
     CLASSIFIER_ROUTE["complex"] = old

@@ -21,7 +21,7 @@ class MultiModelAllocator:
         ("moderate", "long_context"):  "qwen3.6-flash",
         ("complex",  "code"):          "kimi-k2.7-code",
         ("complex",  "creative"):      "glm-5.2",
-        ("complex",  "reasoning"):     "qwen3.8-max-preview",
+        ("complex",  "reasoning"):     "qwen3.8-max",
         ("complex",  "long_context"):  "qwen3.7-plus",
         # general 为兜底分类，不抢 TP 配额，留在 deepseek-pro
     }

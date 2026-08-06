@@ -12,7 +12,7 @@ _VERSION = "v5-tiers"
 TIERS: dict[str, str] = {
     "flash": "deepseek-v4-flash",
     "pro": "deepseek-v4-pro",
-    "max": "qwen3.8-max-preview",
+    "max": "qwen3.8-max",
     "vision": "doubao-1.5-vision-pro",
 }
 

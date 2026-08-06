@@ -542,8 +542,8 @@ TP_PRICING_FLAT: dict[str, float] = {
     "MiniMax-M2.5":   0.53,
     # Benchmark 2026-07-25: 0.04cr / 105tok → 0.38/1K
     # WARNING: 限时加量10倍活动期间，价格会大幅波动
-    "qwen3.8-max-preview":       0.38,
-    "qwen3.8-max-preview-vision": 0.38,
+    "qwen3.8-max":       0.38,
+    "qwen3.8-max-vision": 0.38,
     "qwen3.8-max-oai":           0.38,
     # Benchmark 2026-07-25: 0.32cr / 415tok → 0.77/1K
     "qwen3.7-plus":      0.77,

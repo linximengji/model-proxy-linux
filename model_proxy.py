@@ -36,7 +36,7 @@ _restart_args: list = []
 _TIERS: dict[str, str] = {
     "flash": "deepseek-v4-flash",
     "pro": "deepseek-v4-pro",
-    "max": "qwen3.8-max-preview",
+    "max": "qwen3.8-max",
     "vision": "doubao-1.5-vision-pro",
 }
 
@@ -299,7 +299,7 @@ async def _resolve_classifier(resp_future):
 # ── Budget-aware routing adjustment ─────────────────────────────────────────
 
 def _build_budget_context(policy):
-    """计算 moderate→qwen3.8-max-preview 的连续分配比例。
+    """计算 moderate→qwen3.8-max 的连续分配比例。
 
     自算真实余额（不从 policy 中读 stale credits_remaining），60s 缓存。
     并在每次计算后回写 routing_policy.json 使 dashboard 同步。

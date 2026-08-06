@@ -12,7 +12,7 @@ aliases:
   - tag: plus
     model: qwen3.7-plus
   - tag: qwen
-    model: qwen3.8-max-preview
+    model: qwen3.8-max
   - tag: deepseek
     model: deepseek-v4-pro
   - tag: doubao
@@ -35,9 +35,9 @@ model_list:
     fallback: deepseek-v4-flash
 
   # ── Token-Plan MAAS Anthropic ──
-  - model_name: qwen3.8-max-preview
+  - model_name: qwen3.8-max
     litellm_params:
-      model: anthropic/qwen3.8-max-preview
+      model: anthropic/qwen3.8-max
       api_base: https://token-plan.cn-beijing.maas.aliyuncs.com/apps/anthropic/v1/messages
       api_key: os.environ/QWEN_MAAS_API_KEY
       max_tokens: 8192
@@ -112,7 +112,7 @@ model_list:
   # ── Token-Plan MAAS OpenAI 兼容（供 Presenton / OpenAI-only 客户端） ──
   - model_name: qwen3.8-max-oai
     litellm_params:
-      model: openai/qwen3.8-max-preview
+      model: openai/qwen3.8-max
       api_base: https://token-plan.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
       api_key: os.environ/QWEN_MAAS_API_KEY
       max_tokens: 8192
