@@ -531,10 +531,9 @@ def compute_proxy_burn(hours=24):
 # Updated 2026-07-19 — hour-bucket alignment between proxy token_usage.jsonl
 # and portal billing (UTC+8 → UTC adjusted).
 TP_PRICING_FLAT: dict[str, float] = {
-    # Benchmark 2026-07-25: 0.07cr / 39tok → 1.79/1K
-    # Bill (07-25 day): 2.12/1K → 取 2.0
-    "kimi-k2.7-code": 2.0,
-    "kimi-k2.6":      2.0,
+    # 对账 2026-08-12: 套餐期换算 kimi 真实系数 1.54/1K (非 2.0)
+    "kimi-k2.7-code": 1.54,
+    "kimi-k2.6":      1.54,
     # Benchmark 2026-07-25: 0.04cr / 24tok → 1.67/1K
     "glm-5.2":        1.67,
     "glm-5.1":        1.67,

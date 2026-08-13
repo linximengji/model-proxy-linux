@@ -583,20 +583,17 @@ async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False, user_query="")
     tier_key = route_map.get(complexity, "pro")
     model_name = _TIERS.get(tier_key, _TIERS["pro"])
     tag = "L2-sub" if is_sub_agent else "L2"
-    # sub-agent: no allocator — always use mapped model
-    if is_sub_agent:
-        telemetry.log(f"{tag}: {complexity}:{task_type} + {budget_est or '?'} -> {model_name}", phase="L2")
+    # 主线程与 sub-agent 都由 allocator 统一分配，平等竞争 TP 配额
+    adjusted = _allocator_select(complexity, task_type, telemetry.get_req_id(), ratio)
+    if adjusted:
+        telemetry.log(
+            f"{tag}: {complexity}:{task_type} + {budget_est or '?'} -> {model_name}, allocator -> {adjusted} (ratio={ratio:.2f})",
+            phase="L2"
+        )
+        model_name = adjusted
     else:
-        adjusted = _allocator_select(complexity, task_type, telemetry.get_req_id(), ratio)
-        if adjusted:
-            telemetry.log(
-                f"{tag}: {complexity}:{task_type} + {budget_est or '?'} -> {model_name}, allocator -> {adjusted} (ratio={ratio:.2f})",
-                phase="L2"
-            )
-            model_name = adjusted
-        else:
-            telemetry.log(f"{tag}: {complexity}:{task_type} + {budget_est or '?'} -> {model_name} (ratio={ratio:.2f})",
-                         phase="L2")
+        telemetry.log(f"{tag}: {complexity}:{task_type} + {budget_est or '?'} -> {model_name} (ratio={ratio:.2f})",
+                     phase="L2")
     body["model"] = model_name
     route = ROUTES.get(model_name)
     if route and route.get("provider") == "deepseek":
