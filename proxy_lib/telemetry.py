@@ -365,7 +365,10 @@ def get_real_credits():
     if now - _credits_cache["ts"] < 60:
         return _credits_cache["rem"], total, days
 
-    # Check for manual baseline
+    # Check for manual baseline: 手动更新 = 直接修正余量（硬基线）。
+    # 只要 manual_baseline + manual_updated_at 存在，就以它为权威基线，
+    # 只把该时间点之后的消费从基线上扣减。不再用「manual_ts > last_updated_at」
+    # 比武判定——那会让自动推进的 last_updated_at 永远把手动设置作废。
     policy = load_budget_policy()
     manual_baseline = None
     manual_ts = None
@@ -373,9 +376,9 @@ def get_real_credits():
         tp = policy.get("token_plan", {})
         manual_baseline = tp.get("manual_baseline")
         manual_ts = tp.get("manual_updated_at")
-        last_proxy_at = tp.get("last_updated_at")
-        if not (manual_ts and last_proxy_at and manual_ts > last_proxy_at):
-            manual_baseline = None
+        # 缓存里可能仍是旧 total/days（60s），手动改总量时同步刷新 days 缓存
+        if manual_baseline is not None:
+            _days_cache["ts"] = 0  # 强制下次重读，避免手动修改总量滞后一分钟
 
     if manual_baseline is not None and manual_ts:
         # Compute credits consumed since manual baseline timestamp
@@ -460,12 +463,11 @@ def write_routing_policy(remaining, total, days):
 
         now_str = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-        # Manual baseline active: write back decremented value but keep last_updated_at
-        # at old_proxy_at so manual_ts > last_updated_at remains true. This keeps the
-        # manual baseline active across all subsequent proxy requests.
-        if manual_at and last_proxy_at and manual_at > last_proxy_at:
+        # 手动基线 active：只要 manual baseline 存在，就冻结 last_updated_at 不回推，
+        # 保持手动设置持续有效；只有用户移除 manual_updated_at 时才回到全扫描自增。
+        if manual_at:
             final_remaining = round(remaining, 2)
-            final_updated_at = last_proxy_at  # freeze — don't advance past manual_ts
+            final_updated_at = last_proxy_at if last_proxy_at else now_str
         else:
             final_remaining = round(remaining, 2)
             final_updated_at = now_str

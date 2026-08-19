@@ -4,6 +4,7 @@ import os
 import sys
 import re
 import time
+import hashlib
 import uuid
 from urllib.parse import urlparse
 
@@ -336,6 +337,28 @@ def _allocator_select(complexity, task_type, req_id, ratio):
     return ALLOCATOR.select(complexity, task_type, req_id, ratio)
 
 
+# trivial/simple 低档流量的 TP 平替模型：qwen3.6-flash 能力档位匹配 DeepSeek flash，
+# 走 TokenPlan 额度，帮 flash 分担流量、消耗临近过期的 TP 余额。
+_TP_FLASH_FALLBACK = "qwen3.6-flash"
+
+
+def _flash_tp_split(req_id: str, ratio: float, label: str = "trivial") -> str:
+    """低档请求按 ratio 在 deepseek-v4-flash 与 qwen3.6-flash(TP) 间分流。
+
+    确定性 hash 门：同一 (req_id, label) 路由稳定，不会在两次请求间抖动。
+    label 区分 trivial/simple 两条路径，避免两个档位的分流互相关联。
+    返回选中模型名；ratio 越低越倾向保留 DeepSeek（省 TP 保底），越高越分流到 TP。
+    """
+    if ratio <= 0:
+        return _TIERS["flash"]
+    if ratio >= 1.0:
+        return _TP_FLASH_FALLBACK
+    h = int(hashlib.md5(f"{req_id}:{label}-tp".encode(), usedforsecurity=False).hexdigest(), 16) % 10000
+    if h < ratio * 10000:
+        return _TP_FLASH_FALLBACK
+    return _TIERS["flash"]
+
+
 # ── Prompt-level @model routing ──────────────────────────────────────────
 
 _PROMPT_MODEL_RE = re.compile(r'(?:^|\s)@([a-zA-Z0-9_.-]+)')
@@ -594,6 +617,18 @@ async def _resolve_l2(body, l2_future, ratio, is_sub_agent=False, user_query="")
     else:
         telemetry.log(f"{tag}: {complexity}:{task_type} + {budget_est or '?'} -> {model_name} (ratio={ratio:.2f})",
                      phase="L2")
+    # simple 分流：allocator 未调整（仍走 flash）时，不抢占 TP 缺额的前提下，
+    # 把部分 simple 的 flash 流量按 ratio 交给 qwen3.6-flash(TP)，与 trivial 分流解耦。
+    if not adjusted and model_name == _TIERS["flash"] and not is_sub_agent and complexity == "simple":
+        try:
+            _rem_t, _tot_t, _d_t = telemetry.get_real_credits()
+            _r_t = ALLOCATOR.compute_ratio(_rem_t, _tot_t, _d_t)
+            split_to = _flash_tp_split(telemetry.get_req_id(), _r_t, label="simple")
+            if split_to != _TIERS["flash"] and ROUTES.get(split_to):
+                model_name = split_to
+                telemetry.log(f"{tag}: simple -> {model_name} (tp-simple-split ratio={_r_t:.2f})", phase="L2")
+        except Exception:
+            pass
     body["model"] = model_name
     route = ROUTES.get(model_name)
     if route and route.get("provider") == "deepseek":
@@ -760,6 +795,21 @@ def _route_and_sanitize(body):
         return None, None, "l2-pending", l2_future, ratio, is_sub, user_query
 
     telemetry.log(f"L1 {reason}: {model_name or 'auto'} -> {routed_model}", phase="ROUTE")
+
+    # trivial 分流：把一部分 L1:trivial 的 flash 流量按 ratio 交给 qwen3.6-flash(TP)，
+    # 消耗临近过期的 TP 额度、替 flash 分担现金。仅当 trivial 且 qwen3.6-flash 可用才分。
+    if reason == "L1:trivial":
+        req_id = telemetry.get_req_id()
+        try:
+            _rem, _tot, _d = telemetry.get_real_credits()
+            _r = ALLOCATOR.compute_ratio(_rem, _tot, _d)
+            split_to = _flash_tp_split(req_id, _r)
+            if split_to != _TIERS["flash"] and ROUTES.get(split_to):
+                routed_model = split_to
+                reason += f"/tp-flash-split(ratio={_r:.2f})"
+        except Exception:
+            pass  # 分流失败不影响原有 flash 路由
+
     body["model"] = routed_model
     route = ROUTES.get(routed_model) or ROUTES.get(re.sub(r'\[.*\]', '', routed_model))
     # L1 分类结果找不到路由时 fallback 到 flash（兜底，不返回 404）

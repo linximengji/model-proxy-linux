@@ -26,8 +26,16 @@ class MultiModelAllocator:
         # general 为兜底分类，不抢 TP 配额，留在 deepseek-pro
     }
 
+    HARVEST_DAYS = 7      # 到期冲量提前窗口
+    HARVEST_MAX = 0.9     # 冲量上限(保留 10% DeepSeek 兜底)
+
     def compute_ratio(self, remaining: float, total: float, days: float) -> float:
-        """连续比例分配。sqrt 衰减：满额 50%，递减时平滑下降。"""
+        """连续比例分配。sqrt 衰减：满额 50%，递减时平滑下降。
+
+        到期冲量：剩余天数 <= HARVEST_DAYS 且余额占比显著（>0.2）时，从基本
+        ratio 向上拉，随到期临近逼近 HARVEST_MAX(0.9)——让濒临过期的 TP 额度
+        被更快消耗，避免没用完就作废。余额低时不冲量（保底给重要请求）。
+        """
         if days <= 0:
             return 0.0
         if remaining < 50:
@@ -40,6 +48,15 @@ class MultiModelAllocator:
         # 冲刺：最后 5 天且余额 > 10%，至少 30%
         if days <= 5 and pct > 0.1:
             ratio = max(ratio, 0.3)
+
+        # 到期冲量（A 方案）：进入 7 天窗口即开始爬升，到期前余额充足时逼近 0.9
+        if days < self.HARVEST_DAYS and pct > 0.2:
+            # urgency: 0(窗口起始)→1(当天到期)，随剩余日数线性逼近
+            urgency = max(0.0, 1.0 - days / self.HARVEST_DAYS)
+            # 余额越充足越放得开；余额不足保底给重要请求，不冲量
+            hunger = min(1.0, pct / 0.4)
+            harvest = ratio + (self.HARVEST_MAX - ratio) * urgency * hunger
+            ratio = max(ratio, harvest)
 
         return max(0.0, min(1.0, ratio))
 
