@@ -18,7 +18,7 @@ class MultiModelAllocator:
     _MAPPING: dict[tuple[str, str], str] = {
         ("moderate", "code"):          "kimi-k2.7-code",
         ("moderate", "creative"):      "glm-5.2",
-        ("moderate", "long_context"):  "qwen3.6-flash",
+        # ("moderate", "long_context"): 已移除，回退到 deepseek-pro
         ("complex",  "code"):          "kimi-k2.7-code",
         ("complex",  "creative"):      "glm-5.2",
         ("complex",  "reasoning"):     "qwen3.8-max",

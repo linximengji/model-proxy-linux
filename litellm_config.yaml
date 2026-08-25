@@ -42,7 +42,9 @@ model_list:
       api_key: os.environ/QWEN_MAAS_API_KEY
       max_tokens: 8192
       quota_backup: qwen3.7-max-ds
-    fallback: deepseek-v4-pro
+    # fallback 优先同家族（同为 Anthropic 格式 MAAS，sanitize 路径一致，
+    # 避免带 MAAS 空签名 thinking 块直接落到 DeepSeek 触发 400）
+    fallback: qwen3.7-plus
 
   - model_name: qwen3.7-plus
     litellm_params:

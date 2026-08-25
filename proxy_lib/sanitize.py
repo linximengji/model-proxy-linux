@@ -123,6 +123,39 @@ def strip_redacted_thinking_only(body):
     return body
 
 
+def strip_unsigned_thinking(body):
+    """移除无签名的 thinking 块。
+
+    MAAS 系模型（qwen/kimi/glm）生成的 thinking 块签名为空，回传给
+    DeepSeek（thinking 模式）会触发 400 "content[].thinking must be
+    passed back"——空签名等于没有可校验的来源，视为无效块剥掉。
+    有真实签名的块保留（DeepSeek 需要原样回传）。
+    """
+    for msg in body.get("messages", []):
+        content = msg.get("content")
+        if isinstance(content, list):
+            msg["content"] = [
+                b for b in content
+                if not (isinstance(b, dict)
+                        and b.get("type") in ("thinking", "redacted_thinking")
+                        and not b.get("signature"))
+            ]
+    return body
+
+
+def has_signed_thinking(body):
+    for msg in body.get("messages", []):
+        if msg.get("role") != "assistant":
+            continue
+        content = msg.get("content")
+        if not isinstance(content, list):
+            continue
+        if any(isinstance(b, dict) and b.get("type") == "thinking" and b.get("signature")
+               for b in content):
+            return True
+    return False
+
+
 def embed_images(body, verbose=False):
     """Inline image references ([图片: path]) as base64 blocks. Mutates in-place."""
     for msg in body.get("messages", []):
