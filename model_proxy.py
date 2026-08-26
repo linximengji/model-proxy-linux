@@ -1213,28 +1213,29 @@ async def proxy_anthropic(request: Request):
 
     route = model_name = _reason = None
 
-    # Global bypass check
-    effective = _active_bypass()
-    if effective:
-        body["model"] = effective
-        route = ROUTES.get(effective)
-        if route:
-            if route.get("provider") == "deepseek":
-                _sanitize_deepseek(body, effective)
-            elif route.get("provider") == "anthropic":
-                sanitize.sanitize_for_maas(body)
-            else:
-                sanitize.strip_thinking_blocks(body)
-            model_name = effective
-            _reason = "global-bypass"
-
-    if not route:
-        route, model_name, _reason = _resolve_prompt_model(body)
-        route, model_name = _maybe_escalate(body, route, model_name)
+    # 显式指定最高优先级：@tag（人）≡ X-Proxy-Model header（程序），压过全局开关
+    route, model_name, _reason = _resolve_prompt_model(body)
+    route, model_name = _maybe_escalate(body, route, model_name)
 
     if not route:
         route, model_name, _reason = _resolve_bypass(body, request.headers)
         route, model_name = _maybe_escalate(body, route, model_name)
+
+    # Global bypass check
+    if not route:
+        effective = _active_bypass()
+        if effective:
+            body["model"] = effective
+            route = ROUTES.get(effective)
+            if route:
+                if route.get("provider") == "deepseek":
+                    _sanitize_deepseek(body, effective)
+                elif route.get("provider") == "anthropic":
+                    sanitize.sanitize_for_maas(body)
+                else:
+                    sanitize.strip_thinking_blocks(body)
+                model_name = effective
+                _reason = "global-bypass"
 
     if not route:
         route, model_name, _reason, l2_future, ratio, is_sub, l2_user_query = _route_and_sanitize(body)
@@ -1277,28 +1278,29 @@ async def proxy_openai(request: Request):
 
     route = model_name = _reason = None
 
-    # Global bypass check
-    effective = _active_bypass()
-    if effective:
-        body["model"] = effective
-        route = ROUTES.get(effective)
-        if route:
-            if route.get("provider") == "deepseek":
-                _sanitize_deepseek(body, effective)
-            elif route.get("provider") == "anthropic":
-                sanitize.sanitize_for_maas(body)
-            else:
-                sanitize.strip_thinking_blocks(body)
-            model_name = effective
-            _reason = "global-bypass"
-
-    if not route:
-        route, model_name, _reason = _resolve_prompt_model(body)
-        route, model_name = _maybe_escalate(body, route, model_name)
+    # 显式指定最高优先级：@tag（人）≡ X-Proxy-Model header（程序），压过全局开关
+    route, model_name, _reason = _resolve_prompt_model(body)
+    route, model_name = _maybe_escalate(body, route, model_name)
 
     if not route:
         route, model_name, _reason = _resolve_bypass(body, request.headers)
         route, model_name = _maybe_escalate(body, route, model_name)
+
+    # Global bypass check
+    if not route:
+        effective = _active_bypass()
+        if effective:
+            body["model"] = effective
+            route = ROUTES.get(effective)
+            if route:
+                if route.get("provider") == "deepseek":
+                    _sanitize_deepseek(body, effective)
+                elif route.get("provider") == "anthropic":
+                    sanitize.sanitize_for_maas(body)
+                else:
+                    sanitize.strip_thinking_blocks(body)
+                model_name = effective
+                _reason = "global-bypass"
 
     if not route:
         route, model_name, _reason, l2_future, ratio, is_sub, l2_user_query = _route_and_sanitize(body)

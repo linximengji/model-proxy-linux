@@ -110,6 +110,14 @@ model_list:
       api_base: https://ark.cn-beijing.volces.com/api/v3
       api_key: os.environ/DOUBAO_API_KEY
       max_tokens: 8192
+    fallback: deepseek-v4-flash-vision-exp
+
+  # ── DeepSeek 多模态视觉（豆包失败/配额时的备份，纯终结点无 secondary） ──
+  - model_name: deepseek-v4-flash-vision-exp
+    litellm_params:
+      model: deepseek/deepseek-v4-flash-vision-exp
+      api_key: os.environ/DEEPSEEK_API_KEY
+      max_tokens: 8192
 
   # ── Token-Plan MAAS OpenAI 兼容（供 Presenton / OpenAI-only 客户端） ──
   - model_name: qwen3.8-max-oai

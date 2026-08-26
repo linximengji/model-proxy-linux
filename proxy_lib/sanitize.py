@@ -15,6 +15,7 @@ ALLOWED_KEYS = {
 ALLOWED_BLOCK_TYPES = {
     "text", "tool_use", "tool_result",
     "thinking", "redacted_thinking",
+    "image",  # deepseek-v4-flash-vision-exp 需保留图片块（此前无视觉模型所以缺）
 }
 
 
